@@ -12,4 +12,34 @@ model User {
     id       String   @id @default(auto()) @map("_id") @db.ObjectId
     name     String
     email    String   @unique
+    posts Post[]
+    comments Comment[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+}
+
+model Post {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    content String
+    authorId String @db.ObjectId
+    author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    comments Comment[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+}
+
+model Comment {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    content String
+    authorId String @db.ObjectId
+    author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    postId String @db.ObjectId
+    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+}
+
+enum Role {
+    USER
+    ADMIN
 }
