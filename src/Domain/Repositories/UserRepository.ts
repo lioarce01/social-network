@@ -3,9 +3,12 @@ import { User } from "@prisma/client";
 export interface UserRepository {
   getAllUsers(offset?: number, limit?: number): Promise<User[] | null>;
   getUserById(id: string): Promise<User | null>;
-  updateUser(userData: Partial<User>): Promise<User | null>;
-  deleteUser(id: String): Promise<void>;
-  createUser(userData: Partial<User>): Promise<User | null>;
-  disableUser(id: String): Promise<void>;
-  switchUserRole(id: String): Promise<void>
+  updateUser(
+    id: string,
+    userData: Partial<User>,
+  ): Promise<{ message: string; user: User }>;
+  deleteUser(id: String): Promise<{ message: string }>;
+  createUser(userData: Partial<User>): Promise<{ message: string; user: User }>;
+  disableUser(id: String): Promise<{ message: string }>;
+  switchUserRole(id: String): Promise<{ message: string }>;
 }
