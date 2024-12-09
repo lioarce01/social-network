@@ -1,10 +1,25 @@
 import { NextFunction, Request, Response } from "express";
 import { GetAllUsers } from "../../../Application/UseCases/User/GetAllUsers";
 import { inject, injectable } from "tsyringe";
+import { GetUserById } from "../../../Application/UseCases/User/GetUserById";
+import { UpdateUser } from "../../../Application/UseCases/User/updateUser";
+import { DeleteUser } from "../../../Application/UseCases/User/DeleteUser";
+import { CreateUser } from "../../../Application/UseCases/User/CreateUser";
+import { DisableUser } from "../../../Application/UseCases/User/DisableUser";
+import { SwitchUserRole } from "../../../Application/UseCases/User/SwitchUserRole";
+import { Role } from "@prisma/client";
 
 @injectable()
 export class UserController {
-  constructor(@inject(GetAllUsers) private getAllUsersUseCase: GetAllUsers) {}
+  constructor(
+    @inject(GetAllUsers) private getAllUsersUseCase: GetAllUsers,
+    @inject(GetUserById) private getUserByIdUseCase: GetUserById,
+    @inject(UpdateUser) private updateUserUseCase: UpdateUser,
+    @inject(DeleteUser) private deleteUserUseCase: DeleteUser,
+    @inject(CreateUser) private createUserUseCase: CreateUser,
+    @inject(DisableUser) private disableUserUseCase: DisableUser,
+    @inject(SwitchUserRole) private switchUserRoleUseCase: SwitchUserRole,
+  ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
@@ -29,6 +44,86 @@ export class UserController {
       }
 
       res.status(200).json(users);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async createUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, email, sub } = req.body;
+
+      const { message, user } = await this.createUserUseCase.execute({
+        name,
+        email,
+        sub,
+        enabled: true,
+        role: Role.USER,
+      });
+      res.status(201).json({ message, user });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.body;
+      const user = await this.getUserByIdUseCase.execute(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.status(200).json(user);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id, name } = req.body;
+
+      const { message, user } = await this.updateUserUseCase.execute(id, name);
+
+      res.status(200).json({ message, user });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.body;
+
+      const { message } = await this.deleteUserUseCase.execute(id);
+
+      res.status(200).json({ message });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async disableUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.body;
+
+      const { message } = await this.disableUserUseCase.execute(id);
+
+      res.status(200).json({ message });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async switchUserRole(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.body;
+
+      const { message } = await this.switchUserRoleUseCase.execute(id);
+
+      res.status(200).json({ message });
     } catch (e) {
       next(e);
     }

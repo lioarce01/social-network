@@ -3,7 +3,7 @@ import { User } from "../../../Domain/Entities/User";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
-export class switchUserRole {
+export class SwitchUserRole {
   constructor(
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}

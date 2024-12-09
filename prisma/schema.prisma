@@ -13,8 +13,8 @@ model User {
     sub String
     name     String
     email    String   @unique
-    enabled Boolean
-    role Role
+    enabled Boolean @default(true)
+    role Role @default(USER)
     posts Post[]
     comments Comment[]
     createdAt DateTime @default(now())
