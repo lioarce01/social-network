@@ -12,6 +12,6 @@ export interface PostRepository {
   deletePost(id: string): Promise<{ message: string }>;
   updatePost(
     id: string,
-    postData: Prisma.PostUpdateInput,
+    postData: Partial<Post>,
   ): Promise<{ message: string; post: Post }>;
 }

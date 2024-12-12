@@ -6,8 +6,8 @@ export class Post {
     public content: string,
     public authorId: string,
     public author: User,
-    public comments?: Comment[],
-    public createdAt?: Date,
-    public updatedAt?: Date,
+    public comments: Comment[],
+    public createdAt: Date,
+    public updatedAt: Date,
   ) {}
 }
