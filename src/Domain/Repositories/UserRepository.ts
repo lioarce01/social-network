@@ -1,4 +1,5 @@
-import { Prisma, User } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { User } from "../Entities/User";
 
 export interface UserRepository {
   getAllUsers(offset?: number, limit?: number): Promise<User[] | null>;

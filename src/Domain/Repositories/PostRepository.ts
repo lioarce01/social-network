@@ -1,4 +1,5 @@
-import { Prisma, Post } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { Post } from "../Entities/Post";
 
 export interface PostRepository {
   getAllPosts(offset?: number, limit?: number): Promise<Post[] | null>;
