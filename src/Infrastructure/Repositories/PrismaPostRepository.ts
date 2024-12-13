@@ -25,10 +25,23 @@ export class PrismaPostRepository implements PostRepository {
     id: string,
     postData: Prisma.PostCreateInput,
   ): Promise<{ message: string; post: Post }> {
+    if (!postData.content) {
+      throw new Error("Content is required");
+    }
+
+    const userExist = await prisma.user.findUnique({ where: { id } });
+
+    if (!userExist) {
+      throw new Error("User does not exist");
+    }
+
     const createdPost = await prisma.post.create({
       data: {
-        ...postData,
         id: id,
+        content: postData.content,
+        author: {
+          connect: { id: postData.author.connect?.id },
+        },
       },
       include: {
         author: true,
@@ -36,17 +49,7 @@ export class PrismaPostRepository implements PostRepository {
       },
     });
 
-    const postEntity = new Post(
-      createdPost.id,
-      createdPost.content,
-      createdPost.authorId,
-      createdPost.author as User,
-      createdPost.comments,
-      createdPost.createdAt,
-      createdPost.updatedAt,
-    );
-
-    return { message: "Post created successfully", post: postEntity };
+    return { message: "Post created successfully", post: createdPost };
   }
 
   async deletePost(id: string): Promise<{ message: string }> {

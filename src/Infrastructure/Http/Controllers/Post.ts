@@ -6,6 +6,7 @@ import { GetUserPosts } from "../../../Application/UseCases/Post/getUserPosts";
 import { CreatePost } from "../../../Application/UseCases/Post/CreatePost";
 import { UpdatePost } from "../../../Application/UseCases/Post/UpdatePost";
 import { DeletePost } from "../../../Application/UseCases/Post/DeletePost";
+import { Prisma } from "@prisma/client";
 
 @injectable()
 export class PostController {
@@ -50,9 +51,23 @@ export class PostController {
     try {
       const { userId, content } = req.body;
 
+      // Ensure that content is provided
+      if (!content) {
+        return res.status(400).json({ message: "Content is required" });
+      }
+
+      // Construct the postData with both content and author (using `connect` for relation)
+      const postData: Prisma.PostCreateInput = {
+        content, // content from the request body
+        author: {
+          connect: { id: userId }, // Use `connect` to link the post to the user by `id`
+        },
+      };
+
+      // Pass the structured postData to the repository
       const { message, post } = await this.createPostUseCase.execute(
         userId,
-        content,
+        postData,
       );
       res.status(201).json({ message, post });
     } catch (e) {
