@@ -21,10 +21,10 @@ router.put("/:id/update", (req, res, next) =>
 router.delete("/:id", (req, res, next) =>
   userController.deleteUser(req, res, next),
 );
-router.put("/:id/disable", (req, res, next) =>
+router.put("/disable", (req, res, next) =>
   userController.disableUser(req, res, next),
 );
-router.put("/:id/switch-role", (req, res, next) =>
+router.put("/switch-role", (req, res, next) =>
   userController.switchUserRole(req, res, next),
 );
 
