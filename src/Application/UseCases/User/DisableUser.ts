@@ -8,9 +8,9 @@ export class DisableUser {
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(id: string): Promise<{ message: string }> {
-    const { message } = await this.userRepository.disableUser(id);
+  async execute(id: string): Promise<{ message: string; user: User }> {
+    const { message, user } = await this.userRepository.disableUser(id);
 
-    return { message };
+    return { message, user };
   }
 }

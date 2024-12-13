@@ -68,18 +68,30 @@ export class PrismaUserRepository implements UserRepository {
     };
   }
 
-  async disableUser(id: string): Promise<{ message: string }> {
-    await prisma.user.update({
+  async disableUser(id: string): Promise<{ message: string; user: User }> {
+    const user = await prisma.user.findUnique({
       where: { id },
-      data: { enabled: false },
+      select: { enabled: true },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const changeStatus = user.enabled === true ? false : true;
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: { enabled: changeStatus },
     });
 
     return {
-      message: "User disabled successfully",
+      message: "User status changed successfully",
+      user: updatedUser,
     };
   }
 
-  async switchUserRole(id: string): Promise<{ message: string }> {
+  async switchUserRole(id: string): Promise<{ message: string; user: User }> {
     const user = await prisma.user.findUnique({
       where: { id },
       select: { role: true },
@@ -91,13 +103,14 @@ export class PrismaUserRepository implements UserRepository {
 
     const newRole = user.role === Role.ADMIN ? Role.USER : Role.ADMIN;
 
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id },
       data: { role: newRole },
     });
 
     return {
       message: "Role switched successfully",
+      user: updatedUser,
     };
   }
 

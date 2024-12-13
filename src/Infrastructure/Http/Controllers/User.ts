@@ -116,11 +116,11 @@ export class UserController {
 
   async disableUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { id } = req.params;
 
-      const { message } = await this.disableUserUseCase.execute(id);
+      const { message, user } = await this.disableUserUseCase.execute(id);
 
-      res.status(200).json({ message });
+      res.status(200).json({ message, user });
     } catch (e) {
       next(e);
     }
@@ -130,9 +130,9 @@ export class UserController {
     try {
       const { id } = req.body;
 
-      const { message } = await this.switchUserRoleUseCase.execute(id);
+      const { message, user } = await this.switchUserRoleUseCase.execute(id);
 
-      res.status(200).json({ message });
+      res.status(200).json({ message, user });
     } catch (e) {
       next(e);
     }

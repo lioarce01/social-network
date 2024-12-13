@@ -12,6 +12,6 @@ export interface UserRepository {
   createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }>;
-  disableUser(id: String): Promise<{ message: string }>;
-  switchUserRole(id: String): Promise<{ message: string }>;
+  disableUser(id: String): Promise<{ message: string; user: User }>;
+  switchUserRole(id: String): Promise<{ message: string; user: User }>;
 }
