@@ -24,7 +24,7 @@ router.delete("/:id", (req, res, next) =>
 router.put("/:id/disable", (req, res, next) =>
   userController.disableUser(req, res, next),
 );
-router.put("/:id/switchRole", (req, res, next) =>
+router.put("/:id/switch-role", (req, res, next) =>
   userController.switchUserRole(req, res, next),
 );
 

@@ -116,7 +116,7 @@ export class UserController {
 
   async disableUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { id } = req.body;
 
       const { message, user } = await this.disableUserUseCase.execute(id);
 
