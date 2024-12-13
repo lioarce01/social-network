@@ -51,20 +51,17 @@ export class PostController {
     try {
       const { userId, content } = req.body;
 
-      // Ensure that content is provided
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
       }
 
-      // Construct the postData with both content and author (using `connect` for relation)
       const postData: Prisma.PostCreateInput = {
-        content, // content from the request body
+        content,
         author: {
-          connect: { id: userId }, // Use `connect` to link the post to the user by `id`
+          connect: { id: userId },
         },
       };
 
-      // Pass the structured postData to the repository
       const { message, post } = await this.createPostUseCase.execute(
         userId,
         postData,
@@ -77,7 +74,7 @@ export class PostController {
 
   async getPostById(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { id } = req.params;
       const post = await this.getPostByIdUseCase.execute(id);
 
       if (!post) {
@@ -91,11 +88,11 @@ export class PostController {
 
   async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, content } = req.body;
-      const { message, post } = await this.updatePostUseCase.execute(
-        id,
+      const { id } = req.params;
+      const { content } = req.body;
+      const { message, post } = await this.updatePostUseCase.execute(id, {
         content,
-      );
+      });
 
       res.status(200).json({ message, post });
     } catch (e) {
@@ -105,7 +102,7 @@ export class PostController {
 
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { id } = req.params;
 
       const { message } = await this.deletePostUseCase.execute(id);
 

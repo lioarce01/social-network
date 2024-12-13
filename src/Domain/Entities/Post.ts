@@ -4,10 +4,10 @@ export class Post {
   constructor(
     public id: string,
     public content: string,
-    public authorId: string,
-    public author: User,
-    public comments: Comment[],
     public createdAt: Date,
     public updatedAt: Date,
+    public authorId?: string,
+    public comments?: Comment[],
+    public author?: User,
   ) {}
 }

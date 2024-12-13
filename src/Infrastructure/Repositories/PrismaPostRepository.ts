@@ -17,7 +17,7 @@ export class PrismaPostRepository implements PostRepository {
   async getUserPosts(id: string): Promise<Post[] | null> {
     return await prisma.post.findMany({
       where: { id },
-      include: { author: true, comments: true },
+      include: { comments: true },
     });
   }
 
@@ -37,7 +37,6 @@ export class PrismaPostRepository implements PostRepository {
 
     const createdPost = await prisma.post.create({
       data: {
-        id: id,
         content: postData.content,
         author: {
           connect: { id: postData.author.connect?.id },
@@ -67,7 +66,10 @@ export class PrismaPostRepository implements PostRepository {
         author: true,
         comments: true,
       },
-      data: postData,
+      data: {
+        ...postData,
+        updatedAt: new Date(),
+      },
     });
 
     return {
@@ -79,7 +81,6 @@ export class PrismaPostRepository implements PostRepository {
   async getAllPosts(offset?: number, limit?: number): Promise<Post[] | null> {
     const posts = await prisma.post.findMany({
       include: {
-        author: true,
         comments: true,
       },
       ...(typeof offset !== "undefined" && { skip: offset }),
