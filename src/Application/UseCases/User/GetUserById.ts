@@ -8,8 +8,8 @@ export class GetUserById {
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(id: string): Promise<User | null> {
-    const user = await this.userRepository.getUserById(id);
+  async execute(sub: string): Promise<User | null> {
+    const user = await this.userRepository.getUserById(sub);
     return user;
   }
 }

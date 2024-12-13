@@ -53,6 +53,12 @@ export class UserController {
     try {
       const { name, email, sub } = req.body;
 
+      const userExist = await this.getUserByIdUseCase.execute(sub);
+
+      if (userExist) {
+        return res.status(409).json({ message: "User already exists" });
+      }
+
       const { message, user } = await this.createUserUseCase.execute({
         name,
         email,
@@ -68,8 +74,8 @@ export class UserController {
 
   async getUserById(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
-      const user = await this.getUserByIdUseCase.execute(id);
+      const { sub } = req.params;
+      const user = await this.getUserByIdUseCase.execute(sub);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -95,7 +101,7 @@ export class UserController {
 
   async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { id } = req.params;
 
       const { message } = await this.deleteUserUseCase.execute(id);
 

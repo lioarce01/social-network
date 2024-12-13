@@ -3,7 +3,7 @@ import { User } from "../Entities/User";
 
 export interface UserRepository {
   getAllUsers(offset?: number, limit?: number): Promise<User[] | null>;
-  getUserById(id: string): Promise<User | null>;
+  getUserById(sub: string): Promise<User | null>;
   updateUser(
     id: string,
     userData: Partial<User>,

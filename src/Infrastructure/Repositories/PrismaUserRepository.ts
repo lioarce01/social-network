@@ -1,13 +1,13 @@
 import { UserRepository } from "../../Domain/Repositories/UserRepository";
 import { User } from "../../Domain/Entities/User";
-import prisma from "../../config/config";
+import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
-  async getUserById(id: string): Promise<User | null> {
-    return await prisma.user.findUnique({ where: { id } });
+  async getUserById(sub: string): Promise<User | null> {
+    return await prisma.user.findUnique({ where: { sub } });
   }
 
   async updateUser(
@@ -36,6 +36,14 @@ export class PrismaUserRepository implements UserRepository {
   async createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }> {
+    const userExist = await prisma.user.findUnique({
+      where: { email: userData.email },
+    });
+
+    if (userExist) {
+      throw new Error("User already exists");
+    }
+
     const user = await prisma.user.create({ data: userData });
 
     const userEntity = new User(

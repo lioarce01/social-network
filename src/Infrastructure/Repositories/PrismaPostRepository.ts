@@ -1,6 +1,6 @@
 import { PostRepository } from "../../Domain/Repositories/PostRepository";
 import { Post } from "../../Domain/Entities/Post";
-import prisma from "../../config/config";
+import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { User } from "../../Domain/Entities/User";
