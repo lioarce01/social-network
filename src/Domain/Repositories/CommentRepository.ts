@@ -12,6 +12,6 @@ export interface CommentRepository {
   deleteComment(id: string): Promise<{ message: string }>;
   updateComment(
     id: string,
-    commentData: Prisma.CommentUpdateInput,
+    commentData: Partial<Comment>,
   ): Promise<{ message: string; comment: Comment }>;
 }
