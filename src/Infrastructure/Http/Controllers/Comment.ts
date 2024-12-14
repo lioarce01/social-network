@@ -49,7 +49,7 @@ export class CommentController {
 
   async getUserComments(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.body;
+      const { id } = req.params;
       const comments = await this.getUserCommentsUseCase.execute(id);
 
       if (!comments || comments.length === 0) {

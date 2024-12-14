@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import express from "express";
 import cors from "cors";
-import errorHandler from "../Middlewares/errorHandler";
 import router from "../Http/Routes/index";
 
 const app = express();
