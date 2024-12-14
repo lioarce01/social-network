@@ -51,7 +51,7 @@ export class UserController {
 
   async createUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, email, sub } = req.body;
+      const { name, email, sub, profile_pic } = req.body;
 
       const userExist = await this.getUserByIdUseCase.execute(sub);
 
@@ -63,6 +63,7 @@ export class UserController {
         name,
         email,
         sub,
+        profile_pic,
         enabled: true,
         role: Role.USER,
       });

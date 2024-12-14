@@ -6,6 +6,7 @@ export class User {
     public sub: string,
     public name: string,
     public email: string,
+    public profile_pic: string,
     public enabled: boolean,
     public role: Role,
     public createdAt: Date,

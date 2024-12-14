@@ -13,6 +13,7 @@ model User {
     sub String @unique
     name     String
     email    String   @unique
+    profile_pic String
     enabled Boolean @default(true)
     role Role @default(USER)
     posts Post[]
