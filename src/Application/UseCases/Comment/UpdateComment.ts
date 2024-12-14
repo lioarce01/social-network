@@ -3,7 +3,7 @@ import { Comment } from "../../../Domain/Entities/Comment";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
-export class updateComment {
+export class UpdateComment {
   constructor(
     @inject("CommentRepository") private commentRepository: CommentRepository,
   ) {}

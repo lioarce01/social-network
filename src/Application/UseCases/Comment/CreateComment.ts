@@ -11,11 +11,13 @@ export class CreateComment {
   ) {}
 
   async execute(
-    id: string,
+    userId: string,
+    postId: string,
     commentData: Prisma.CommentCreateInput,
   ): Promise<{ message: string; comment: Comment }> {
     const { message, comment } = await this.commentRepository.createComment(
-      id,
+      userId,
+      postId,
       commentData,
     );
 

@@ -6,7 +6,8 @@ export interface CommentRepository {
   getPostComments(id: string): Promise<Comment[] | null>;
   getUserComments(id: string): Promise<Comment[] | null>;
   createComment(
-    id: string,
+    userId: string,
+    postId: string,
     commentData: Prisma.CommentCreateInput,
   ): Promise<{ message: string; comment: Comment }>;
   deleteComment(id: string): Promise<{ message: string }>;

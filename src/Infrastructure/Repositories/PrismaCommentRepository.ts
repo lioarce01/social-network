@@ -39,27 +39,34 @@ export class PrismaCommentRepository implements CommentRepository {
   }
 
   async createComment(
-    id: string,
+    userId: string,
+    postId: string,
     commentData: Prisma.CommentCreateInput,
   ): Promise<{ message: string; comment: Comment }> {
     if (!commentData.content) {
       throw new Error("Content is required");
     }
 
-    const postExist = await prisma.post.findUnique({ where: { id } });
+    const postExist = await prisma.post.findUnique({ where: { id: postId } });
 
     if (!postExist) {
       throw new Error("Post not found");
+    }
+
+    const userExist = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!userExist) {
+      throw new Error("User not found");
     }
 
     const createdComment = await prisma.comment.create({
       data: {
         content: commentData.content,
         post: {
-          connect: { id: commentData.post.connect?.id },
+          connect: { id: postId },
         },
         author: {
-          connect: { id: commentData.author.connect?.id },
+          connect: { id: userId },
         },
       },
       include: {

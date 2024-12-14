@@ -17,6 +17,14 @@ import { GetUserPosts } from "../../Application/UseCases/Post/getUserPosts";
 import { CreatePost } from "../../Application/UseCases/Post/CreatePost";
 import { DeletePost } from "../../Application/UseCases/Post/DeletePost";
 import { UpdatePost } from "../../Application/UseCases/Post/UpdatePost";
+import { CommentRepository } from "../../Domain/Repositories/CommentRepository";
+import { PrismaCommentRepository } from "../Repositories/PrismaCommentRepository";
+import { GetAllComments } from "../../Application/UseCases/Comment/GetAllComments";
+import { GetUserComments } from "../../Application/UseCases/Comment/GetUserComments";
+import { GetPostComments } from "../../Application/UseCases/Comment/GetPostComments";
+import { CreateComment } from "../../Application/UseCases/Comment/CreateComment";
+import { DeleteComment } from "../../Application/UseCases/Comment/DeleteComment";
+import { updateComment } from "../../Application/UseCases/Comment/UpdateComment";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -27,6 +35,11 @@ export function setupContainer() {
   container.registerSingleton<PostRepository>(
     "PostRepository",
     PrismaPostRepository,
+  );
+
+  container.registerSingleton<CommentRepository>(
+    "CommentRepository",
+    PrismaCommentRepository,
   );
 }
 
@@ -40,10 +53,17 @@ container.registerSingleton("SwitchUserRole", SwitchUserRole);
 container.registerSingleton("UpdateUser", UpdateUser);
 
 //Register Post use cases
-
 container.registerSingleton("GetAllPosts", GetAllPosts);
 container.registerSingleton("GetPostById", GetPostById);
 container.registerSingleton("GetUserPosts", GetUserPosts);
 container.registerSingleton("CreatePost", CreatePost);
 container.registerSingleton("DeletePost", DeletePost);
 container.registerSingleton("UpdatePost", UpdatePost);
+
+//Register Comment use cases
+container.registerSingleton("GetAllComments", GetAllComments);
+container.registerSingleton("GetUserComments", GetUserComments);
+container.registerSingleton("GetPostComments", GetPostComments);
+container.registerSingleton("CreateComment", CreateComment);
+container.registerSingleton("DeleteComment", DeleteComment);
+container.registerSingleton("UpdateComment", updateComment);
