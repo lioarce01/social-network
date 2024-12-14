@@ -78,6 +78,12 @@ export class PrismaCommentRepository implements CommentRepository {
   }
 
   async deleteComment(id: string): Promise<{ message: string }> {
+    const commentExist = await prisma.comment.findUnique({ where: { id } });
+
+    if (!commentExist) {
+      return { message: "Comment not found" };
+    }
+
     await prisma.comment.delete({ where: { id } });
     return { message: "Comment deleted successfully" };
   }

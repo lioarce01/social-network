@@ -24,7 +24,7 @@ import { GetUserComments } from "../../Application/UseCases/Comment/GetUserComme
 import { GetPostComments } from "../../Application/UseCases/Comment/GetPostComments";
 import { CreateComment } from "../../Application/UseCases/Comment/CreateComment";
 import { DeleteComment } from "../../Application/UseCases/Comment/DeleteComment";
-import { updateComment } from "../../Application/UseCases/Comment/UpdateComment";
+import { UpdateComment } from "../../Application/UseCases/Comment/UpdateComment";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -66,4 +66,4 @@ container.registerSingleton("GetUserComments", GetUserComments);
 container.registerSingleton("GetPostComments", GetPostComments);
 container.registerSingleton("CreateComment", CreateComment);
 container.registerSingleton("DeleteComment", DeleteComment);
-container.registerSingleton("UpdateComment", updateComment);
+container.registerSingleton("UpdateComment", UpdateComment);
