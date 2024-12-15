@@ -140,7 +140,7 @@ export class PostController {
         postId,
       );
 
-      return { message, postLike };
+      res.status(201).json({ message, postLike });
     } catch (e) {
       next(e);
     }
@@ -152,7 +152,7 @@ export class PostController {
 
       const { message } = await this.unlikePostUseCase.execute(userId, postId);
 
-      return { message };
+      res.status(200).json({ message });
     } catch (e) {
       next(e);
     }
