@@ -3,7 +3,6 @@ import { Post } from "../../Domain/Entities/Post";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
-import { User } from "../../Domain/Entities/User";
 
 @injectable()
 export class PrismaPostRepository implements PostRepository {
