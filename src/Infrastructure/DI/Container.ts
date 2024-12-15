@@ -25,6 +25,10 @@ import { GetPostComments } from "../../Application/UseCases/Comment/GetPostComme
 import { CreateComment } from "../../Application/UseCases/Comment/CreateComment";
 import { DeleteComment } from "../../Application/UseCases/Comment/DeleteComment";
 import { UpdateComment } from "../../Application/UseCases/Comment/UpdateComment";
+import { LikePost } from "../../Application/UseCases/PostLike/Like";
+import { UnlikePost } from "../../Application/UseCases/PostLike/Unlike";
+import { PostLikeRepository } from "../../Domain/Repositories/PostLikeRepository";
+import { PrismaPostLikeRepository } from "../Repositories/PrismaPostLikeRepository";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -40,6 +44,11 @@ export function setupContainer() {
   container.registerSingleton<CommentRepository>(
     "CommentRepository",
     PrismaCommentRepository,
+  );
+
+  container.registerSingleton<PostLikeRepository>(
+    "PostLikeRepository",
+    PrismaPostLikeRepository,
   );
 }
 
@@ -67,3 +76,7 @@ container.registerSingleton("GetPostComments", GetPostComments);
 container.registerSingleton("CreateComment", CreateComment);
 container.registerSingleton("DeleteComment", DeleteComment);
 container.registerSingleton("UpdateComment", UpdateComment);
+
+//Register PostLike use cases
+container.registerSingleton("LikePost", LikePost);
+container.registerSingleton("UnlikePost", UnlikePost);

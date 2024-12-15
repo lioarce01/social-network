@@ -6,7 +6,9 @@ import { GetUserPosts } from "../../../Application/UseCases/Post/getUserPosts";
 import { CreatePost } from "../../../Application/UseCases/Post/CreatePost";
 import { UpdatePost } from "../../../Application/UseCases/Post/UpdatePost";
 import { DeletePost } from "../../../Application/UseCases/Post/DeletePost";
+import { LikePost } from "../../../Application/UseCases/PostLike/Like";
 import { Prisma } from "@prisma/client";
+import { UnlikePost } from "../../../Application/UseCases/PostLike/Unlike";
 
 @injectable()
 export class PostController {
@@ -17,6 +19,8 @@ export class PostController {
     @inject("CreatePost") private createPostUseCase: CreatePost,
     @inject("UpdatePost") private updatePostUseCase: UpdatePost,
     @inject("DeletePost") private deletePostUseCase: DeletePost,
+    @inject("LikePost") private likePostUseCase: LikePost,
+    @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
   ) {}
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
@@ -122,6 +126,33 @@ export class PostController {
       }
 
       res.status(200).json(posts);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async likePost(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, postId } = req.body;
+
+      const { message, postLike } = await this.likePostUseCase.execute(
+        userId,
+        postId,
+      );
+
+      return { message, postLike };
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async unlikePost(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, postId } = req.body;
+
+      const { message } = await this.unlikePostUseCase.execute(userId, postId);
+
+      return { message };
     } catch (e) {
       next(e);
     }
