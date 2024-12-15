@@ -24,5 +24,11 @@ router.delete("/:id", (req, res, next) =>
 router.put("/:id/update", (req, res, next) =>
   postController.updatePost(req, res, next),
 );
+router.put("/like", (req, res, next) =>
+  postController.likePost(req, res, next),
+);
+router.put("/unlike", (req, res, next) =>
+  postController.unlikePost(req, res, next),
+);
 
 export default router;
