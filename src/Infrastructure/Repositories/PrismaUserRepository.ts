@@ -7,7 +7,10 @@ import { Prisma, Role } from "@prisma/client";
 @injectable()
 export class PrismaUserRepository implements UserRepository {
   async getUserById(sub: string): Promise<User | null> {
-    return await prisma.user.findUnique({ where: { sub } });
+    return await prisma.user.findUnique({
+      where: { sub },
+      include: { posts: true, comments: true },
+    });
   }
 
   async updateUser(
