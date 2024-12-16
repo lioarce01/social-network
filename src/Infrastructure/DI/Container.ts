@@ -29,6 +29,14 @@ import { LikePost } from "../../Application/UseCases/PostLike/Like";
 import { UnlikePost } from "../../Application/UseCases/PostLike/Unlike";
 import { PostLikeRepository } from "../../Domain/Repositories/PostLikeRepository";
 import { PrismaPostLikeRepository } from "../Repositories/PrismaPostLikeRepository";
+import { JobPostingRepository } from "../../Domain/Repositories/JobPostingRepository";
+import { PrismaJobPostingRepository } from "../Repositories/PrismaJobPostingRepository";
+import { GetJobPostings } from "../../Application/UseCases/JobPosting/GetJobPostings";
+import { GetJobPostingById } from "../../Application/UseCases/JobPosting/GetJobPostingById";
+import { UpdateJobPosting } from "../../Application/UseCases/JobPosting/UpdateJobPosting";
+import { CreateJobPosting } from "../../Application/UseCases/JobPosting/CreateJobPosting";
+import { DeleteJobPosting } from "../../Application/UseCases/JobPosting/DeleteJobPosting";
+import { DisableJobPosting } from "../../Application/UseCases/JobPosting/DisableJobPosting";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -49,6 +57,11 @@ export function setupContainer() {
   container.registerSingleton<PostLikeRepository>(
     "PostLikeRepository",
     PrismaPostLikeRepository,
+  );
+
+  container.registerSingleton<JobPostingRepository>(
+    "JobPostingRepository",
+    PrismaJobPostingRepository,
   );
 }
 
@@ -80,3 +93,11 @@ container.registerSingleton("UpdateComment", UpdateComment);
 //Register PostLike use cases
 container.registerSingleton("LikePost", LikePost);
 container.registerSingleton("UnlikePost", UnlikePost);
+
+//Register JobPosting use cases
+container.registerSingleton("GetJobPostings", GetJobPostings);
+container.registerSingleton("GetJobPostingById", GetJobPostingById);
+container.registerSingleton("UpdateJobPosting", UpdateJobPosting);
+container.registerSingleton("CreateJobPosting", CreateJobPosting);
+container.registerSingleton("DeleteJobPosting", DeleteJobPosting);
+container.registerSingleton("DisableJobPosting", DisableJobPosting);
