@@ -1,64 +1,89 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mongodb" // or "postgresql", "mysql", etc.
-    url      = env("DATABASE_URL")
+  provider = "mongodb" // or "postgresql", "mysql", etc.
+  url      = env("DATABASE_URL")
 }
 
 // entities
 model User {
-    id       String   @id @default(auto()) @map("_id") @db.ObjectId
-    sub String @unique
-    name     String
-    email    String   @unique
-    profile_pic String
-    enabled Boolean @default(true)
-    role Role @default(USER)
-    posts Post[]
-    comments Comment[]
-    likedPosts PostLike[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  sub          String           @unique
+  name         String
+  email        String           @unique
+  profile_pic  String
+  enabled      Boolean          @default(true)
+  role         Role             @default(USER)
+  posts        Post[]
+  comments     Comment[]
+  likedPosts   PostLike[]
+  jobPostings  JobPosting[]
+  applications JobApplication[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now())
 }
 
 model Post {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
-    content String
-    authorId String @db.ObjectId
-    author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    comments Comment[]
-    likes PostLike[]
-    likeCount Int @default(0)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  authorId  String     @db.ObjectId
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     PostLike[]
+  likeCount Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
 }
 
 model PostLike {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
-    userId String @db.ObjectId
-    postId String @db.ObjectId
-    user User @relation(fields: [userId], references: [id])
-    post Post @relation(fields: [postId], references: [id])
-    createdAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  postId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
 
-    @@unique([userId, postId])
+  @@unique([userId, postId])
 }
 
 model Comment {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
-    content String
-    authorId String @db.ObjectId
-    author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    postId String @db.ObjectId
-    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  authorId  String   @db.ObjectId
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
+model JobPosting {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  description  String
+  budget       Float
+  deadline     DateTime
+  techRequired String[]
+  category     String
+  applicants   JobApplication[]
+  jobAuthorId  String           @db.ObjectId
+  jobAuthor    User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model JobApplication {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String     @db.ObjectId
+  jobPostingId String     @db.ObjectId
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  appliedAt    DateTime   @default(now())
+}
 
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
 }
