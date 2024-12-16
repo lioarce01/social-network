@@ -1,4 +1,11 @@
-import { Comment, Post, PostLike, Role } from "@prisma/client";
+import {
+  Comment,
+  JobApplication,
+  JobPosting,
+  Post,
+  PostLike,
+  Role,
+} from "@prisma/client";
 
 export class User {
   constructor(
@@ -14,5 +21,7 @@ export class User {
     public posts?: Post[],
     public comments?: Comment[],
     public likedPosts?: PostLike[],
+    public jobPostings?: JobPosting[],
+    public applications?: JobApplication[],
   ) {}
 }
