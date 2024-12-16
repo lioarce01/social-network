@@ -67,6 +67,7 @@ model JobPosting {
   deadline     DateTime
   techRequired String[]
   category     String
+  status String
   applicants   JobApplication[]
   jobAuthorId  String           @db.ObjectId
   jobAuthor    User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)

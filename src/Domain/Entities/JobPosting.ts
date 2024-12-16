@@ -10,6 +10,7 @@ export class JobPosting {
     public deadline: Date,
     public techRequired: String[],
     public category: string,
+    public status: string,
     public jobAuthorId: string,
     public applicants?: JobApplication[],
     public jobAuthor?: User,
