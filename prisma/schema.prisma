@@ -67,7 +67,7 @@ model JobPosting {
   deadline     DateTime
   techRequired String[]
   category     String
-  status String
+  status JobPostingStatus
   applicants   JobApplication[]
   jobAuthorId  String           @db.ObjectId
   jobAuthor    User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)
@@ -82,6 +82,11 @@ model JobApplication {
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
   appliedAt    DateTime   @default(now())
+}
+
+enum JobPostingStatus {
+  OPEN
+  CLOSED
 }
 
 enum Role {

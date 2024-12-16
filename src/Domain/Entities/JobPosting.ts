@@ -1,4 +1,4 @@
-import { JobApplication } from "@prisma/client";
+import { JobApplication, JobPostingStatus } from "@prisma/client";
 import { User } from "./User";
 
 export class JobPosting {
@@ -10,7 +10,7 @@ export class JobPosting {
     public deadline: Date,
     public techRequired: String[],
     public category: string,
-    public status: string,
+    public status: JobPostingStatus,
     public jobAuthorId: string,
     public applicants?: JobApplication[],
     public jobAuthor?: User,
