@@ -39,7 +39,7 @@ import { DeleteJobPosting } from "../../Application/UseCases/JobPosting/DeleteJo
 import { DisableJobPosting } from "../../Application/UseCases/JobPosting/DisableJobPosting";
 import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicationRepository";
 import { PrismaJobApplicationRepository } from "../Repositories/PrismaJobApplicationRepository";
-import { ApplyJob } from "../../Application/UseCases/JobAppliation/ApplyJob";
+import { ApplyJob } from "../../Application/UseCases/JobApplication/ApplyJob";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(

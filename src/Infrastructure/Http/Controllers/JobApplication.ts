@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "tsyringe";
-import { ApplyJob } from "../../../Application/UseCases/JobAppliation/ApplyJob";
+import { ApplyJob } from "../../../Application/UseCases/JobApplication/ApplyJob";
 
 @injectable()
 export class JobApplicationController {
