@@ -6,8 +6,8 @@ export class JobApplication {
     public id: string,
     public userId: string,
     public jobPostingId: string,
-    public user: User,
-    public jobPosting: JobPosting,
     public appliedAt: Date,
+    public user?: User,
+    public jobPosting?: JobPosting,
   ) {}
 }
