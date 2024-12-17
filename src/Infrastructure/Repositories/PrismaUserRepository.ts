@@ -9,7 +9,12 @@ export class PrismaUserRepository implements UserRepository {
   async getUserById(sub: string): Promise<User | null> {
     return await prisma.user.findUnique({
       where: { sub },
-      include: { posts: true, comments: true },
+      include: {
+        posts: true,
+        comments: true,
+        jobPostings: true,
+        applications: true,
+      },
     });
   }
 
