@@ -112,4 +112,4 @@ container.registerSingleton("DisableJobPosting", DisableJobPosting);
 
 //Register Job applications use cases
 
-container.registerSingleton("JobApplication", ApplyJob);
+container.registerSingleton("ApplyJob", ApplyJob);
