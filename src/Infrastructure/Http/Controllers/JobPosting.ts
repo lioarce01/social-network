@@ -118,19 +118,21 @@ export class JobPostingController {
 
   async updateJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
-      const { title, description, budget, deadline, techRequired, category } =
-        req.body;
+      const updates = { ...req.body };
       const { id } = req.params;
 
+      if (Object.keys(updates).length === 0) {
+        return res
+          .status(400)
+          .json({ message: "No fields to update provided" });
+      }
+
+      if (updates.deadline) {
+        updates.deadline = new Date(updates.deadline);
+      }
+
       const { message, jobPosting } =
-        await this.updateJobPostingUseCase.execute(id, {
-          title,
-          description,
-          budget,
-          deadline: new Date(deadline),
-          techRequired,
-          category,
-        });
+        await this.updateJobPostingUseCase.execute(id, updates);
 
       res.status(200).json({ message, jobPosting });
     } catch (e) {
