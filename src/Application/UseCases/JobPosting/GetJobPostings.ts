@@ -9,8 +9,11 @@ export class GetJobPostings {
     private readonly jobPostingRepository: JobPostingRepository,
   ) {}
 
-  async execute(): Promise<JobPosting[] | null> {
-    const jobPostings = await this.jobPostingRepository.getAllJobPostings();
+  async execute(offset?: number, limit?: number): Promise<JobPosting[] | null> {
+    const jobPostings = await this.jobPostingRepository.getAllJobPostings(
+      offset,
+      limit,
+    );
 
     return jobPostings;
   }
