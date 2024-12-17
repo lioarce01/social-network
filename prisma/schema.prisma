@@ -82,6 +82,8 @@ model JobApplication {
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
   appliedAt    DateTime   @default(now())
+
+  @@unique([userId, jobPostingId])
 }
 
 enum JobPostingStatus {
