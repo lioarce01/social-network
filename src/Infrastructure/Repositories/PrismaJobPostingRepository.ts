@@ -21,6 +21,9 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   async getJobPostingById(id: string): Promise<JobPosting | null> {
     return await prisma.jobPosting.findUnique({
       where: { id },
+      include: {
+        applicants: true,
+      },
     });
   }
 
