@@ -1,8 +1,13 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
+import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
 
 export interface UserRepository {
-  getAllUsers(offset?: number, limit?: number): Promise<User[] | null>;
+  getAllUsers(
+    filter?: UserFilter,
+    offset?: number,
+    limit?: number,
+  ): Promise<User[] | null>;
   getUserById(sub: string): Promise<User | null>;
   updateUser(
     id: string,

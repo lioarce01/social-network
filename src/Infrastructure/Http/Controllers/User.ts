@@ -23,7 +23,11 @@ export class UserController {
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const { offset, limit } = req.query;
+      const { offset, limit, role } = req.query;
+
+      const filters = {
+        role: role as Role,
+      };
 
       const parsedOffset =
         typeof offset === "string" && offset.trim() !== ""
@@ -35,6 +39,7 @@ export class UserController {
           : undefined;
 
       const users = await this.getAllUsersUseCase.execute(
+        filters,
         parsedOffset,
         parsedLimit,
       );
