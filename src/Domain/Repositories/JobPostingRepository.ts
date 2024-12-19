@@ -1,8 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { JobPosting } from "../Entities/JobPosting";
+import { JobPostingFilter } from "../../Infrastructure/Filters/JobPostingFilter";
 
 export interface JobPostingRepository {
   getAllJobPostings(
+    filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
   ): Promise<JobPosting[] | null>;

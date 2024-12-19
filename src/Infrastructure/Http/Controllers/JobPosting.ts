@@ -26,7 +26,17 @@ export class JobPostingController {
 
   async getJobPostings(req: Request, res: Response, next: NextFunction) {
     try {
-      const { offset, limit } = req.query;
+      const { status, category, sortBy, sortOrder, offset, limit } = req.query;
+
+      const filters = {
+        status: status as JobPostingStatus,
+        category: category as string,
+      };
+
+      const sortOptions = {
+        sortBy: sortBy as "budget",
+        sortOrder: sortOrder as "asc" | "desc",
+      };
 
       const parsedOffset =
         typeof offset === "string" && offset.trim() !== ""
@@ -38,6 +48,8 @@ export class JobPostingController {
           : undefined;
 
       const jobPostings = await this.getJobPostingsUseCase.execute(
+        filters,
+        sortOptions,
         parsedOffset,
         parsedLimit,
       );

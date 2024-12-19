@@ -3,14 +3,20 @@ import { JobPosting } from "../../Domain/Entities/JobPosting";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { JobPostingStatus, Prisma } from "@prisma/client";
+import { JobPostingFilter } from "../Filters/JobPostingFilter";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
   async getAllJobPostings(
+    filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
   ): Promise<JobPosting[] | null> {
+    const whereClause = filter?.buildWhereClause();
+    const orderByClause = filter?.buildOrderByClause();
     const jobPostings = await prisma.jobPosting.findMany({
+      where: whereClause,
+      orderBy: orderByClause,
       ...(typeof offset !== "undefined" && { skip: offset }),
       ...(typeof limit !== "undefined" && { take: limit }),
     });
