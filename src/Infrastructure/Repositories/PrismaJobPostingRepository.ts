@@ -16,7 +16,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     const orderByClause = filter?.buildOrderByClause();
     const jobPostings = await prisma.jobPosting.findMany({
       where: whereClause,
-      orderBy: orderByClause,
+      ...(orderByClause && { orderBy: orderByClause }),
       ...(typeof offset !== "undefined" && { skip: offset }),
       ...(typeof limit !== "undefined" && { take: limit }),
     });

@@ -36,14 +36,26 @@ export class JobPostingFilter {
     return whereClause;
   }
 
-  public buildOrderByClause(): Prisma.JobPostingOrderByWithRelationInput {
+  public buildOrderByClause():
+    | Prisma.JobPostingOrderByWithRelationInput
+    | undefined {
     const { sortBy, sortOrder } = this.sortOptions;
-    const orderByClause: Prisma.JobPostingOrderByWithRelationInput = {};
 
-    if (sortBy === "budget") {
-      orderByClause.budget = sortOrder || "asc";
+    if (!sortBy) return undefined;
+
+    const validSortFields: (keyof Prisma.JobPostingOrderByWithRelationInput)[] =
+      ["budget"];
+
+    if (
+      validSortFields.includes(
+        sortBy as keyof Prisma.JobPostingOrderByWithRelationInput,
+      )
+    ) {
+      return {
+        [sortBy]: sortOrder || "asc",
+      } as Prisma.JobPostingOrderByWithRelationInput;
     }
 
-    return orderByClause;
+    return undefined;
   }
 }
