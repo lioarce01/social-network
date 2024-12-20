@@ -29,6 +29,10 @@ export class JobPostingFilter {
       whereClause.category = this.filters.category;
     }
 
+    if (this.filters.status) {
+      whereClause.status = this.filters.status;
+    }
+
     return whereClause;
   }
 
@@ -37,7 +41,7 @@ export class JobPostingFilter {
     const orderByClause: Prisma.JobPostingOrderByWithRelationInput = {};
 
     if (sortBy === "budget") {
-      orderByClause.status = sortOrder || "asc";
+      orderByClause.budget = sortOrder || "asc";
     }
 
     return orderByClause;

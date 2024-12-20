@@ -29,7 +29,7 @@ export class JobPostingController {
       const { status, category, sortBy, sortOrder, offset, limit } = req.query;
 
       const filters = {
-        status: status as JobPostingStatus,
+        status: status ? (status as JobPostingStatus) : undefined,
         category: category as string,
       };
 

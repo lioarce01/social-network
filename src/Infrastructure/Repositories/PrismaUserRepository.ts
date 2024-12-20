@@ -3,6 +3,7 @@ import { User } from "../../Domain/Entities/User";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
+import { UserFilter } from "../Filters/UserFilter";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -132,8 +133,14 @@ export class PrismaUserRepository implements UserRepository {
     };
   }
 
-  async getAllUsers(offset?: number, limit?: number): Promise<User[] | null> {
+  async getAllUsers(
+    filter?: UserFilter,
+    offset?: number,
+    limit?: number,
+  ): Promise<User[] | null> {
+    const whereClause = filter?.buildWhereClause();
     const users = await prisma.user.findMany({
+      where: whereClause,
       ...(typeof offset !== "undefined" && { skip: offset }),
       ...(typeof limit !== "undefined" && { take: limit }),
     });
