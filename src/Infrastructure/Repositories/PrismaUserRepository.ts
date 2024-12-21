@@ -129,19 +129,20 @@ export class PrismaUserRepository implements UserRepository {
     const whereClause = filter?.buildWhereClause();
     const users = await prisma.user.findMany({
       where: whereClause,
-      ...(typeof offset !== "undefined" && { skip: offset }),
-      ...(typeof limit !== "undefined" && { take: limit }),
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     return users;
   }
 
-  private getUserRole(currentRole: Role): Role {
-    return currentRole === Role.ADMIN ? Role.USER : Role.ADMIN;
+  //HELPER METHODS
+  private getUserRole(nextRole: Role): Role {
+    return nextRole === Role.ADMIN ? Role.USER : Role.ADMIN;
   }
 
-  private getUserStatus(currentStatus: boolean) {
-    return currentStatus === true ? false : true;
+  private getUserStatus(nextStatus: boolean) {
+    return !nextStatus;
   }
 
   private updateUserStatus(id: string, newStatus: boolean) {
