@@ -7,19 +7,6 @@ import { JobPostingFilter } from "../Filters/JobPostingFilter";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
-  private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus {
-    return currentStatus === JobPostingStatus.OPEN
-      ? JobPostingStatus.CLOSED
-      : JobPostingStatus.OPEN;
-  }
-
-  private updateJobPostingStatus(id: string, newStatus: JobPostingStatus) {
-    return prisma.jobPosting.update({
-      where: { id },
-      data: { status: newStatus },
-    });
-  }
-
   async getAllJobPostings(
     filter?: JobPostingFilter,
     offset?: number,
@@ -126,5 +113,18 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     return {
       message: `Job Posting status updated to ${updatedJobPosting.status} successfully`,
     };
+  }
+
+  private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus {
+    return currentStatus === JobPostingStatus.OPEN
+      ? JobPostingStatus.CLOSED
+      : JobPostingStatus.OPEN;
+  }
+
+  private updateJobPostingStatus(id: string, newStatus: JobPostingStatus) {
+    return prisma.jobPosting.update({
+      where: { id },
+      data: { status: newStatus },
+    });
   }
 }
