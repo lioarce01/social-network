@@ -59,10 +59,10 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   }
 
   async createJobPosting(
-    id: string,
+    userId: string,
     jobPostingData: Prisma.JobPostingCreateInput,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
-    const userExist = await prisma.user.findUnique({ where: { id } });
+    const userExist = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!userExist) {
       throw new Error("User does not exist");
@@ -72,7 +72,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       data: {
         ...jobPostingData,
         jobAuthor: {
-          connect: { id: jobPostingData.jobAuthor.connect?.id },
+          connect: { id: userId },
         },
       },
     });
@@ -84,9 +84,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   }
 
   async deleteJobPosting(id: string): Promise<{ message: string }> {
-    const jobPostingExist = await prisma.jobPosting.findUnique({
-      where: { id },
-    });
+    const jobPostingExist = await this.getJobPostingById(id);
 
     if (!jobPostingExist) {
       return {

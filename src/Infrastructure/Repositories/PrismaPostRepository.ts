@@ -20,14 +20,14 @@ export class PrismaPostRepository implements PostRepository {
   }
 
   async createPost(
-    id: string,
+    userId: string,
     postData: Prisma.PostCreateInput,
   ): Promise<{ message: string; post: Post }> {
     if (!postData.content) {
       throw new Error("Content is required");
     }
 
-    const userExist = await prisma.user.findUnique({ where: { id } });
+    const userExist = await this.getUserById(userId);
 
     if (!userExist) {
       throw new Error("User does not exist");
@@ -37,7 +37,7 @@ export class PrismaPostRepository implements PostRepository {
       data: {
         content: postData.content,
         author: {
-          connect: { id: postData.author.connect?.id },
+          connect: { id: userId },
         },
       },
       include: {
@@ -78,10 +78,15 @@ export class PrismaPostRepository implements PostRepository {
 
   async getAllPosts(offset?: number, limit?: number): Promise<Post[] | null> {
     const posts = await prisma.post.findMany({
-      ...(typeof offset !== "undefined" && { skip: offset }),
-      ...(typeof limit !== "undefined" && { take: limit }),
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     return posts;
+  }
+
+  //HELPER METHODS
+  private getUserById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
   }
 }
