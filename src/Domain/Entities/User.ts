@@ -9,19 +9,19 @@ import {
 
 export class User {
   constructor(
-    public id: string,
-    public sub: string,
-    public name: string,
-    public email: string,
-    public profile_pic: string,
-    public enabled: boolean,
-    public role: Role,
-    public createdAt: Date,
-    public updatedAt: Date,
-    public posts?: Post[],
-    public comments?: Comment[],
-    public likedPosts?: PostLike[],
-    public jobPostings?: JobPosting[],
-    public applications?: JobApplication[],
+    public readonly id: string,
+    public readonly sub: string,
+    public readonly name: string,
+    public readonly email: string,
+    public readonly profile_pic: string,
+    public readonly enabled: boolean,
+    public readonly role: Role,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+    public readonly posts?: Post[],
+    public readonly comments?: Comment[],
+    public readonly likedPosts?: PostLike[],
+    public readonly jobPostings?: JobPosting[],
+    public readonly applications?: JobApplication[],
   ) {}
 }

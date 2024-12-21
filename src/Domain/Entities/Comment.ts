@@ -2,13 +2,13 @@ import { Post, User } from "@prisma/client";
 
 export class Comment {
   constructor(
-    public id: string,
-    public content: string,
-    public createdAt: Date,
-    public updatedAt: Date,
-    public postId?: string,
-    public authorId?: string,
-    public author?: User,
-    public post?: Post,
+    public readonly id: string,
+    public readonly content: string,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+    public readonly postId?: string,
+    public readonly authorId?: string,
+    public readonly author?: User,
+    public readonly post?: Post,
   ) {}
 }

@@ -2,11 +2,11 @@ import { User, Post } from "@prisma/client";
 
 export class PostLike {
   constructor(
-    public id: string,
-    public userId: string,
-    public postId: string,
-    public createdAt: Date,
-    public user?: User,
-    public post?: Post,
+    public readonly id: string,
+    public readonly userId: string,
+    public readonly postId: string,
+    public readonly createdAt: Date,
+    public readonly user?: User,
+    public readonly post?: Post,
   ) {}
 }

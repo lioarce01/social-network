@@ -3,16 +3,16 @@ import { User } from "./User";
 
 export class JobPosting {
   constructor(
-    public id: string,
-    public title: string,
-    public description: string,
-    public budget: number,
-    public deadline: Date,
-    public techRequired: String[],
-    public category: string,
-    public status: JobPostingStatus,
-    public jobAuthorId: string,
-    public applicants?: JobApplication[],
-    public jobAuthor?: User,
+    public readonly id: string,
+    public readonly title: string,
+    public readonly description: string,
+    public readonly budget: number,
+    public readonly deadline: Date,
+    public readonly techRequired: string[],
+    public readonly category: string,
+    public readonly status: JobPostingStatus,
+    public readonly jobAuthorId: string,
+    public readonly applicants?: JobApplication[],
+    public readonly jobAuthor?: User,
   ) {}
 }
