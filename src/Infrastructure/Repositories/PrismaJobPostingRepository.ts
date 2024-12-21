@@ -113,6 +113,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     };
   }
 
+  //HELPERS METHODS
   private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus {
     return currentStatus === JobPostingStatus.OPEN
       ? JobPostingStatus.CLOSED
