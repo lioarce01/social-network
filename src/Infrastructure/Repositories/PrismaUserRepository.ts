@@ -88,21 +88,15 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async disableUser(id: string): Promise<{ message: string; user: User }> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { enabled: true },
-    });
+    const user = await this.getById(id);
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const changeStatus = user.enabled === true ? false : true;
+    const newStatus = this.getUserStatus(user.enabled);
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: { enabled: changeStatus },
-    });
+    const updatedUser = await this.updateUserStatus(id, newStatus);
 
     return {
       message: "User status changed successfully",
@@ -111,21 +105,15 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async switchUserRole(id: string): Promise<{ message: string; user: User }> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { role: true },
-    });
+    const user = await this.getById(id);
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const newRole = user.role === Role.ADMIN ? Role.USER : Role.ADMIN;
+    const newRole = this.getUserRole(user.role);
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: { role: newRole },
-    });
+    const updatedUser = await this.updateUserRole(id, newRole);
 
     return {
       message: "Role switched successfully",
@@ -146,5 +134,31 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     return users;
+  }
+
+  private getUserRole(currentRole: Role): Role {
+    return currentRole === Role.ADMIN ? Role.USER : Role.ADMIN;
+  }
+
+  private getUserStatus(currentStatus: boolean) {
+    return currentStatus === true ? false : true;
+  }
+
+  private updateUserStatus(id: string, newStatus: boolean) {
+    return prisma.user.update({
+      where: { id },
+      data: { enabled: newStatus },
+    });
+  }
+
+  private updateUserRole(id: string, newRole: Role) {
+    return prisma.user.update({
+      where: { id },
+      data: { role: newRole },
+    });
+  }
+
+  private getById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
   }
 }
