@@ -17,8 +17,8 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     const jobPostings = await prisma.jobPosting.findMany({
       where: whereClause,
       ...(orderByClause && { orderBy: orderByClause }),
-      ...(typeof offset !== "undefined" && { skip: offset }),
-      ...(typeof limit !== "undefined" && { take: limit }),
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     return jobPostings;
@@ -62,7 +62,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     userId: string,
     jobPostingData: Prisma.JobPostingCreateInput,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
-    const userExist = await prisma.user.findUnique({ where: { id: userId } });
+    const userExist = await this.getUserById(userId);
 
     if (!userExist) {
       throw new Error("User does not exist");
@@ -124,5 +124,9 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       where: { id },
       data: { status: newStatus },
     });
+  }
+
+  private getUserById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
   }
 }
