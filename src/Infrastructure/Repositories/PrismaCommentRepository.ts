@@ -109,6 +109,7 @@ export class PrismaCommentRepository implements CommentRepository {
     };
   }
 
+  //HELPER METHODS
   private async getCommentById(id: string) {
     return await prisma.comment.findUnique({ where: { id } });
   }

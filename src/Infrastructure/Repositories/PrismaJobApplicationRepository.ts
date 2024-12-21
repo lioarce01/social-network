@@ -7,14 +7,6 @@ import { injectable } from "tsyringe";
 export class PrismaJobApplicationRepository
   implements JobApplicationRepository
 {
-  private async getExistingApplication(userId: string, jobPostingId: string) {
-    return await prisma.jobApplication.findUnique({
-      where: {
-        userId_jobPostingId: { userId, jobPostingId },
-      },
-    });
-  }
-
   async applyJob(
     userId: string,
     jobPostingId: string,
@@ -42,5 +34,14 @@ export class PrismaJobApplicationRepository
       message: "Job application submitted successfully",
       jobApplication,
     };
+  }
+
+  //HELPER METHODS
+  private async getExistingApplication(userId: string, jobPostingId: string) {
+    return await prisma.jobApplication.findUnique({
+      where: {
+        userId_jobPostingId: { userId, jobPostingId },
+      },
+    });
   }
 }

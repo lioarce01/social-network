@@ -61,6 +61,7 @@ export class PrismaPostLikeRepository implements PostLikeRepository {
     return { message: "Post unliked successfully" };
   }
 
+  //HELPER METHODS
   private async getExistingLike(userId: string, postId: string) {
     return await prisma.postLike.findUnique({
       where: {
