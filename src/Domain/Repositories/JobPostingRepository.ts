@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { JobPostingStatus, Prisma } from "@prisma/client";
 import { JobPosting } from "../Entities/JobPosting";
 import { JobPostingFilter } from "../../Infrastructure/Filters/JobPostingFilter";
 
