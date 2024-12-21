@@ -145,21 +145,21 @@ export class PrismaUserRepository implements UserRepository {
     return !nextStatus;
   }
 
-  private updateUserStatus(id: string, newStatus: boolean) {
+  private async updateUserStatus(id: string, newStatus: boolean) {
     return prisma.user.update({
       where: { id },
       data: { enabled: newStatus },
     });
   }
 
-  private updateUserRole(id: string, newRole: Role) {
+  private async updateUserRole(id: string, newRole: Role) {
     return prisma.user.update({
       where: { id },
       data: { role: newRole },
     });
   }
 
-  private getById(id: string) {
+  private async getById(id: string) {
     return prisma.user.findUnique({ where: { id } });
   }
 }

@@ -120,14 +120,17 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       : JobPostingStatus.OPEN;
   }
 
-  private updateJobPostingStatus(id: string, newStatus: JobPostingStatus) {
+  private async updateJobPostingStatus(
+    id: string,
+    newStatus: JobPostingStatus,
+  ) {
     return prisma.jobPosting.update({
       where: { id },
       data: { status: newStatus },
     });
   }
 
-  private getUserById(id: string) {
+  private async getUserById(id: string) {
     return prisma.user.findUnique({ where: { id } });
   }
 }

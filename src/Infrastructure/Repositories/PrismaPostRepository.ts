@@ -86,7 +86,7 @@ export class PrismaPostRepository implements PostRepository {
   }
 
   //HELPER METHODS
-  private getUserById(id: string) {
+  private async getUserById(id: string) {
     return prisma.user.findUnique({ where: { id } });
   }
 }
