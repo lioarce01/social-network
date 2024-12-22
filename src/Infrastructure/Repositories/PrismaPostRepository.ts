@@ -78,6 +78,9 @@ export class PrismaPostRepository implements PostRepository {
 
   async getAllPosts(offset?: number, limit?: number): Promise<Post[] | null> {
     const posts = await prisma.post.findMany({
+      include: {
+        author: true,
+      },
       ...(offset && { skip: offset }),
       ...(limit && { take: limit }),
     });
