@@ -9,7 +9,7 @@ export class PrismaPostRepository implements PostRepository {
   async getPostById(id: string): Promise<Post | null> {
     return await prisma.post.findUnique({
       where: { id },
-      include: { author: true, comments: true },
+      include: { author: true, comments: true, likes: true },
     });
   }
 

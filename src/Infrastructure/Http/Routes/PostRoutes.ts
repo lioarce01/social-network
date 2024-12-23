@@ -18,10 +18,10 @@ router.get("/user/:id", (req, res, next) =>
   postController.getUserPosts(req, res, next),
 );
 router.post("/", (req, res, next) => postController.createPost(req, res, next));
-router.delete("/:id", (req, res, next) =>
+router.delete("/delete", (req, res, next) =>
   postController.deletePost(req, res, next),
 );
-router.put("/:id/update", (req, res, next) =>
+router.put("/update", (req, res, next) =>
   postController.updatePost(req, res, next),
 );
 router.put("/like", (req, res, next) =>

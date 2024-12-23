@@ -58,12 +58,6 @@ export class UserController {
     try {
       const { name, email, sub, profile_pic } = req.body;
 
-      const userExist = await this.getUserByIdUseCase.execute(sub);
-
-      if (userExist) {
-        return res.status(409).json({ message: "User already exists" });
-      }
-
       const { message, user } = await this.createUserUseCase.execute({
         name,
         email,
@@ -72,9 +66,13 @@ export class UserController {
         enabled: true,
         role: Role.USER,
       });
+
       res.status(201).json({ message, user });
-    } catch (e) {
-      next(e);
+    } catch (error: any) {
+      if (error.message === "User already exists") {
+        return res.status(409).json({ message: error.message });
+      }
+      next(error);
     }
   }
 

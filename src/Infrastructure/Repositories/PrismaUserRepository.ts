@@ -59,32 +59,31 @@ export class PrismaUserRepository implements UserRepository {
   async createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }> {
-    const userExist = await prisma.user.findUnique({
-      where: { email: userData.email },
-    });
+    try {
+      const user = await prisma.user.create({ data: userData });
 
-    if (userExist) {
-      throw new Error("User already exists");
+      const userEntity = new User(
+        user.id,
+        user.sub,
+        user.name,
+        user.email,
+        user.profile_pic,
+        user.enabled,
+        user.role,
+        user.createdAt,
+        user.updatedAt,
+      );
+
+      return {
+        message: "User created successfully",
+        user: userEntity,
+      };
+    } catch (error: any) {
+      if (error.code === "P2002") {
+        throw new Error("User already exists");
+      }
+      throw error;
     }
-
-    const user = await prisma.user.create({ data: userData });
-
-    const userEntity = new User(
-      user.id,
-      user.sub,
-      user.name,
-      user.email,
-      user.profile_pic,
-      user.enabled,
-      user.role,
-      user.createdAt,
-      user.updatedAt,
-    );
-
-    return {
-      message: "User created successfully",
-      user: userEntity,
-    };
   }
 
   async disableUser(id: string): Promise<{ message: string; user: User }> {
