@@ -8,7 +8,15 @@ export class Post {
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
     public readonly likeCount: number,
-    public readonly likes?: PostLike,
+    public readonly likes?: {
+      id: string;
+
+      userId: string;
+
+      postId: string;
+
+      createdAt: Date;
+    }[],
     public readonly authorId?: string,
     public readonly comments?: Comment[],
     public readonly author?: User,

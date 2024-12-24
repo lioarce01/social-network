@@ -7,19 +7,6 @@ import { JobPostingFilter } from "../Filters/JobPostingFilter";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
-  private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus {
-    return currentStatus === JobPostingStatus.OPEN
-      ? JobPostingStatus.CLOSED
-      : JobPostingStatus.OPEN;
-  }
-
-  private updateJobPostingStatus(id: string, newStatus: JobPostingStatus) {
-    return prisma.jobPosting.update({
-      where: { id },
-      data: { status: newStatus },
-    });
-  }
-
   async getAllJobPostings(
     filter?: JobPostingFilter,
     offset?: number,
@@ -30,8 +17,8 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     const jobPostings = await prisma.jobPosting.findMany({
       where: whereClause,
       ...(orderByClause && { orderBy: orderByClause }),
-      ...(typeof offset !== "undefined" && { skip: offset }),
-      ...(typeof limit !== "undefined" && { take: limit }),
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     return jobPostings;
@@ -72,10 +59,10 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   }
 
   async createJobPosting(
-    id: string,
+    userId: string,
     jobPostingData: Prisma.JobPostingCreateInput,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
-    const userExist = await prisma.user.findUnique({ where: { id } });
+    const userExist = await this.getUserById(userId);
 
     if (!userExist) {
       throw new Error("User does not exist");
@@ -85,7 +72,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       data: {
         ...jobPostingData,
         jobAuthor: {
-          connect: { id: jobPostingData.jobAuthor.connect?.id },
+          connect: { id: userId },
         },
       },
     });
@@ -97,9 +84,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   }
 
   async deleteJobPosting(id: string): Promise<{ message: string }> {
-    const jobPostingExist = await prisma.jobPosting.findUnique({
-      where: { id },
-    });
+    const jobPostingExist = await this.getJobPostingById(id);
 
     if (!jobPostingExist) {
       return {
@@ -126,5 +111,26 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     return {
       message: `Job Posting status updated to ${updatedJobPosting.status} successfully`,
     };
+  }
+
+  //HELPERS METHODS
+  private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus {
+    return currentStatus === JobPostingStatus.OPEN
+      ? JobPostingStatus.CLOSED
+      : JobPostingStatus.OPEN;
+  }
+
+  private async updateJobPostingStatus(
+    id: string,
+    newStatus: JobPostingStatus,
+  ) {
+    return prisma.jobPosting.update({
+      where: { id },
+      data: { status: newStatus },
+    });
+  }
+
+  private async getUserById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
   }
 }

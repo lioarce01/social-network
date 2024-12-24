@@ -11,8 +11,8 @@ export class PrismaCommentRepository implements CommentRepository {
     limit?: number,
   ): Promise<Comment[] | null> {
     const comments = await prisma.comment.findMany({
-      ...(typeof offset !== "undefined" && { skip: offset }),
-      ...(typeof limit !== "undefined" && { take: limit }),
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     return comments;
@@ -47,13 +47,13 @@ export class PrismaCommentRepository implements CommentRepository {
       throw new Error("Content is required");
     }
 
-    const postExist = await prisma.post.findUnique({ where: { id: postId } });
+    const postExist = await this.getPostById(postId);
 
     if (!postExist) {
       throw new Error("Post not found");
     }
 
-    const userExist = await prisma.user.findUnique({ where: { id: userId } });
+    const userExist = await this.getUserById(userId);
 
     if (!userExist) {
       throw new Error("User not found");
@@ -78,7 +78,7 @@ export class PrismaCommentRepository implements CommentRepository {
   }
 
   async deleteComment(id: string): Promise<{ message: string }> {
-    const commentExist = await prisma.comment.findUnique({ where: { id } });
+    const commentExist = await this.getCommentById(id);
 
     if (!commentExist) {
       return { message: "Comment not found" };
@@ -107,5 +107,18 @@ export class PrismaCommentRepository implements CommentRepository {
       message: "Comment updated successfully",
       comment: updatedComment,
     };
+  }
+
+  //HELPER METHODS
+  private async getCommentById(id: string) {
+    return await prisma.comment.findUnique({ where: { id } });
+  }
+
+  private async getUserById(id: string) {
+    return await prisma.user.findUnique({ where: { id } });
+  }
+
+  private async getPostById(id: string) {
+    return await prisma.post.findUnique({ where: { id } });
   }
 }

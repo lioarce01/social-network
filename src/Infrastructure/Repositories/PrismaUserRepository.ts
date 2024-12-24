@@ -59,50 +59,43 @@ export class PrismaUserRepository implements UserRepository {
   async createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }> {
-    const userExist = await prisma.user.findUnique({
-      where: { email: userData.email },
-    });
+    try {
+      const user = await prisma.user.create({ data: userData });
 
-    if (userExist) {
-      throw new Error("User already exists");
+      const userEntity = new User(
+        user.id,
+        user.sub,
+        user.name,
+        user.email,
+        user.profile_pic,
+        user.enabled,
+        user.role,
+        user.createdAt,
+        user.updatedAt,
+      );
+
+      return {
+        message: "User created successfully",
+        user: userEntity,
+      };
+    } catch (error: any) {
+      if (error.code === "P2002") {
+        throw new Error("User already exists");
+      }
+      throw error;
     }
-
-    const user = await prisma.user.create({ data: userData });
-
-    const userEntity = new User(
-      user.id,
-      user.sub,
-      user.name,
-      user.email,
-      user.profile_pic,
-      user.enabled,
-      user.role,
-      user.createdAt,
-      user.updatedAt,
-    );
-
-    return {
-      message: "User created successfully",
-      user: userEntity,
-    };
   }
 
   async disableUser(id: string): Promise<{ message: string; user: User }> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { enabled: true },
-    });
+    const user = await this.getById(id);
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const changeStatus = user.enabled === true ? false : true;
+    const newStatus = this.getUserStatus(user.enabled);
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: { enabled: changeStatus },
-    });
+    const updatedUser = await this.updateUserStatus(id, newStatus);
 
     return {
       message: "User status changed successfully",
@@ -111,21 +104,15 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async switchUserRole(id: string): Promise<{ message: string; user: User }> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: { role: true },
-    });
+    const user = await this.getById(id);
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const newRole = user.role === Role.ADMIN ? Role.USER : Role.ADMIN;
+    const newRole = this.getUserRole(user.role);
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: { role: newRole },
-    });
+    const updatedUser = await this.updateUserRole(id, newRole);
 
     return {
       message: "Role switched successfully",
@@ -141,10 +128,37 @@ export class PrismaUserRepository implements UserRepository {
     const whereClause = filter?.buildWhereClause();
     const users = await prisma.user.findMany({
       where: whereClause,
-      ...(typeof offset !== "undefined" && { skip: offset }),
-      ...(typeof limit !== "undefined" && { take: limit }),
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     return users;
+  }
+
+  //HELPER METHODS
+  private getUserRole(nextRole: Role): Role {
+    return nextRole === Role.ADMIN ? Role.USER : Role.ADMIN;
+  }
+
+  private getUserStatus(nextStatus: boolean) {
+    return !nextStatus;
+  }
+
+  private async updateUserStatus(id: string, newStatus: boolean) {
+    return prisma.user.update({
+      where: { id },
+      data: { enabled: newStatus },
+    });
+  }
+
+  private async updateUserRole(id: string, newRole: Role) {
+    return prisma.user.update({
+      where: { id },
+      data: { role: newRole },
+    });
+  }
+
+  private async getById(id: string) {
+    return prisma.user.findUnique({ where: { id } });
   }
 }

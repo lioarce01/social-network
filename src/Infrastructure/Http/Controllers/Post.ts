@@ -92,8 +92,7 @@ export class PostController {
 
   async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      const { content } = req.body;
+      const { id, content } = req.body;
       const { message, post } = await this.updatePostUseCase.execute(id, {
         content,
       });
@@ -106,7 +105,7 @@ export class PostController {
 
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { id } = req.body;
 
       const { message } = await this.deletePostUseCase.execute(id);
 

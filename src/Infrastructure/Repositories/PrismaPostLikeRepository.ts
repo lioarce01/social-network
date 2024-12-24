@@ -5,14 +5,6 @@ import { prisma } from "../../config/config";
 
 @injectable()
 export class PrismaPostLikeRepository implements PostLikeRepository {
-  private async getExistingLike(userId: string, postId: string) {
-    return await prisma.postLike.findUnique({
-      where: {
-        userId_postId: { userId, postId },
-      },
-    });
-  }
-
   async likePost(
     userId: string,
     postId: string,
@@ -67,5 +59,14 @@ export class PrismaPostLikeRepository implements PostLikeRepository {
     ]);
 
     return { message: "Post unliked successfully" };
+  }
+
+  //HELPER METHODS
+  private async getExistingLike(userId: string, postId: string) {
+    return await prisma.postLike.findUnique({
+      where: {
+        userId_postId: { userId, postId },
+      },
+    });
   }
 }
