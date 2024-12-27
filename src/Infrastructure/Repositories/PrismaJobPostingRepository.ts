@@ -2,7 +2,7 @@ import { JobPostingRepository } from "../../Domain/Repositories/JobPostingReposi
 import { JobPosting } from "../../Domain/Entities/JobPosting";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
-import { JobPostingStatus, Prisma } from "@prisma/client";
+import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
 
 @injectable()
@@ -42,6 +42,8 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       deadline: Date;
       techRequired: string[];
       category: string;
+      location: string;
+      mode: Mode;
     },
   ): Promise<{ message: string; jobPosting: JobPosting }> {
     const updatedPost = await prisma.jobPosting.update({

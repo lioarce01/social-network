@@ -89,6 +89,8 @@ export class JobPostingController {
         deadline,
         techRequired,
         category,
+        location,
+        mode,
       } = req.body;
 
       if (
@@ -112,6 +114,8 @@ export class JobPostingController {
         techRequired,
         category,
         status: JobPostingStatus.OPEN,
+        location,
+        mode,
         jobAuthor: {
           connect: {
             id: userId,
