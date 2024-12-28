@@ -67,7 +67,9 @@ model JobPosting {
   deadline     DateTime
   techRequired String[]
   category     String
-  status JobPostingStatus
+  status       JobPostingStatus
+  location     String
+  mode         Mode
   applicants   JobApplication[]
   jobAuthorId  String           @db.ObjectId
   jobAuthor    User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)
@@ -94,4 +96,10 @@ enum JobPostingStatus {
 enum Role {
   USER
   ADMIN
+}
+
+enum Mode {
+  REMOTE
+  HYBRID
+  ONSITE
 }
