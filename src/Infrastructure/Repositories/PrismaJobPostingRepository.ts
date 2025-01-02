@@ -29,22 +29,14 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       where: { id },
       include: {
         applicants: true,
+        jobAuthor: true,
       },
     });
   }
 
   async updateJobPosting(
     id: string,
-    jobPostingData: {
-      title: string;
-      description: string;
-      budget: number;
-      deadline: Date;
-      techRequired: string[];
-      category: string;
-      location: string;
-      mode: Mode;
-    },
+    jobPostingData: Partial<Omit<JobPosting, "applicants" | "jobAuthor">>,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
     const updatedPost = await prisma.jobPosting.update({
       where: { id },
