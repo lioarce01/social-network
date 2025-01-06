@@ -4,6 +4,7 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
+import { User } from "../../Domain/Entities/User";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
@@ -105,6 +106,34 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     return {
       message: `Job Posting status updated to ${updatedJobPosting.status} successfully`,
     };
+  }
+
+  async getJobApplicants(jobId: string): Promise<Partial<User>[] | null> {
+    const jobPosting = await this.getJobPostingById(jobId);
+
+    if (!jobPosting || !jobPosting.applicants) {
+      return null;
+    }
+
+    const applicantsIds = jobPosting.applicants.map(
+      (applicant) => applicant.userId,
+    );
+
+    const users = await prisma.user.findMany({
+      where: {
+        id: {
+          in: applicantsIds,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        profile_pic: true,
+      },
+    });
+
+    return users;
   }
 
   //HELPERS METHODS

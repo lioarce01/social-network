@@ -6,6 +6,7 @@ import { UpdateJobPosting } from "../../../Application/UseCases/JobPosting/Updat
 import { CreateJobPosting } from "../../../Application/UseCases/JobPosting/CreateJobPosting";
 import { DeleteJobPosting } from "../../../Application/UseCases/JobPosting/DeleteJobPosting";
 import { DisableJobPosting } from "../../../Application/UseCases/JobPosting/DisableJobPosting";
+import { GetJobApplicants } from "../../../Application/UseCases/JobPosting/GetJobApplicants";
 import { JobPostingStatus, Prisma } from "@prisma/client";
 
 @injectable()
@@ -22,6 +23,8 @@ export class JobPostingController {
     private deleteJobPostingUseCase: DeleteJobPosting,
     @inject("DisableJobPosting")
     private disableJobPostingUseCase: DisableJobPosting,
+    @inject("GetJobApplicants")
+    private getJobApplicantsUseCase: GetJobApplicants,
   ) {}
 
   async getJobPostings(req: Request, res: Response, next: NextFunction) {
@@ -174,6 +177,18 @@ export class JobPostingController {
       const { message } = await this.disableJobPostingUseCase.execute(id);
 
       res.status(200).json({ message });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getJobApplicants(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      const jobApplicants = await this.getJobApplicantsUseCase.execute(id);
+
+      res.status(200).json(jobApplicants);
     } catch (e) {
       next(e);
     }

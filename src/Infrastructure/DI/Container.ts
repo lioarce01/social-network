@@ -40,6 +40,7 @@ import { DisableJobPosting } from "../../Application/UseCases/JobPosting/Disable
 import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicationRepository";
 import { PrismaJobApplicationRepository } from "../Repositories/PrismaJobApplicationRepository";
 import { ApplyJob } from "../../Application/UseCases/JobApplication/ApplyJob";
+import { GetJobApplicants } from "../../Application/UseCases/JobPosting/GetJobApplicants";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -109,6 +110,7 @@ container.registerSingleton("UpdateJobPosting", UpdateJobPosting);
 container.registerSingleton("CreateJobPosting", CreateJobPosting);
 container.registerSingleton("DeleteJobPosting", DeleteJobPosting);
 container.registerSingleton("DisableJobPosting", DisableJobPosting);
+container.registerSingleton("GetJobApplicants", GetJobApplicants);
 
 //Register Job applications use cases
 
