@@ -3,7 +3,7 @@ import { container } from "tsyringe";
 import { UserRepository } from "../../Domain/Repositories/UserRepository";
 import { PrismaUserRepository } from "../Repositories/PrismaUserRepository";
 import { GetAllUsers } from "../../Application/UseCases/User/GetAllUsers";
-import { GetUserById } from "../../Application/UseCases/User/GetUserById";
+import { GetUserBySub } from "../../Application/UseCases/User/GetUserBySub";
 import { CreateUser } from "../../Application/UseCases/User/CreateUser";
 import { DeleteUser } from "../../Application/UseCases/User/DeleteUser";
 import { DisableUser } from "../../Application/UseCases/User/DisableUser";
@@ -76,7 +76,7 @@ export function setupContainer() {
 
 //Register User use cases
 container.registerSingleton("GetAllUsers", GetAllUsers);
-container.registerSingleton("GetUserById", GetUserById);
+container.registerSingleton("GetUserBySub", GetUserBySub);
 container.registerSingleton("CreateUser", CreateUser);
 container.registerSingleton("DeleteUser", DeleteUser);
 container.registerSingleton("DisableUser", DisableUser);
