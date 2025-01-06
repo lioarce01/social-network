@@ -28,5 +28,8 @@ router.delete("/:id", (req, res, next) =>
 router.put("/:id/change-status", (req, res, next) =>
   jobPostingController.disableJobPosting(req, res, next),
 );
+router.get("/:id/applicants", (req, res, next) =>
+  jobPostingController.getJobApplicants(req, res, next),
+);
 
 export default router;

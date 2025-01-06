@@ -3,7 +3,7 @@ import { container } from "tsyringe";
 import { UserRepository } from "../../Domain/Repositories/UserRepository";
 import { PrismaUserRepository } from "../Repositories/PrismaUserRepository";
 import { GetAllUsers } from "../../Application/UseCases/User/GetAllUsers";
-import { GetUserById } from "../../Application/UseCases/User/GetUserById";
+import { GetUserBySub } from "../../Application/UseCases/User/GetUserBySub";
 import { CreateUser } from "../../Application/UseCases/User/CreateUser";
 import { DeleteUser } from "../../Application/UseCases/User/DeleteUser";
 import { DisableUser } from "../../Application/UseCases/User/DisableUser";
@@ -40,6 +40,7 @@ import { DisableJobPosting } from "../../Application/UseCases/JobPosting/Disable
 import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicationRepository";
 import { PrismaJobApplicationRepository } from "../Repositories/PrismaJobApplicationRepository";
 import { ApplyJob } from "../../Application/UseCases/JobApplication/ApplyJob";
+import { GetJobApplicants } from "../../Application/UseCases/JobPosting/GetJobApplicants";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -75,7 +76,7 @@ export function setupContainer() {
 
 //Register User use cases
 container.registerSingleton("GetAllUsers", GetAllUsers);
-container.registerSingleton("GetUserById", GetUserById);
+container.registerSingleton("GetUserBySub", GetUserBySub);
 container.registerSingleton("CreateUser", CreateUser);
 container.registerSingleton("DeleteUser", DeleteUser);
 container.registerSingleton("DisableUser", DisableUser);
@@ -109,6 +110,7 @@ container.registerSingleton("UpdateJobPosting", UpdateJobPosting);
 container.registerSingleton("CreateJobPosting", CreateJobPosting);
 container.registerSingleton("DeleteJobPosting", DeleteJobPosting);
 container.registerSingleton("DisableJobPosting", DisableJobPosting);
+container.registerSingleton("GetJobApplicants", GetJobApplicants);
 
 //Register Job applications use cases
 

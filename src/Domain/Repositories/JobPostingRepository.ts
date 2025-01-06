@@ -1,6 +1,8 @@
-import { JobPostingStatus, Prisma } from "@prisma/client";
 import { JobPosting } from "../Entities/JobPosting";
 import { JobPostingFilter } from "../../Infrastructure/Filters/JobPostingFilter";
+import { Prisma } from "@prisma/client";
+import { User } from "../Entities/User";
+import { JobApplication } from "../Entities/JobApplication";
 
 export interface JobPostingRepository {
   getAllJobPostings(
@@ -19,4 +21,5 @@ export interface JobPostingRepository {
   ): Promise<{ message: string; jobPosting: JobPosting }>;
   deleteJobPosting(id: string): Promise<{ message: string }>;
   disableJobPosting(id: string): Promise<{ message: string }>;
+  getJobApplicants(jobId: string): Promise<Partial<User>[] | null>;
 }

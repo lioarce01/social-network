@@ -7,7 +7,7 @@ import { UserFilter } from "../Filters/UserFilter";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
-  async getUserById(sub: string): Promise<User | null> {
+  async getUserBySub(sub: string): Promise<User | null> {
     return await prisma.user.findUnique({
       where: { sub },
       include: {
