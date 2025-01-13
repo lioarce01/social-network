@@ -19,6 +19,18 @@ export class PrismaUserRepository implements UserRepository {
     });
   }
 
+  async getUserById(id: string): Promise<User | null> {
+    return await prisma.user.findUnique({
+      where: { id },
+      include: {
+        posts: true,
+        comments: true,
+        jobPostings: true,
+        applications: true,
+      },
+    });
+  }
+
   async updateUser(
     id: string,
     userData: { name?: string },

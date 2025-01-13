@@ -9,6 +9,7 @@ export interface UserRepository {
     limit?: number,
   ): Promise<User[] | null>;
   getUserBySub(sub: string): Promise<User | null>;
+  getUserById(id: String): Promise<User | null>;
   updateUser(
     id: string,
     userData: Partial<User>,
