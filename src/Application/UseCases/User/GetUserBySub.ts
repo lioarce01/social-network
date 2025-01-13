@@ -3,13 +3,15 @@ import { User } from "../../../Domain/Entities/User";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
-export class GetUserBySub {
+export class GetUserByIdentifier {
   constructor(
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(sub: string): Promise<User | null> {
-    const user = await this.userRepository.getUserBySub(sub);
-    return user;
+  async execute(identifier: string): Promise<User | null> {
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+    return isObjectId
+      ? await this.userRepository.getUserById(identifier)
+      : await this.userRepository.getUserBySub(identifier);
   }
 }

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { GetAllUsers } from "../../../Application/UseCases/User/GetAllUsers";
 import { inject, injectable } from "tsyringe";
-import { GetUserBySub } from "../../../Application/UseCases/User/GetUserBySub";
+import { GetUserByIdentifier } from "../../../Application/UseCases/User/GetUserBySub";
 import { UpdateUser } from "../../../Application/UseCases/User/updateUser";
 import { DeleteUser } from "../../../Application/UseCases/User/DeleteUser";
 import { CreateUser } from "../../../Application/UseCases/User/CreateUser";
@@ -13,7 +13,8 @@ import { Role } from "@prisma/client";
 export class UserController {
   constructor(
     @inject(GetAllUsers) private getAllUsersUseCase: GetAllUsers,
-    @inject(GetUserBySub) private getUserBySubUseCase: GetUserBySub,
+    @inject(GetUserByIdentifier)
+    private getUserByIdentifierUseCase: GetUserByIdentifier,
     @inject(UpdateUser) private updateUserUseCase: UpdateUser,
     @inject(DeleteUser) private deleteUserUseCase: DeleteUser,
     @inject(CreateUser) private createUserUseCase: CreateUser,
@@ -76,10 +77,10 @@ export class UserController {
     }
   }
 
-  async getUserBySub(req: Request, res: Response, next: NextFunction) {
+  async getUserByIdentifier(req: Request, res: Response, next: NextFunction) {
     try {
-      const { sub } = req.params;
-      const user = await this.getUserBySubUseCase.execute(sub);
+      const { identifier } = req.params;
+      const user = await this.getUserByIdentifierUseCase.execute(identifier);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });

@@ -12,9 +12,10 @@ const userController = container.resolve(UserController);
 
 router.get("/", (req, res, next) => userController.getAllUsers(req, res, next));
 router.post("/", (req, res, next) => userController.createUser(req, res, next));
-router.get("/:sub", (req, res, next) =>
-  userController.getUserBySub(req, res, next),
+router.get("/:identifier", (req, res, next) =>
+  userController.getUserByIdentifier(req, res, next),
 );
+
 router.put("/:id/update", (req, res, next) =>
   userController.updateUser(req, res, next),
 );
