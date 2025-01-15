@@ -10,11 +10,13 @@ export class UpdatePost {
   ) {}
 
   async execute(
-    id: string,
+    userId: string,
+    postId: string,
     postData: Partial<Post>,
   ): Promise<{ message: string; post: Post }> {
     const { message, post } = await this.postRepository.updatePost(
-      id,
+      userId,
+      postId,
       postData,
     );
     return { message, post };
