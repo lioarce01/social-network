@@ -12,7 +12,8 @@ export interface CommentRepository {
   ): Promise<{ message: string; comment: Comment }>;
   deleteComment(id: string): Promise<{ message: string }>;
   updateComment(
-    id: string,
+    userId: string,
+    commentId: string,
     commentData: Partial<Comment>,
   ): Promise<{ message: string; comment: Comment }>;
 }

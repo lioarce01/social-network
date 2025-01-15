@@ -92,13 +92,25 @@ export class PostController {
 
   async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, content } = req.body;
-      const { message, post } = await this.updatePostUseCase.execute(id, {
-        content,
-      });
+      const { userId, postId, content } = req.body;
+      const { message, post } = await this.updatePostUseCase.execute(
+        userId,
+        postId,
+        {
+          content,
+        },
+      );
 
       res.status(200).json({ message, post });
     } catch (e) {
+      if (
+        e instanceof Error &&
+        e.message === "You are not the author of this post"
+      ) {
+        return res
+          .status(403)
+          .json({ message: "You are not the author of this post" });
+      }
       next(e);
     }
   }

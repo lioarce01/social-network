@@ -55,15 +55,25 @@ export class PrismaPostRepository implements PostRepository {
   }
 
   async updatePost(
-    id: string,
+    userId: string,
+    postId: string,
     postData: { content: string },
   ): Promise<{ message: string; post: Post }> {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { author: true },
+    });
+
+    if (!post) {
+      throw new Error("Post does not exist");
+    }
+
+    if (post.author.id !== userId) {
+      throw new Error("You are not the author of this post");
+    }
+
     const updatedPost = await prisma.post.update({
-      where: { id },
-      include: {
-        author: true,
-        comments: true,
-      },
+      where: { id: postId },
       data: {
         ...postData,
         updatedAt: new Date(),

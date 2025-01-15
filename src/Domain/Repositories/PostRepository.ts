@@ -11,7 +11,8 @@ export interface PostRepository {
   ): Promise<{ message: string; post: Post }>;
   deletePost(id: string): Promise<{ message: string }>;
   updatePost(
-    id: string,
+    userId: string,
+    postId: string,
     postData: Partial<Post>,
   ): Promise<{ message: string; post: Post }>;
 }
