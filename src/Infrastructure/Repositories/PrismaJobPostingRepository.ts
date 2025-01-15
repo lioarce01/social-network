@@ -109,31 +109,46 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   }
 
   async getJobApplicants(jobId: string): Promise<Partial<User>[] | null> {
-    const jobPosting = await this.getJobPostingById(jobId);
+    // const jobPosting = await this.getJobPostingById(jobId);
+    // if (!jobPosting || !jobPosting.applicants) {
+    //   return null;
+    // }
+    // const applicantsIds = jobPosting.applicants.map(
+    //   (applicant) => applicant.userId,
+    // );
+    // const users = await prisma.user.findMany({
+    //   where: {
+    //     id: {
+    //       in: applicantsIds,
+    //     },
+    //   },
+    //   select: {
+    //     id: true,
+    //     name: true,
+    //     email: true,
+    //     profile_pic: true,
+    //   },
+    // });
+    // return users;
 
-    if (!jobPosting || !jobPosting.applicants) {
-      return null;
-    }
-
-    const applicantsIds = jobPosting.applicants.map(
-      (applicant) => applicant.userId,
-    );
-
-    const users = await prisma.user.findMany({
+    const applicants = await prisma.jobApplication.findMany({
       where: {
-        id: {
-          in: applicantsIds,
-        },
+        jobPostingId: jobId,
+        isRejected: false,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        profile_pic: true,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profile_pic: true,
+          },
+        },
       },
     });
 
-    return users;
+    return applicants;
   }
 
   //HELPERS METHODS

@@ -83,6 +83,7 @@ model JobApplication {
   jobPostingId String     @db.ObjectId
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  isRejected Boolean    @default(false)
   appliedAt    DateTime   @default(now())
 
   @@unique([userId, jobPostingId])

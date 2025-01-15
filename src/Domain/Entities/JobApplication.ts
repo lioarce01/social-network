@@ -7,6 +7,7 @@ export class JobApplication {
     public readonly userId: string,
     public readonly jobPostingId: string,
     public readonly appliedAt: Date,
+    public readonly isRejected: boolean,
     public readonly user?: User,
     public readonly jobPosting?: JobPosting,
   ) {}
