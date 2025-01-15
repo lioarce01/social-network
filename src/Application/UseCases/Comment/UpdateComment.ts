@@ -9,11 +9,13 @@ export class UpdateComment {
   ) {}
 
   async execute(
-    id: string,
+    userId: string,
+    commentId: string,
     commentData: Partial<Comment>,
   ): Promise<{ message: string; comment: Comment }> {
     const { message, comment } = await this.commentRepository.updateComment(
-      id,
+      userId,
+      commentId,
       commentData,
     );
 

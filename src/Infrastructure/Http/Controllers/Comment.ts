@@ -120,14 +120,26 @@ export class CommentController {
 
   async updateComment(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, content } = req.body;
+      const { userId, commentId, content } = req.body;
 
-      const { message, comment } = await this.updateCommentUseCase.execute(id, {
-        content,
-      });
+      const { message, comment } = await this.updateCommentUseCase.execute(
+        userId,
+        commentId,
+        {
+          content,
+        },
+      );
 
       res.status(200).json({ message, comment });
     } catch (e) {
+      if (
+        e instanceof Error &&
+        e.message === "User does not have permission to update this comment"
+      ) {
+        res.status(403).json({
+          message: "User does not have permission to update this comment ",
+        });
+      }
       next(e);
     }
   }

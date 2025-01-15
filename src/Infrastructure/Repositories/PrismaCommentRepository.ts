@@ -23,6 +23,9 @@ export class PrismaCommentRepository implements CommentRepository {
       where: {
         postId: id,
       },
+      include: {
+        author: true,
+      },
     });
 
     return commentsPost;
@@ -89,17 +92,31 @@ export class PrismaCommentRepository implements CommentRepository {
   }
 
   async updateComment(
-    id: string,
+    userId: string,
+    commentId: string,
     commentData: { content: string },
   ): Promise<{ message: string; comment: Comment }> {
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: { author: true },
+    });
+
+    if (!comment) {
+      throw new Error("Comment not found");
+    }
+
+    if (comment.authorId !== userId) {
+      throw new Error("User does not have permission to update this comment");
+    }
+
     const updatedComment = await prisma.comment.update({
-      where: { id },
-      include: {
-        author: true,
-      },
+      where: { id: commentId },
       data: {
         ...commentData,
         updatedAt: new Date(),
+      },
+      include: {
+        author: true,
       },
     });
 
