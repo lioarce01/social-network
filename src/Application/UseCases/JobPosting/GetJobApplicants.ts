@@ -11,7 +11,7 @@ export class GetJobApplicants {
     private jobPostingRepository: JobPostingRepository,
   ) {}
 
-  async execute(jobId: string): Promise<Partial<User>[] | null> {
+  async execute(jobId: string): Promise<JobApplication[] | null> {
     const applicants = await this.jobPostingRepository.getJobApplicants(jobId);
 
     return applicants;

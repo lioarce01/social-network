@@ -2,7 +2,7 @@ import { JobPostingRepository } from "../../Domain/Repositories/JobPostingReposi
 import { JobPosting } from "../../Domain/Entities/JobPosting";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
-import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
+import { JobApplication, JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
 import { User } from "../../Domain/Entities/User";
 
@@ -108,29 +108,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     };
   }
 
-  async getJobApplicants(jobId: string): Promise<Partial<User>[] | null> {
-    // const jobPosting = await this.getJobPostingById(jobId);
-    // if (!jobPosting || !jobPosting.applicants) {
-    //   return null;
-    // }
-    // const applicantsIds = jobPosting.applicants.map(
-    //   (applicant) => applicant.userId,
-    // );
-    // const users = await prisma.user.findMany({
-    //   where: {
-    //     id: {
-    //       in: applicantsIds,
-    //     },
-    //   },
-    //   select: {
-    //     id: true,
-    //     name: true,
-    //     email: true,
-    //     profile_pic: true,
-    //   },
-    // });
-    // return users;
-
+  async getJobApplicants(jobId: string): Promise<JobApplication[] | null> {
     const applicants = await prisma.jobApplication.findMany({
       where: {
         jobPostingId: jobId,
