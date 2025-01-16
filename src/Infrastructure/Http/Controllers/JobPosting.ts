@@ -57,10 +57,6 @@ export class JobPostingController {
         parsedLimit,
       );
 
-      if (!jobPostings || jobPostings.length === 0) {
-        return res.status(404).json({ message: "No job postings found" });
-      }
-
       res.status(200).json(jobPostings);
     } catch (e) {
       next(e);
