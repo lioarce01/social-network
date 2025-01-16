@@ -95,11 +95,9 @@ export class UserController {
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { name } = req.body;
+      const { ...body } = req.body;
 
-      const { message, user } = await this.updateUserUseCase.execute(id, {
-        name,
-      });
+      const { message, user } = await this.updateUserUseCase.execute(id, body);
 
       res.status(200).json({ message, user });
     } catch (e) {

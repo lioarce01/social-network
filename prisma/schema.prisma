@@ -9,20 +9,25 @@ datasource db {
 
 // entities
 model User {
-  id           String           @id @default(auto()) @map("_id") @db.ObjectId
-  sub          String           @unique
-  name         String
-  email        String           @unique
-  profile_pic  String
-  enabled      Boolean          @default(true)
-  role         Role             @default(USER)
-  posts        Post[]
-  comments     Comment[]
-  likedPosts   PostLike[]
-  jobPostings  JobPosting[]
-  applications JobApplication[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @default(now())
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  sub              String           @unique
+  name             String
+  headline         String?
+  country          String?
+  postal_code      String?
+  city             String?
+  current_position String?
+  email            String           @unique
+  profile_pic      String
+  enabled          Boolean          @default(true)
+  role             Role             @default(USER)
+  posts            Post[]
+  comments         Comment[]
+  likedPosts       PostLike[]
+  jobPostings      JobPosting[]
+  applications     JobApplication[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now())
 }
 
 model Post {
@@ -83,7 +88,7 @@ model JobApplication {
   jobPostingId String     @db.ObjectId
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
-  isRejected Boolean    @default(false)
+  isRejected   Boolean    @default(false)
   appliedAt    DateTime   @default(now())
 
   @@unique([userId, jobPostingId])

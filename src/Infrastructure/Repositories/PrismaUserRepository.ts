@@ -4,12 +4,13 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
+import { UpdateUserDTO } from "../../Application/DTOs/User";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
   async getUserBySub(sub: string): Promise<User | null> {
-    return await prisma.user.findUnique({
-      where: { sub },
+    const user = await prisma.user.findUnique({
+      where: { sub: sub },
       include: {
         posts: true,
         comments: true,
@@ -17,11 +18,19 @@ export class PrismaUserRepository implements UserRepository {
         applications: true,
       },
     });
+
+    const transformedUser = this.transformUser(user);
+
+    if (user) {
+      return transformedUser;
+    }
+
+    return null;
   }
 
   async getUserById(id: string): Promise<User | null> {
-    return await prisma.user.findUnique({
-      where: { id },
+    const user = await prisma.user.findUnique({
+      where: { id: id },
       include: {
         posts: true,
         comments: true,
@@ -29,11 +38,19 @@ export class PrismaUserRepository implements UserRepository {
         applications: true,
       },
     });
+
+    const transformedUser = this.transformUser(user);
+
+    if (user) {
+      return transformedUser;
+    }
+
+    return null;
   }
 
   async updateUser(
     id: string,
-    userData: { name?: string },
+    userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }> {
     const userExist = await prisma.user.findUnique({ where: { id } });
     if (!userExist) {
@@ -44,13 +61,26 @@ export class PrismaUserRepository implements UserRepository {
       where: { id },
       data: {
         ...userData,
+        headline: userData.headline ?? undefined,
+        country: userData.country ?? undefined,
+        postal_code: userData.postal_code ?? undefined,
+        city: userData.city ?? undefined,
+        current_position: userData.current_position ?? undefined,
         updatedAt: new Date(),
+      },
+      include: {
+        posts: true,
+        comments: true,
+        jobPostings: true,
+        applications: true,
       },
     });
 
+    const transformedUser = this.transformUser(updatedUser);
+
     return {
       message: "User updated successfully",
-      user: updatedUser,
+      user: transformedUser,
     };
   }
 
@@ -74,17 +104,7 @@ export class PrismaUserRepository implements UserRepository {
     try {
       const user = await prisma.user.create({ data: userData });
 
-      const userEntity = new User(
-        user.id,
-        user.sub,
-        user.name,
-        user.email,
-        user.profile_pic,
-        user.enabled,
-        user.role,
-        user.createdAt,
-        user.updatedAt,
-      );
+      const userEntity = this.transformUser(user);
 
       return {
         message: "User created successfully",
@@ -109,9 +129,11 @@ export class PrismaUserRepository implements UserRepository {
 
     const updatedUser = await this.updateUserStatus(id, newStatus);
 
+    const transformedUser = this.transformUser(updatedUser);
+
     return {
       message: "User status changed successfully",
-      user: updatedUser,
+      user: transformedUser,
     };
   }
 
@@ -126,9 +148,11 @@ export class PrismaUserRepository implements UserRepository {
 
     const updatedUser = await this.updateUserRole(id, newRole);
 
+    const transformedUser = this.transformUser(updatedUser);
+
     return {
       message: "Role switched successfully",
-      user: updatedUser,
+      user: transformedUser,
     };
   }
 
@@ -144,10 +168,14 @@ export class PrismaUserRepository implements UserRepository {
       ...(limit && { take: limit }),
     });
 
-    return users;
+    if (!users) {
+      return null;
+    }
+
+    return users.map((user) => this.transformUser(user));
   }
 
-  //HELPER METHODS
+  // HELPER METHODS
   private getUserRole(nextRole: Role): Role {
     return nextRole === Role.ADMIN ? Role.USER : Role.ADMIN;
   }
@@ -172,5 +200,29 @@ export class PrismaUserRepository implements UserRepository {
 
   private async getById(id: string) {
     return prisma.user.findUnique({ where: { id } });
+  }
+
+  private transformUser(user: any) {
+    return new User(
+      user.id,
+      user.sub,
+      user.name,
+      user.email,
+      user.profile_pic,
+      user.enabled,
+      user.role,
+      user.createdAt,
+      user.updatedAt,
+      user.headline ?? undefined,
+      user.country ?? undefined,
+      user.postal_code ?? undefined,
+      user.city ?? undefined,
+      user.current_position ?? undefined,
+      user.posts ?? [],
+      user.comments ?? [],
+      [],
+      user.jobPostings ?? [],
+      user.applications ?? [],
+    );
   }
 }

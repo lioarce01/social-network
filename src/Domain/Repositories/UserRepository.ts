@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
+import { UpdateUserDTO } from "../../Application/DTOs/User";
 
 export interface UserRepository {
   getAllUsers(
@@ -12,7 +13,7 @@ export interface UserRepository {
   getUserById(id: String): Promise<User | null>;
   updateUser(
     id: string,
-    userData: Partial<User>,
+    userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
   deleteUser(id: String): Promise<{ message: string }>;
   createUser(

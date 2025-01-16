@@ -26,13 +26,34 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
   }
 
   async getJobPostingById(id: string): Promise<JobPosting | null> {
-    return await prisma.jobPosting.findUnique({
+    const jobPosting = await prisma.jobPosting.findUnique({
       where: { id },
       include: {
         applicants: true,
         jobAuthor: true,
       },
     });
+
+    if (!jobPosting) {
+      return null;
+    }
+
+    const transformedJobPosting: JobPosting = {
+      ...jobPosting,
+      jobAuthor: jobPosting.jobAuthor
+        ? {
+            ...jobPosting.jobAuthor,
+            headline: jobPosting.jobAuthor.headline ?? undefined,
+            country: jobPosting.jobAuthor.country ?? undefined,
+            postal_code: jobPosting.jobAuthor.postal_code ?? undefined,
+            city: jobPosting.jobAuthor.city ?? undefined,
+            current_position:
+              jobPosting.jobAuthor.current_position ?? undefined,
+          }
+        : undefined,
+    };
+
+    return transformedJobPosting;
   }
 
   async updateJobPosting(
