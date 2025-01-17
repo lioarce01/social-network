@@ -37,7 +37,7 @@ export class JobPostingController {
       };
 
       const sortOptions = {
-        sortBy: sortBy as "budget",
+        sortBy: sortBy as "budget" | "createdAt",
         sortOrder: sortOrder as "asc" | "desc",
       };
 

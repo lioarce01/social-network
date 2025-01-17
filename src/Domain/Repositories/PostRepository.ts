@@ -1,8 +1,13 @@
 import { Prisma } from "@prisma/client";
 import { Post } from "../Entities/Post";
+import { PostFilter } from "../../Infrastructure/Filters/PostFilter";
 
 export interface PostRepository {
-  getAllPosts(offset?: number, limit?: number): Promise<Post[] | null>;
+  getAllPosts(
+    filter?: PostFilter,
+    offset?: number,
+    limit?: number,
+  ): Promise<Post[] | null>;
   getPostById(id: string): Promise<Post | null>;
   getUserPosts(id: string): Promise<Post[] | null>;
   createPost(

@@ -3,6 +3,7 @@ import { Post } from "../../Domain/Entities/Post";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
+import { PostFilter } from "../Filters/PostFilter";
 
 @injectable()
 export class PrismaPostRepository implements PostRepository {
@@ -86,8 +87,15 @@ export class PrismaPostRepository implements PostRepository {
     };
   }
 
-  async getAllPosts(offset?: number, limit?: number): Promise<Post[] | null> {
+  async getAllPosts(
+    filter?: PostFilter,
+    offset?: number,
+    limit?: number,
+  ): Promise<Post[] | null> {
+    const orderByClause = filter?.buildOrderByClause();
     const posts = await prisma.post.findMany({
+      where: {},
+      orderBy: orderByClause,
       include: {
         author: true,
       },

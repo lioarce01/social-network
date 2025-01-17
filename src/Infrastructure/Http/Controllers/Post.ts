@@ -25,7 +25,12 @@ export class PostController {
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { offset, limit } = req.query;
+      const { sortBy, sortOrder, offset, limit } = req.query;
+
+      const sortOptions = {
+        sortBy: sortBy as "createdAt",
+        sortOrder: sortOrder as "asc" | "desc",
+      };
 
       const parsedOffset =
         typeof offset === "string" && offset.trim() !== ""
@@ -37,6 +42,7 @@ export class PostController {
           : undefined;
 
       const posts = await this.getAllPostsUseCase.execute(
+        sortOptions,
         parsedOffset,
         parsedLimit,
       );
