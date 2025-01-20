@@ -22,6 +22,8 @@ export class PrismaCommentRepository implements CommentRepository {
   async getPostComments(
     id: string,
     filter?: CommentFilter,
+    offset?: number,
+    limit?: number,
   ): Promise<{ comments: Comment[]; totalCount: number }> {
     const orderByClause = filter?.buildOrderByClause();
     const comments = await prisma.comment.findMany({
@@ -32,6 +34,8 @@ export class PrismaCommentRepository implements CommentRepository {
       include: {
         author: true,
       },
+      ...(offset && { skip: offset }),
+      ...(limit && { take: limit }),
     });
 
     if (!comments || comments.length === 0) {

@@ -16,9 +16,16 @@ export class GetPostComments {
   async execute(
     id: string,
     sortOptions?: CommentSortOptions,
+    offset?: number,
+    limit?: number,
   ): Promise<{ comments: Comment[]; totalCount: number }> {
     const filter = new CommentFilter(sortOptions);
-    const result = await this.commentRepository.getPostComments(id, filter);
+    const result = await this.commentRepository.getPostComments(
+      id,
+      filter,
+      offset,
+      limit,
+    );
 
     return result;
   }

@@ -7,6 +7,8 @@ export interface CommentRepository {
   getPostComments(
     id: string,
     filter?: CommentFilter,
+    offset?: number,
+    limit?: number,
   ): Promise<{ comments: Comment[]; totalCount: number }>;
   getUserComments(id: string): Promise<Comment[] | null>;
   createComment(

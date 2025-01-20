@@ -65,15 +65,29 @@ export class CommentController {
   async getPostComments(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { sortBy, sortOrder } = req.query;
+      const { sortBy, sortOrder, offset, limit } = req.query;
 
       const sortOptions = {
         sortBy: sortBy as "createdAt",
         sortOrder: sortOrder as "asc" | "desc",
       };
 
+      const parsedOffset =
+        typeof offset === "string" && offset.trim() !== ""
+          ? Number(offset)
+          : undefined;
+      const parsedLimit =
+        typeof limit === "string" && limit.trim() !== ""
+          ? Number(limit)
+          : undefined;
+
       const { comments, totalCount } =
-        await this.getPostCommentsUseCase.execute(id, sortOptions);
+        await this.getPostCommentsUseCase.execute(
+          id,
+          sortOptions,
+          parsedOffset,
+          parsedLimit,
+        );
 
       if (!comments || comments.length === 0) {
         return res.status(404).json({ message: "No comments found" });
