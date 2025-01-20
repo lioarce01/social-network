@@ -50,14 +50,17 @@ export class JobPostingController {
           ? Number(limit)
           : undefined;
 
-      const jobPostings = await this.getJobPostingsUseCase.execute(
+      const { jobs, totalCount } = await this.getJobPostingsUseCase.execute(
         filters,
         sortOptions,
         parsedOffset,
         parsedLimit,
       );
 
-      res.status(200).json(jobPostings);
+      res.status(200).json({
+        jobs,
+        totalCount,
+      });
     } catch (e) {
       next(e);
     }

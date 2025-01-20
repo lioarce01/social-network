@@ -12,17 +12,22 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
-  ): Promise<JobPosting[] | null> {
+  ): Promise<{ jobs: JobPosting[]; totalCount: number }> {
     const whereClause = filter?.buildWhereClause();
     const orderByClause = filter?.buildOrderByClause();
-    const jobPostings = await prisma.jobPosting.findMany({
+
+    const jobs = await prisma.jobPosting.findMany({
       where: whereClause,
       orderBy: orderByClause,
       ...(offset && { skip: offset }),
       ...(limit && { take: limit }),
     });
 
-    return jobPostings;
+    const totalCount = await prisma.jobPosting.count({
+      where: whereClause,
+    });
+
+    return { jobs, totalCount };
   }
 
   async getJobPostingById(id: string): Promise<JobPosting | null> {

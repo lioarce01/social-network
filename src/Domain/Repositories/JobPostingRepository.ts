@@ -9,7 +9,7 @@ export interface JobPostingRepository {
     filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
-  ): Promise<JobPosting[] | null>;
+  ): Promise<{ jobs: JobPosting[]; totalCount: number }>;
   getJobPostingById(id: string): Promise<JobPosting | null>;
   updateJobPosting(
     id: string,
