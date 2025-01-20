@@ -16,9 +16,9 @@ export class GetAllPosts {
     sortOptions?: PostSortOptions,
     offset?: number,
     limit?: number,
-  ): Promise<Post[] | null> {
+  ): Promise<{ posts: Post[]; totalCount: number }> {
     const filter = new PostFilter(sortOptions);
-    const posts = await this.postRepository.getAllPosts(filter, offset, limit);
-    return posts;
+    const result = await this.postRepository.getAllPosts(filter, offset, limit);
+    return result;
   }
 }

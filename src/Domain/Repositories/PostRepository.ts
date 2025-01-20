@@ -7,7 +7,7 @@ export interface PostRepository {
     filter?: PostFilter,
     offset?: number,
     limit?: number,
-  ): Promise<Post[] | null>;
+  ): Promise<{ posts: Post[]; totalCount: number }>;
   getPostById(id: string): Promise<Post | null>;
   getUserPosts(id: string): Promise<Post[] | null>;
   createPost(

@@ -41,7 +41,7 @@ export class PostController {
           ? Number(limit)
           : undefined;
 
-      const posts = await this.getAllPostsUseCase.execute(
+      const { posts, totalCount } = await this.getAllPostsUseCase.execute(
         sortOptions,
         parsedOffset,
         parsedLimit,
@@ -51,7 +51,10 @@ export class PostController {
         return res.status(404).json({ message: "No posts found" });
       }
 
-      res.status(200).json(posts);
+      res.status(200).json({
+        posts,
+        totalCount,
+      });
     } catch (e) {
       next(e);
     }

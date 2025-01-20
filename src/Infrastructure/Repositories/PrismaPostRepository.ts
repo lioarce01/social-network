@@ -91,7 +91,7 @@ export class PrismaPostRepository implements PostRepository {
     filter?: PostFilter,
     offset?: number,
     limit?: number,
-  ): Promise<Post[] | null> {
+  ): Promise<{ posts: Post[]; totalCount: number }> {
     const orderByClause = filter?.buildOrderByClause();
     const posts = await prisma.post.findMany({
       where: {},
@@ -103,7 +103,11 @@ export class PrismaPostRepository implements PostRepository {
       ...(limit && { take: limit }),
     });
 
-    return posts;
+    const totalCount = await prisma.post.count({
+      where: {},
+    });
+
+    return { posts, totalCount };
   }
 
   //HELPER METHODS
