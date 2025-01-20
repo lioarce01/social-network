@@ -9,9 +9,11 @@ export class GetPostComments {
     private readonly commentRepository: CommentRepository,
   ) {}
 
-  async execute(id: string): Promise<Comment[] | null> {
-    const comments = await this.commentRepository.getPostComments(id);
+  async execute(
+    id: string,
+  ): Promise<{ comments: Comment[]; totalCount: number }> {
+    const result = await this.commentRepository.getPostComments(id);
 
-    return comments;
+    return result;
   }
 }

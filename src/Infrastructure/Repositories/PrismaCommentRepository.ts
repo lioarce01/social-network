@@ -18,8 +18,10 @@ export class PrismaCommentRepository implements CommentRepository {
     return comments;
   }
 
-  async getPostComments(id: string): Promise<Comment[] | null> {
-    const commentsPost = await prisma.comment.findMany({
+  async getPostComments(
+    id: string,
+  ): Promise<{ comments: Comment[]; totalCount: number }> {
+    const comments = await prisma.comment.findMany({
       where: {
         postId: id,
       },
@@ -28,7 +30,17 @@ export class PrismaCommentRepository implements CommentRepository {
       },
     });
 
-    return commentsPost;
+    if (!comments || comments.length === 0) {
+      throw new Error("comments to this post not found");
+    }
+
+    const totalCount = await prisma.comment.count({
+      where: {
+        postId: id,
+      },
+    });
+
+    return { comments, totalCount };
   }
 
   async getUserComments(id: string): Promise<Comment[] | null> {

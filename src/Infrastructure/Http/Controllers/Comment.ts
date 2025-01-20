@@ -65,13 +65,20 @@ export class CommentController {
   async getPostComments(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const comments = await this.getPostCommentsUseCase.execute(id);
+      const { comments, totalCount } =
+        await this.getPostCommentsUseCase.execute(id);
 
       if (!comments || comments.length === 0) {
         return res.status(404).json({ message: "No comments found" });
       }
-      res.status(200).json(comments);
+      res.status(200).json({ comments, totalCount });
     } catch (e) {
+      if (
+        e instanceof Error &&
+        e.message === "comments to this post not found"
+      ) {
+        return res.status(404).json({ message: "No comments found" });
+      }
       next(e);
     }
   }

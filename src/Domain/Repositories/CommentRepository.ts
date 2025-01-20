@@ -3,7 +3,9 @@ import { Comment } from "../Entities/Comment";
 
 export interface CommentRepository {
   getAllComments(offset?: number, limit?: number): Promise<Comment[] | null>;
-  getPostComments(id: string): Promise<Comment[] | null>;
+  getPostComments(
+    id: string,
+  ): Promise<{ comments: Comment[]; totalCount: number }>;
   getUserComments(id: string): Promise<Comment[] | null>;
   createComment(
     userId: string,
