@@ -3,6 +3,7 @@ import { Comment } from "../../Domain/Entities/Comment";
 import { inject, injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/config";
+import { CommentFilter } from "../Filters/CommentFilter";
 
 @injectable()
 export class PrismaCommentRepository implements CommentRepository {
@@ -20,11 +21,14 @@ export class PrismaCommentRepository implements CommentRepository {
 
   async getPostComments(
     id: string,
+    filter?: CommentFilter,
   ): Promise<{ comments: Comment[]; totalCount: number }> {
+    const orderByClause = filter?.buildOrderByClause();
     const comments = await prisma.comment.findMany({
       where: {
         postId: id,
       },
+      orderBy: orderByClause,
       include: {
         author: true,
       },

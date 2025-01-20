@@ -1,10 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { Comment } from "../Entities/Comment";
+import { CommentFilter } from "../../Infrastructure/Filters/CommentFilter";
 
 export interface CommentRepository {
   getAllComments(offset?: number, limit?: number): Promise<Comment[] | null>;
   getPostComments(
     id: string,
+    filter?: CommentFilter,
   ): Promise<{ comments: Comment[]; totalCount: number }>;
   getUserComments(id: string): Promise<Comment[] | null>;
   createComment(

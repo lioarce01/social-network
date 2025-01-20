@@ -65,8 +65,15 @@ export class CommentController {
   async getPostComments(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const { sortBy, sortOrder } = req.query;
+
+      const sortOptions = {
+        sortBy: sortBy as "createdAt",
+        sortOrder: sortOrder as "asc" | "desc",
+      };
+
       const { comments, totalCount } =
-        await this.getPostCommentsUseCase.execute(id);
+        await this.getPostCommentsUseCase.execute(id, sortOptions);
 
       if (!comments || comments.length === 0) {
         return res.status(404).json({ message: "No comments found" });
