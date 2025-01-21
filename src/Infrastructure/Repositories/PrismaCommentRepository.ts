@@ -24,7 +24,10 @@ export class PrismaCommentRepository implements CommentRepository {
     filter?: CommentFilter,
     offset?: number,
     limit?: number,
-  ): Promise<{ comments: Comment[]; totalCount: number }> {
+  ): Promise<{
+    comments: Comment[];
+    totalCount: number;
+  }> {
     const orderByClause = filter?.buildOrderByClause();
     const comments = await prisma.comment.findMany({
       where: {
@@ -34,13 +37,9 @@ export class PrismaCommentRepository implements CommentRepository {
       include: {
         author: true,
       },
-      ...(offset && { skip: offset }),
-      ...(limit && { take: limit }),
+      ...(offset !== undefined && { skip: offset }),
+      ...(limit !== undefined && { take: limit }),
     });
-
-    if (!comments || comments.length === 0) {
-      throw new Error("comments to this post not found");
-    }
 
     const totalCount = await prisma.comment.count({
       where: {
