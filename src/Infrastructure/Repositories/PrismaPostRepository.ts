@@ -99,8 +99,8 @@ export class PrismaPostRepository implements PostRepository {
       include: {
         author: true,
       },
-      ...(offset && { skip: offset }),
-      ...(limit && { take: limit }),
+      ...(offset !== undefined && { skip: offset }),
+      ...(limit !== undefined && { take: limit }),
     });
 
     const totalCount = await prisma.post.count({
