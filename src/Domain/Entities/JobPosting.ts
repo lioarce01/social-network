@@ -1,10 +1,6 @@
-import {
-  ExperienceLevel,
-  JobApplication,
-  JobPostingStatus,
-  Mode,
-} from "@prisma/client";
+import { JobApplication, JobPostingStatus, Mode } from "@prisma/client";
 import { User } from "./User";
+import { ExperienceLevel } from "../../types/JobPosting";
 
 export class JobPosting {
   constructor(

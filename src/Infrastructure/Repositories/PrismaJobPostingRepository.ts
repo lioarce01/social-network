@@ -4,6 +4,7 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { JobApplication, JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
+import { ExperienceLevel } from "../../types/JobPosting";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
@@ -15,12 +16,17 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     const whereClause = filter?.buildWhereClause();
     const orderByClause = filter?.buildOrderByClause();
 
-    const jobs = await prisma.jobPosting.findMany({
-      where: whereClause,
-      orderBy: orderByClause,
-      ...(offset && { skip: offset }),
-      ...(limit && { take: limit }),
-    });
+    const jobs = (
+      await prisma.jobPosting.findMany({
+        where: whereClause,
+        orderBy: orderByClause,
+        ...(offset && { skip: offset }),
+        ...(limit && { take: limit }),
+      })
+    ).map((job) => ({
+      ...job,
+      experience_level: job.experience_level as ExperienceLevel,
+    }));
 
     const totalCount = await prisma.jobPosting.count({
       where: whereClause,
@@ -44,6 +50,7 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
 
     const transformedJobPosting: JobPosting = {
       ...jobPosting,
+      experience_level: jobPosting.experience_level as ExperienceLevel,
       jobAuthor: jobPosting.jobAuthor
         ? {
             ...jobPosting.jobAuthor,
@@ -74,7 +81,10 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
 
     return {
       message: "Job posting updated successfully",
-      jobPosting: updatedPost,
+      jobPosting: {
+        ...updatedPost,
+        experience_level: updatedPost.experience_level as ExperienceLevel,
+      },
     };
   }
 
@@ -99,7 +109,10 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
 
     return {
       message: "Post created successfully",
-      jobPosting: createdPost,
+      jobPosting: {
+        ...createdPost,
+        experience_level: createdPost.experience_level as ExperienceLevel,
+      },
     };
   }
 

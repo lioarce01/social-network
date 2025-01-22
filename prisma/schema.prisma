@@ -75,7 +75,7 @@ model JobPosting {
   status       JobPostingStatus
   location     String
   mode         Mode
-  experience_level ExperienceLevel
+  experience_level String
   applicants   JobApplication[]
   jobAuthorId  String           @db.ObjectId
   jobAuthor    User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)
@@ -109,14 +109,4 @@ enum Mode {
   REMOTE
   HYBRID
   ONSITE
-}
-
-enum ExperienceLevel {
-  INTERNSHIP
-  ENTRY_LEVEL
-  JUNIOR
-  MID_SENIOR
-  SENIOR
-  DIRECTOR
-  EXECUTIVE
 }
