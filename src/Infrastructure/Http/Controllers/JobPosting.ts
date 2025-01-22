@@ -93,6 +93,7 @@ export class JobPostingController {
         category,
         location,
         mode,
+        experience_level,
       } = req.body;
 
       if (
@@ -118,6 +119,7 @@ export class JobPostingController {
         status: JobPostingStatus.OPEN,
         location,
         mode,
+        experience_level,
         jobAuthor: {
           connect: {
             id: userId,

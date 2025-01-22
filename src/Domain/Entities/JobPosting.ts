@@ -1,4 +1,9 @@
-import { JobApplication, JobPostingStatus, Mode } from "@prisma/client";
+import {
+  ExperienceLevel,
+  JobApplication,
+  JobPostingStatus,
+  Mode,
+} from "@prisma/client";
 import { User } from "./User";
 
 export class JobPosting {
@@ -13,6 +18,7 @@ export class JobPosting {
     public readonly status: JobPostingStatus,
     public readonly location: string,
     public readonly mode: Mode,
+    public readonly experience_level: ExperienceLevel,
     public readonly jobAuthorId: string,
     public readonly applicants?: JobApplication[],
     public readonly jobAuthor?: User,
