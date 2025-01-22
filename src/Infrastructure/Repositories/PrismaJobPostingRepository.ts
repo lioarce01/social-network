@@ -4,7 +4,6 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { JobApplication, JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
-import { User } from "../../Domain/Entities/User";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
