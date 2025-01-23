@@ -10,7 +10,8 @@ import { LikePost } from "../../../Application/UseCases/PostLike/Like";
 import { Prisma } from "@prisma/client";
 import { UnlikePost } from "../../../Application/UseCases/PostLike/Unlike";
 import { GetRecentPosts } from "../../../Application/UseCases/Post/GetRecentPosts";
-// import { CountRecentPosts } from "../../../Application/UseCases/Post/CountRecentPosts";
+import { PostNotificationService } from "../../../Domain/Services/PostNotificationService";
+import { AddPost } from "../../../Application/UseCases/Post/AddPosts";
 
 @injectable()
 export class PostController {
@@ -24,8 +25,7 @@ export class PostController {
     @inject("LikePost") private likePostUseCase: LikePost,
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
     @inject("GetRecentPosts") private getRecentPostsUseCase: GetRecentPosts,
-    // @inject("CountRecentPosts")
-    // private countRecentPostsUseCase: CountRecentPosts,
+    @inject("AddPost") private addPostUseCase: AddPost,
   ) {}
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
@@ -80,6 +80,9 @@ export class PostController {
         userId,
         postData,
       );
+
+      await this.addPostUseCase.execute({ content, userId });
+
       res.status(201).json({ message, post });
     } catch (e) {
       next(e);

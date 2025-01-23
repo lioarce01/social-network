@@ -1,15 +1,13 @@
 import { PostNotificationService } from "../../../Domain/Services/PostNotificationService";
 import { PostRepository } from "../../../Domain/Repositories/PostRepository";
-import { inject } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 
-export class AddPostUseCase {
-  private postNotificationService: PostNotificationService;
-
+@injectable()
+export class AddPost {
   constructor(
-    @inject("PostRepository") private readonly postRepository: PostRepository,
-  ) {
-    this.postNotificationService = new PostNotificationService(postRepository);
-  }
+    @inject("PostNotificationService")
+    private readonly postNotificationService: PostNotificationService,
+  ) {}
 
   async execute(postData: { content: string; userId: string }): Promise<void> {
     await this.postNotificationService.addNewPost(postData);
