@@ -9,9 +9,9 @@ export class GetRecentPosts {
   ) {}
 
   async execute(
-    lastPostId: string,
+    lastPostDate: Date,
     limit: number = 10,
   ): Promise<{ posts: Post[]; totalCount: number }> {
-    return await this.postRepository.getRecentPosts(lastPostId, limit);
+    return await this.postRepository.getRecentPosts(lastPostDate, limit);
   }
 }

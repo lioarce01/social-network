@@ -89,8 +89,8 @@ export class PrismaPostRepository implements PostRepository {
 
   async getAllPosts(
     filter?: PostFilter,
-    offset?: number,
-    limit?: number,
+    offset: number = 0,
+    limit: number = 10,
   ): Promise<{ posts: Post[]; totalCount: number }> {
     const orderByClause = filter?.buildOrderByClause();
     const posts = await prisma.post.findMany({
@@ -99,8 +99,8 @@ export class PrismaPostRepository implements PostRepository {
       include: {
         author: true,
       },
-      ...(offset !== undefined && { skip: offset }),
-      ...(limit !== undefined && { take: limit }),
+      skip: offset,
+      take: limit,
     });
 
     const totalCount = await prisma.post.count({
@@ -111,12 +111,13 @@ export class PrismaPostRepository implements PostRepository {
   }
 
   async getRecentPosts(
-    lastPostId: string,
+    lastPostDate: Date,
     limit: number = 10,
   ): Promise<{ posts: Post[]; totalCount: number }> {
+    console.log("Obteniendo posts recientes desde:", lastPostDate);
     const posts = await prisma.post.findMany({
       where: {
-        id: { gt: lastPostId },
+        createdAt: { gt: lastPostDate },
       },
       orderBy: {
         createdAt: "desc",
@@ -124,26 +125,16 @@ export class PrismaPostRepository implements PostRepository {
       take: limit,
       include: {
         author: true,
-        comments: true,
-        likes: true,
       },
     });
-
+    console.log("Posts recientes encontrados:", posts);
     const totalCount = await prisma.post.count({
       where: {
-        id: { gt: lastPostId },
+        createdAt: { gt: lastPostDate },
       },
     });
-
+    console.log("Total de posts recientes:", totalCount);
     return { posts, totalCount };
-  }
-
-  async countRecentPosts(lastPostId: string): Promise<number> {
-    return await prisma.post.count({
-      where: {
-        id: { gt: lastPostId },
-      },
-    });
   }
 
   //HELPER METHODS

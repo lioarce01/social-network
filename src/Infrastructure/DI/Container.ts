@@ -43,7 +43,7 @@ import { ApplyJob } from "../../Application/UseCases/JobApplication/ApplyJob";
 import { GetJobApplicants } from "../../Application/UseCases/JobPosting/GetJobApplicants";
 import { AddPostUseCase } from "../../Application/UseCases/Post/AddPosts";
 import { GetRecentPosts } from "../../Application/UseCases/Post/GetRecentPosts";
-import { CountRecentPosts } from "../../Application/UseCases/Post/CountRecentPosts";
+// import { CountRecentPosts } from "../../Application/UseCases/Post/CountRecentPosts";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -95,7 +95,7 @@ container.registerSingleton("DeletePost", DeletePost);
 container.registerSingleton("UpdatePost", UpdatePost);
 container.registerSingleton("AddPosts", AddPostUseCase);
 container.registerSingleton("GetRecentPosts", GetRecentPosts);
-container.registerSingleton("CountRecentPosts", CountRecentPosts);
+// container.registerSingleton("CountRecentPosts", CountRecentPosts);
 
 //Register Comment use cases
 container.registerSingleton("GetAllComments", GetAllComments);

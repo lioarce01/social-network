@@ -6,26 +6,12 @@ export const initSocketServer = (httpServer: any) => {
   io = new Server(httpServer, {
     cors: {
       origin: "*",
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: true,
+      methods: ["GET", "POST"],
     },
-    transports: ["websocket", "polling"],
-    pingTimeout: 60000,
-    pingInterval: 25000,
   });
 
   io.on("connection", (socket) => {
     console.log("Client Connected", socket.id);
-
-    socket.emit("test-event", { message: "Connection successful" });
-
-    socket.on("message", (data) => {
-      console.log("Received message:", data);
-      socket.emit("echo", {
-        message: "Server received: " + JSON.stringify(data),
-      });
-    });
 
     socket.on("disconnect", (reason) => {
       console.log(`Client disconnected (${reason})`, socket.id);
