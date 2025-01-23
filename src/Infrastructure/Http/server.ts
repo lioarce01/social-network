@@ -1,11 +1,17 @@
 import "reflect-metadata";
 import express from "express";
 import cors from "cors";
+import { createServer } from "http";
 import router from "../Http/Routes/index";
+import { initSocketServer } from "../Websocket/SocketServer";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const httpServer = createServer(app);
+
+const io = initSocketServer(httpServer);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
@@ -13,4 +19,6 @@ app.get("/health", (req, res) => {
 
 app.use("/", router);
 
-export { app };
+app.locals.io = io;
+
+export { httpServer, app };

@@ -6,5 +6,5 @@ config();
 export const prisma = new PrismaClient();
 
 export const appConfig = {
-  port: process.env.PORT || 4000,
+  port: process.env.PORT,
 };
