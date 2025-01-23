@@ -20,15 +20,8 @@ export class PostNotificationService {
     this.lastPostDate = new Date();
   }
 
-  async addNewPost(post: { content: string; userId: string }): Promise<void> {
-    console.log("Creando nuevo post:", post);
-    await this.postRepository.createPost(post.userId, {
-      content: post.content,
-      author: {
-        connect: { id: post.userId },
-      },
-    });
-    console.log("Post creado exitosamente");
+  async addNewPost(post: Post): Promise<void> {
+    console.log("Notificando sobre el post:", post);
 
     // Incrementar el contador de nuevos posts
     this.newPostsCount += 1;
@@ -51,7 +44,7 @@ export class PostNotificationService {
 
       // Notificar a los clientes si se cumple la condición
       if (
-        this.newPostsCount >= 1 ||
+        this.newPostsCount >= 3 ||
         Date.now() - this.lastNotificationTime >= 5 * 60 * 1000
       ) {
         console.log("Notificando a los clientes...");

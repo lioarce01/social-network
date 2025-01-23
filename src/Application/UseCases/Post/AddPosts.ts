@@ -1,6 +1,6 @@
 import { PostNotificationService } from "../../../Domain/Services/PostNotificationService";
-import { PostRepository } from "../../../Domain/Repositories/PostRepository";
 import { inject, injectable } from "tsyringe";
+import { Post } from "../../../Domain/Entities/Post";
 
 @injectable()
 export class AddPost {
@@ -9,7 +9,7 @@ export class AddPost {
     private readonly postNotificationService: PostNotificationService,
   ) {}
 
-  async execute(postData: { content: string; userId: string }): Promise<void> {
-    await this.postNotificationService.addNewPost(postData);
+  async execute(post: Post): Promise<void> {
+    await this.postNotificationService.addNewPost(post);
   }
 }
