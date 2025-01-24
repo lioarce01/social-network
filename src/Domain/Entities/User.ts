@@ -6,6 +6,7 @@ import {
   PostLike,
   Role,
 } from "@prisma/client";
+import { UserFollow } from "./UserFollow";
 
 export class User {
   constructor(
@@ -18,6 +19,8 @@ export class User {
     public readonly role: Role,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
+    public readonly followingCount: number,
+    public readonly followersCount: number,
     public readonly headline?: string,
     public readonly country?: string,
     public readonly postal_code?: string,
@@ -28,5 +31,7 @@ export class User {
     public readonly likedPosts?: PostLike[],
     public readonly jobPostings?: JobPosting[],
     public readonly applications?: JobApplication[],
+    public readonly followers?: UserFollow[],
+    public readonly following?: UserFollow[],
   ) {}
 }

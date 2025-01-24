@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
 import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { UserFollow } from "../Entities/UserFollow";
 
 export interface UserRepository {
   getAllUsers(
@@ -21,4 +22,9 @@ export interface UserRepository {
   ): Promise<{ message: string; user: User }>;
   disableUser(id: String): Promise<{ message: string; user: User }>;
   switchUserRole(id: String): Promise<{ message: string; user: User }>;
+  followUser(userId: String, followingId: String): Promise<UserFollow>;
+  unfollowUser(
+    userId: String,
+    followingId: String,
+  ): Promise<{ message: string }>;
 }
