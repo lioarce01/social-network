@@ -21,37 +21,20 @@ export class PostNotificationService {
   }
 
   async addNewPost(post: Post): Promise<void> {
-    console.log("Notificando sobre el post:", post);
-
-    // Incrementar el contador de nuevos posts
     this.newPostsCount += 1;
 
-    // Obtener los posts recientes
     const { posts: newPosts, totalCount } =
       await this.getRecentPostsUseCase.execute(this.lastPostDate, 10);
-    console.log("Posts recientes obtenidos:", newPosts);
-    console.log("Total de posts recientes:", totalCount);
 
-    // Verificar si hay nuevos posts antes de notificar
     if (newPosts.length > 0) {
-      console.log("Nuevos posts encontrados:", newPosts);
-      console.log("Total de nuevos posts:", totalCount);
-      console.log(
-        "Última notificación hace:",
-        Date.now() - this.lastNotificationTime,
-        "ms",
-      );
-
-      // Notificar a los clientes si se cumple la condición
       if (
-        this.newPostsCount >= 3 ||
+        this.newPostsCount >= 1 ||
         Date.now() - this.lastNotificationTime >= 5 * 60 * 1000
       ) {
-        console.log("Notificando a los clientes...");
         this.notifyClients(newPosts, totalCount);
-        this.newPostsCount = 0; // Reiniciar el contador
-        this.lastNotificationTime = Date.now(); // Actualizar el tiempo de la última notificación
-        this.lastPostDate = new Date(); // Actualizar la fecha del último post
+        this.newPostsCount = 0;
+        this.lastNotificationTime = Date.now();
+        this.lastPostDate = new Date();
       }
     } else {
       console.log("No hay nuevos posts para notificar");
