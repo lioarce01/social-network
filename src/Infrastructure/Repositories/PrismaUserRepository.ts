@@ -228,10 +228,7 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (existingFollow) {
-      throw new CustomError(
-        `User ${userId} is already a follower of ${followingId}.`,
-        400,
-      );
+      throw new CustomError(`You already are a following.`, 400);
     }
 
     // Transacción para mantener la consistencia de los datos
