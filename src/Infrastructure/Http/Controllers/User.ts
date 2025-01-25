@@ -12,6 +12,7 @@ import { FollowUser } from "../../../Application/UseCases/User/FollowUser";
 import { UnfollowUser } from "../../../Application/UseCases/User/UnfollowUser";
 import { GetUserApplications } from "../../../Application/UseCases/User/GetUserApplications";
 import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJobPostings";
+import { GetUserLikedPosts } from "../../../Application/UseCases/User/GetUserLikedPosts";
 
 @injectable()
 export class UserController {
@@ -30,6 +31,8 @@ export class UserController {
     private getUserApplicationsUseCase: GetUserApplications,
     @inject(GetUserJobPostings)
     private getUserJobPostingsUseCase: GetUserJobPostings,
+    @inject(GetUserLikedPosts)
+    private getUserLikedPostsUseCase: GetUserLikedPosts,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -202,13 +205,31 @@ export class UserController {
   }
 
   async getUserJobPostings(req: Request, res: Response, next: NextFunction) {
-    const { userId } = req.params;
+    const { id } = req.params;
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
 
     try {
       const result = await this.getUserJobPostingsUseCase.execute(
-        userId,
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserLikedPosts(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserLikedPostsUseCase.execute(
+        id,
         offset,
         limit,
       );

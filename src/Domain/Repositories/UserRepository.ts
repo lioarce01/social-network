@@ -39,9 +39,11 @@ export interface UserRepository {
     offset?: number,
     limit?: number,
   ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>;
-  // getUserLikedPosts(
-  //   id: string,
-  // ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
+  getUserLikedPosts(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
   // getUserFollowers(
   //   id: string,
   // ): Promise<{ userFollowers: UserFollow[]; totalCount: number }>;

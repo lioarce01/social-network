@@ -10,6 +10,7 @@ import { CustomError } from "../../Shared/CustomError";
 import { JobApplication } from "../../Domain/Entities/JobApplication";
 import { JobPosting } from "../../Domain/Entities/JobPosting";
 import { ExperienceLevel } from "../../types/JobPosting";
+import { PostLike } from "../../Domain/Entities/PostLike";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -367,6 +368,40 @@ export class PrismaUserRepository implements UserRepository {
     return {
       jobPostings: jobs,
       totalCount: totalCount,
+    };
+  }
+
+  async getUserLikedPosts(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ likedPosts: PostLike[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const likedPosts = await prisma.postLike.findMany({
+      where: {
+        userId: id,
+      },
+      include: {
+        post: true,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.postLike.count({
+      where: {
+        userId: id,
+      },
+    });
+
+    return {
+      likedPosts,
+      totalCount,
     };
   }
 

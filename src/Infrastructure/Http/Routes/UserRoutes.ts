@@ -16,8 +16,12 @@ router.get("/applications", (req, res, next) =>
   userController.getUserApplications(req, res, next),
 );
 
-router.get("/:userId/job-postings", (req, res, next) =>
+router.get("/:id/job-postings", (req, res, next) =>
   userController.getUserJobPostings(req, res, next),
+);
+
+router.get("/:id/liked-posts", (req, res, next) =>
+  userController.getUserLikedPosts(req, res, next),
 );
 
 router.post("/", (req, res, next) => userController.createUser(req, res, next));
