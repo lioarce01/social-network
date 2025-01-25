@@ -16,6 +16,10 @@ router.get("/applications", (req, res, next) =>
   userController.getUserApplications(req, res, next),
 );
 
+router.get("/:userId/job-postings", (req, res, next) =>
+  userController.getUserJobPostings(req, res, next),
+);
+
 router.post("/", (req, res, next) => userController.createUser(req, res, next));
 
 router.put("/disable", (req, res, next) =>

@@ -11,6 +11,7 @@ import { Role } from "@prisma/client";
 import { FollowUser } from "../../../Application/UseCases/User/FollowUser";
 import { UnfollowUser } from "../../../Application/UseCases/User/UnfollowUser";
 import { GetUserApplications } from "../../../Application/UseCases/User/GetUserApplications";
+import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJobPostings";
 
 @injectable()
 export class UserController {
@@ -27,6 +28,8 @@ export class UserController {
     @inject(UnfollowUser) private unfollowUserUseCase: UnfollowUser,
     @inject(GetUserApplications)
     private getUserApplicationsUseCase: GetUserApplications,
+    @inject(GetUserJobPostings)
+    private getUserJobPostingsUseCase: GetUserJobPostings,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -191,6 +194,24 @@ export class UserController {
 
     try {
       const result = await this.getUserApplicationsUseCase.execute(userId);
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserJobPostings(req: Request, res: Response, next: NextFunction) {
+    const { userId } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserJobPostingsUseCase.execute(
+        userId,
+        offset,
+        limit,
+      );
 
       return res.status(200).json(result);
     } catch (e) {

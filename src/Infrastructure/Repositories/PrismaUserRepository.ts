@@ -8,6 +8,8 @@ import { UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../../Domain/Entities/UserFollow";
 import { CustomError } from "../../Shared/CustomError";
 import { JobApplication } from "../../Domain/Entities/JobApplication";
+import { JobPosting } from "../../Domain/Entities/JobPosting";
+import { ExperienceLevel } from "../../types/JobPosting";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -328,6 +330,42 @@ export class PrismaUserRepository implements UserRepository {
 
     return {
       jobApplications: userApplications,
+      totalCount: totalCount,
+    };
+  }
+
+  async getUserJobPostings(
+    id: string,
+    offset: number = 0,
+    limit: number = 10,
+  ): Promise<{ jobPostings: JobPosting[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const jobPostings = await prisma.jobPosting.findMany({
+      where: {
+        jobAuthorId: id,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const jobs = jobPostings.map((job) => ({
+      ...job,
+      experience_level: job.experience_level as ExperienceLevel,
+    }));
+
+    const totalCount = await prisma.jobPosting.count({
+      where: {
+        jobAuthorId: id,
+      },
+    });
+
+    return {
+      jobPostings: jobs,
       totalCount: totalCount,
     };
   }
