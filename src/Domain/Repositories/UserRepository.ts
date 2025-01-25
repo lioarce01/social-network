@@ -31,9 +31,9 @@ export interface UserRepository {
     userId: string,
     followingId: string,
   ): Promise<{ message: string }>;
-  // getUserApplications(
-  //   id: string,
-  // ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
+  getUserApplications(
+    id: string,
+  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
   // getUserJobPostings(
   //   id: string,
   // ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>;

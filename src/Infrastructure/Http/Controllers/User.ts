@@ -10,6 +10,7 @@ import { SwitchUserRole } from "../../../Application/UseCases/User/SwitchUserRol
 import { Role } from "@prisma/client";
 import { FollowUser } from "../../../Application/UseCases/User/FollowUser";
 import { UnfollowUser } from "../../../Application/UseCases/User/UnfollowUser";
+import { GetUserApplications } from "../../../Application/UseCases/User/GetUserApplications";
 
 @injectable()
 export class UserController {
@@ -24,6 +25,8 @@ export class UserController {
     @inject(SwitchUserRole) private switchUserRoleUseCase: SwitchUserRole,
     @inject(FollowUser) private followUserUseCase: FollowUser,
     @inject(UnfollowUser) private unfollowUserUseCase: UnfollowUser,
+    @inject(GetUserApplications)
+    private getUserApplicationsUseCase: GetUserApplications,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -178,6 +181,18 @@ export class UserController {
       );
 
       return res.status(200).json({ message });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserApplications(req: Request, res: Response, next: NextFunction) {
+    const { userId } = req.body;
+
+    try {
+      const result = await this.getUserApplicationsUseCase.execute(userId);
+
+      return res.status(200).json(result);
     } catch (e) {
       next(e);
     }

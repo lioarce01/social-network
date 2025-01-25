@@ -7,6 +7,7 @@ import { UserFilter } from "../Filters/UserFilter";
 import { UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../../Domain/Entities/UserFollow";
 import { CustomError } from "../../Shared/CustomError";
+import { JobApplication } from "../../Domain/Entities/JobApplication";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -301,6 +302,33 @@ export class PrismaUserRepository implements UserRepository {
 
     return {
       message,
+    };
+  }
+
+  async getUserApplications(
+    userId: string,
+  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }> {
+    const user = await this.getById(userId);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const userApplications = await prisma.jobApplication.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    const totalCount = await prisma.jobApplication.count({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return {
+      jobApplications: userApplications,
+      totalCount: totalCount,
     };
   }
 

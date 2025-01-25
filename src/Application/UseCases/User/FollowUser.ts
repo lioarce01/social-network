@@ -1,7 +1,6 @@
 import { UserRepository } from "../../../Domain/Repositories/UserRepository";
 import { UserFollow } from "../../../Domain/Entities/UserFollow";
 import { inject, injectable } from "tsyringe";
-import { CustomError } from "../../../Shared/CustomError";
 
 @injectable()
 export class FollowUser {
