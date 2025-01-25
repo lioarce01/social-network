@@ -4,6 +4,7 @@ import cors from "cors";
 import { createServer } from "http";
 import router from "../Http/Routes/index";
 import { initSocketServer } from "../Websocket/SocketServer";
+import errorHandler from "../Middlewares/errorHandler";
 
 const app = express();
 app.use(cors());
@@ -20,5 +21,7 @@ app.get("/health", (req, res) => {
 app.use("/", router);
 
 app.locals.io = io;
+
+app.use(errorHandler);
 
 export { httpServer, app };

@@ -6,6 +6,7 @@ import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
 import { UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../../Domain/Entities/UserFollow";
+import { CustomError } from "../../Shared/CustomError";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -45,6 +46,11 @@ export class PrismaUserRepository implements UserRepository {
     const user = await prisma.user.findUnique({
       where: { id: id },
       include: {
+        posts: true,
+        comments: true,
+        applications: true,
+        jobPostings: true,
+        likedPosts: true,
         followers: {
           include: {
             follower: true,
