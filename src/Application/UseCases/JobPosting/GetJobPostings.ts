@@ -19,14 +19,14 @@ export class GetJobPostings {
     sortOptions?: JobPostingSortOptions,
     offset?: number,
     limit?: number,
-  ): Promise<JobPosting[] | null> {
+  ): Promise<{ jobs: JobPosting[]; totalCount: number }> {
     const filter = new JobPostingFilter(filters, sortOptions);
-    const jobPostings = await this.jobPostingRepository.getAllJobPostings(
+    const result = await this.jobPostingRepository.getAllJobPostings(
       filter,
       offset,
       limit,
     );
 
-    return jobPostings;
+    return result;
   }
 }

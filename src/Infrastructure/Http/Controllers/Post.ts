@@ -9,6 +9,8 @@ import { DeletePost } from "../../../Application/UseCases/Post/DeletePost";
 import { LikePost } from "../../../Application/UseCases/PostLike/Like";
 import { Prisma } from "@prisma/client";
 import { UnlikePost } from "../../../Application/UseCases/PostLike/Unlike";
+import { GetRecentPosts } from "../../../Application/UseCases/Post/GetRecentPosts";
+import { AddPost } from "../../../Application/UseCases/Post/AddPosts";
 
 @injectable()
 export class PostController {
@@ -21,11 +23,18 @@ export class PostController {
     @inject("DeletePost") private deletePostUseCase: DeletePost,
     @inject("LikePost") private likePostUseCase: LikePost,
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
+    @inject("GetRecentPosts") private getRecentPostsUseCase: GetRecentPosts,
+    @inject("AddPost") private addPostUseCase: AddPost,
   ) {}
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { offset, limit } = req.query;
+      const { sortBy, sortOrder, offset, limit } = req.query;
+
+      const sortOptions = {
+        sortBy: sortBy as "createdAt",
+        sortOrder: sortOrder as "asc" | "desc",
+      };
 
       const parsedOffset =
         typeof offset === "string" && offset.trim() !== ""
@@ -36,16 +45,16 @@ export class PostController {
           ? Number(limit)
           : undefined;
 
-      const posts = await this.getAllPostsUseCase.execute(
+      const { posts, totalCount } = await this.getAllPostsUseCase.execute(
+        sortOptions,
         parsedOffset,
         parsedLimit,
       );
 
-      if (!posts || posts.length === 0) {
-        return res.status(404).json({ message: "No posts found" });
-      }
-
-      res.status(200).json(posts);
+      res.status(200).json({
+        posts,
+        totalCount,
+      });
     } catch (e) {
       next(e);
     }
@@ -70,6 +79,9 @@ export class PostController {
         userId,
         postData,
       );
+
+      await this.addPostUseCase.execute(post);
+
       res.status(201).json({ message, post });
     } catch (e) {
       next(e);
@@ -164,6 +176,22 @@ export class PostController {
       const { message } = await this.unlikePostUseCase.execute(userId, postId);
 
       res.status(200).json({ message });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getRecentPosts(req: Request, res: Response, next: NextFunction) {
+    try {
+      const lastPostDate = req.query.lastPostDate;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const { posts, totalCount } = await this.getRecentPostsUseCase.execute(
+        lastPostDate ? new Date(lastPostDate as string) : new Date(),
+        limit,
+      );
+
+      res.status(200).json({ posts, totalCount });
     } catch (e) {
       next(e);
     }

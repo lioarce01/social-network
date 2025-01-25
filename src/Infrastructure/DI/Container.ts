@@ -41,6 +41,11 @@ import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicati
 import { PrismaJobApplicationRepository } from "../Repositories/PrismaJobApplicationRepository";
 import { ApplyJob } from "../../Application/UseCases/JobApplication/ApplyJob";
 import { GetJobApplicants } from "../../Application/UseCases/JobPosting/GetJobApplicants";
+import { AddPost } from "../../Application/UseCases/Post/AddPosts";
+import { GetRecentPosts } from "../../Application/UseCases/Post/GetRecentPosts";
+import { PostNotificationService } from "../../Domain/Services/PostNotificationService";
+import { FollowUser } from "../../Application/UseCases/User/FollowUser";
+import { UnfollowUser } from "../../Application/UseCases/User/UnfollowUser";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -72,6 +77,11 @@ export function setupContainer() {
     "JobApplicationRepository",
     PrismaJobApplicationRepository,
   );
+
+  container.registerSingleton(
+    "PostNotificationService",
+    PostNotificationService,
+  );
 }
 
 //Register User use cases
@@ -82,6 +92,8 @@ container.registerSingleton("DeleteUser", DeleteUser);
 container.registerSingleton("DisableUser", DisableUser);
 container.registerSingleton("SwitchUserRole", SwitchUserRole);
 container.registerSingleton("UpdateUser", UpdateUser);
+container.registerSingleton("FollowUser", FollowUser);
+container.registerSingleton("UnfollowUser", UnfollowUser);
 
 //Register Post use cases
 container.registerSingleton("GetAllPosts", GetAllPosts);
@@ -90,6 +102,10 @@ container.registerSingleton("GetUserPosts", GetUserPosts);
 container.registerSingleton("CreatePost", CreatePost);
 container.registerSingleton("DeletePost", DeletePost);
 container.registerSingleton("UpdatePost", UpdatePost);
+container.registerSingleton("GetRecentPosts", GetRecentPosts);
+
+//Notification service use cases:
+container.registerSingleton("AddPost", AddPost);
 
 //Register Comment use cases
 container.registerSingleton("GetAllComments", GetAllComments);
@@ -113,5 +129,4 @@ container.registerSingleton("DisableJobPosting", DisableJobPosting);
 container.registerSingleton("GetJobApplicants", GetJobApplicants);
 
 //Register Job applications use cases
-
 container.registerSingleton("ApplyJob", ApplyJob);

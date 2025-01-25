@@ -4,7 +4,7 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { JobApplication, JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
-import { User } from "../../Domain/Entities/User";
+import { ExperienceLevel } from "../../types/JobPosting";
 
 @injectable()
 export class PrismaJobPostingRepository implements JobPostingRepository {
@@ -12,27 +12,59 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
-  ): Promise<JobPosting[] | null> {
+  ): Promise<{ jobs: JobPosting[]; totalCount: number }> {
     const whereClause = filter?.buildWhereClause();
     const orderByClause = filter?.buildOrderByClause();
-    const jobPostings = await prisma.jobPosting.findMany({
+
+    const jobs = (
+      await prisma.jobPosting.findMany({
+        where: whereClause,
+        orderBy: orderByClause,
+        ...(offset && { skip: offset }),
+        ...(limit && { take: limit }),
+      })
+    ).map((job) => ({
+      ...job,
+      experience_level: job.experience_level as ExperienceLevel,
+    }));
+
+    const totalCount = await prisma.jobPosting.count({
       where: whereClause,
-      ...(orderByClause && { orderBy: orderByClause }),
-      ...(offset && { skip: offset }),
-      ...(limit && { take: limit }),
     });
 
-    return jobPostings;
+    return { jobs, totalCount };
   }
 
   async getJobPostingById(id: string): Promise<JobPosting | null> {
-    return await prisma.jobPosting.findUnique({
+    const jobPosting = await prisma.jobPosting.findUnique({
       where: { id },
       include: {
         applicants: true,
         jobAuthor: true,
       },
     });
+
+    if (!jobPosting) {
+      return null;
+    }
+
+    const transformedJobPosting: JobPosting = {
+      ...jobPosting,
+      experience_level: jobPosting.experience_level as ExperienceLevel,
+      jobAuthor: jobPosting.jobAuthor
+        ? {
+            ...jobPosting.jobAuthor,
+            headline: jobPosting.jobAuthor.headline ?? undefined,
+            country: jobPosting.jobAuthor.country ?? undefined,
+            postal_code: jobPosting.jobAuthor.postal_code ?? undefined,
+            city: jobPosting.jobAuthor.city ?? undefined,
+            current_position:
+              jobPosting.jobAuthor.current_position ?? undefined,
+          }
+        : undefined,
+    };
+
+    return transformedJobPosting;
   }
 
   async updateJobPosting(
@@ -49,7 +81,10 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
 
     return {
       message: "Job posting updated successfully",
-      jobPosting: updatedPost,
+      jobPosting: {
+        ...updatedPost,
+        experience_level: updatedPost.experience_level as ExperienceLevel,
+      },
     };
   }
 
@@ -74,7 +109,10 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
 
     return {
       message: "Post created successfully",
-      jobPosting: createdPost,
+      jobPosting: {
+        ...createdPost,
+        experience_level: createdPost.experience_level as ExperienceLevel,
+      },
     };
   }
 

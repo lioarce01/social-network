@@ -6,7 +6,7 @@ export interface JobPostingFilters {
 }
 
 export interface JobPostingSortOptions {
-  sortBy?: "budget";
+  sortBy?: "budget" | "createdAt";
   sortOrder?: "asc" | "desc";
 }
 
@@ -44,7 +44,7 @@ export class JobPostingFilter {
     if (!sortBy) return undefined;
 
     const validSortFields: (keyof Prisma.JobPostingOrderByWithRelationInput)[] =
-      ["budget"];
+      ["budget", "createdAt"];
 
     if (
       validSortFields.includes(

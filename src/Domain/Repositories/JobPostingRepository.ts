@@ -1,7 +1,6 @@
 import { JobPosting } from "../Entities/JobPosting";
 import { JobPostingFilter } from "../../Infrastructure/Filters/JobPostingFilter";
 import { Prisma } from "@prisma/client";
-import { User } from "../Entities/User";
 import { JobApplication } from "../Entities/JobApplication";
 
 export interface JobPostingRepository {
@@ -9,7 +8,7 @@ export interface JobPostingRepository {
     filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
-  ): Promise<JobPosting[] | null>;
+  ): Promise<{ jobs: JobPosting[]; totalCount: number }>;
   getJobPostingById(id: string): Promise<JobPosting | null>;
   updateJobPosting(
     id: string,
@@ -22,4 +21,7 @@ export interface JobPostingRepository {
   deleteJobPosting(id: string): Promise<{ message: string }>;
   disableJobPosting(id: string): Promise<{ message: string }>;
   getJobApplicants(jobId: string): Promise<JobApplication[] | null>;
+
+  //=========TO DO===========//
+  rejectApplicant(id: string): Promise<{ message: string }>;
 }

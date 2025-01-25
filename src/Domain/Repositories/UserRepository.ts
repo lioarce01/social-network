@@ -1,6 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
+import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { UserFollow } from "../Entities/UserFollow";
+import { JobApplication } from "../Entities/JobApplication";
+import { JobPosting } from "../Entities/JobPosting";
+import { PostLike } from "../Entities/PostLike";
 
 export interface UserRepository {
   getAllUsers(
@@ -9,15 +14,36 @@ export interface UserRepository {
     limit?: number,
   ): Promise<User[] | null>;
   getUserBySub(sub: string): Promise<User | null>;
-  getUserById(id: String): Promise<User | null>;
+  getUserById(id: string): Promise<User | null>;
   updateUser(
     id: string,
-    userData: Partial<User>,
+    userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
-  deleteUser(id: String): Promise<{ message: string }>;
+  deleteUser(id: string): Promise<{ message: string }>;
   createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }>;
-  disableUser(id: String): Promise<{ message: string; user: User }>;
-  switchUserRole(id: String): Promise<{ message: string; user: User }>;
+  disableUser(id: string): Promise<{ message: string; user: User }>;
+  switchUserRole(id: string): Promise<{ message: string; user: User }>;
+  followUser(userId: string, followingId: string): Promise<UserFollow>;
+  //=================TO DO==================//
+  unfollowUser(
+    userId: string,
+    followingId: string,
+  ): Promise<{ message: string }>;
+  getUserApplications(
+    id: string,
+  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
+  getUserJobPostings(
+    id: string,
+  ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>;
+  getUserLikedPosts(
+    id: string,
+  ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
+  getUserFollowers(
+    id: string,
+  ): Promise<{ userFollowers: UserFollow[]; totalCount: number }>;
+  getUserFollowings(
+    id: string,
+  ): Promise<{ userFollowings: UserFollow[]; totalCount: number }>;
 }

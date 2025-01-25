@@ -3,6 +3,7 @@ import { Post } from "../../Domain/Entities/Post";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
+import { PostFilter } from "../Filters/PostFilter";
 
 @injectable()
 export class PrismaPostRepository implements PostRepository {
@@ -86,16 +87,54 @@ export class PrismaPostRepository implements PostRepository {
     };
   }
 
-  async getAllPosts(offset?: number, limit?: number): Promise<Post[] | null> {
+  async getAllPosts(
+    filter?: PostFilter,
+    offset: number = 0,
+    limit: number = 10,
+  ): Promise<{ posts: Post[]; totalCount: number }> {
+    const orderByClause = filter?.buildOrderByClause();
     const posts = await prisma.post.findMany({
+      where: {},
+      orderBy: orderByClause,
       include: {
         author: true,
       },
-      ...(offset && { skip: offset }),
-      ...(limit && { take: limit }),
+      skip: offset,
+      take: limit,
     });
 
-    return posts;
+    const totalCount = await prisma.post.count({
+      where: {},
+    });
+
+    return { posts, totalCount };
+  }
+
+  async getRecentPosts(
+    lastPostDate: Date,
+    limit: number = 10,
+  ): Promise<{ posts: Post[]; totalCount: number }> {
+    console.log("Obteniendo posts recientes desde:", lastPostDate);
+    const posts = await prisma.post.findMany({
+      where: {
+        createdAt: { gt: lastPostDate },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+      include: {
+        author: true,
+      },
+    });
+    console.log("Posts recientes encontrados:", posts);
+    const totalCount = await prisma.post.count({
+      where: {
+        createdAt: { gt: lastPostDate },
+      },
+    });
+    console.log("Total de posts recientes:", totalCount);
+    return { posts, totalCount };
   }
 
   //HELPER METHODS

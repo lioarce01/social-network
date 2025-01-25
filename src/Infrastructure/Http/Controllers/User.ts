@@ -8,6 +8,7 @@ import { CreateUser } from "../../../Application/UseCases/User/CreateUser";
 import { DisableUser } from "../../../Application/UseCases/User/DisableUser";
 import { SwitchUserRole } from "../../../Application/UseCases/User/SwitchUserRole";
 import { Role } from "@prisma/client";
+import { FollowUser } from "../../../Application/UseCases/User/FollowUser";
 
 @injectable()
 export class UserController {
@@ -20,6 +21,7 @@ export class UserController {
     @inject(CreateUser) private createUserUseCase: CreateUser,
     @inject(DisableUser) private disableUserUseCase: DisableUser,
     @inject(SwitchUserRole) private switchUserRoleUseCase: SwitchUserRole,
+    @inject(FollowUser) private followUserUseCase: FollowUser,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -57,7 +59,14 @@ export class UserController {
 
   async createUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, email, sub, profile_pic } = req.body;
+      const {
+        name,
+        email,
+        sub,
+        profile_pic,
+        followingCount = 0,
+        followersCount = 0,
+      } = req.body;
 
       const { message, user } = await this.createUserUseCase.execute({
         name,
@@ -66,6 +75,8 @@ export class UserController {
         profile_pic,
         enabled: true,
         role: Role.USER,
+        followingCount,
+        followersCount,
       });
 
       res.status(201).json({ message, user });
@@ -95,11 +106,9 @@ export class UserController {
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { name } = req.body;
+      const { ...body } = req.body;
 
-      const { message, user } = await this.updateUserUseCase.execute(id, {
-        name,
-      });
+      const { message, user } = await this.updateUserUseCase.execute(id, body);
 
       res.status(200).json({ message, user });
     } catch (e) {
@@ -138,6 +147,20 @@ export class UserController {
       const { message, user } = await this.switchUserRoleUseCase.execute(id);
 
       res.status(200).json({ message, user });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async followUser(req: Request, res: Response, next: NextFunction) {
+    const { userId, followingId } = req.body;
+    try {
+      const followRelation = await this.followUserUseCase.execute(
+        userId,
+        followingId,
+      );
+
+      return res.status(200).json(followRelation);
     } catch (e) {
       next(e);
     }

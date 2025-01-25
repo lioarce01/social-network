@@ -9,20 +9,30 @@ datasource db {
 
 // entities
 model User {
-  id           String           @id @default(auto()) @map("_id") @db.ObjectId
-  sub          String           @unique
-  name         String
-  email        String           @unique
-  profile_pic  String
-  enabled      Boolean          @default(true)
-  role         Role             @default(USER)
-  posts        Post[]
-  comments     Comment[]
-  likedPosts   PostLike[]
-  jobPostings  JobPosting[]
-  applications JobApplication[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @default(now())
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  sub              String           @unique
+  name             String
+  headline         String?
+  country          String?
+  postal_code      String?
+  city             String?
+  current_position String?
+  email            String           @unique
+  profile_pic      String
+  enabled          Boolean          @default(true)
+  role             Role             @default(USER)
+  posts            Post[]
+  comments         Comment[]
+  likedPosts       PostLike[]
+  jobPostings      JobPosting[]
+  applications     JobApplication[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now())
+
+  followers        UserFollow[]  @relation("UserFollowers") 
+  following        UserFollow[]  @relation("UserFollowing")
+  followingCount Int @default(0)
+  followersCount Int @default(0)
 }
 
 model Post {
@@ -60,21 +70,22 @@ model Comment {
 }
 
 model JobPosting {
-  id           String           @id @default(auto()) @map("_id") @db.ObjectId
-  title        String
-  description  String
-  budget       Float
-  deadline     DateTime
-  techRequired String[]
-  category     String
-  status       JobPostingStatus
-  location     String
-  mode         Mode
-  applicants   JobApplication[]
-  jobAuthorId  String           @db.ObjectId
-  jobAuthor    User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String
+  budget           Float
+  deadline         DateTime
+  techRequired     String[]
+  category         String
+  status           JobPostingStatus
+  location         String
+  mode             Mode
+  experience_level String
+  applicants       JobApplication[]
+  jobAuthorId      String           @db.ObjectId
+  jobAuthor        User             @relation(fields: [jobAuthorId], references: [id], onDelete: Cascade)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model JobApplication {
@@ -83,10 +94,21 @@ model JobApplication {
   jobPostingId String     @db.ObjectId
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobPosting   JobPosting @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
-  isRejected Boolean    @default(false)
+  isRejected   Boolean    @default(false)
   appliedAt    DateTime   @default(now())
 
   @@unique([userId, jobPostingId])
+}
+
+model UserFollow {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  followerId  String   @db.ObjectId
+  followingId String   @db.ObjectId
+  follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
 }
 
 enum JobPostingStatus {

@@ -37,7 +37,7 @@ export class JobPostingController {
       };
 
       const sortOptions = {
-        sortBy: sortBy as "budget",
+        sortBy: sortBy as "budget" | "createdAt",
         sortOrder: sortOrder as "asc" | "desc",
       };
 
@@ -50,18 +50,17 @@ export class JobPostingController {
           ? Number(limit)
           : undefined;
 
-      const jobPostings = await this.getJobPostingsUseCase.execute(
+      const { jobs, totalCount } = await this.getJobPostingsUseCase.execute(
         filters,
         sortOptions,
         parsedOffset,
         parsedLimit,
       );
 
-      if (!jobPostings || jobPostings.length === 0) {
-        return res.status(404).json({ message: "No job postings found" });
-      }
-
-      res.status(200).json(jobPostings);
+      res.status(200).json({
+        jobs,
+        totalCount,
+      });
     } catch (e) {
       next(e);
     }
@@ -94,6 +93,7 @@ export class JobPostingController {
         category,
         location,
         mode,
+        experience_level,
       } = req.body;
 
       if (
@@ -119,6 +119,7 @@ export class JobPostingController {
         status: JobPostingStatus.OPEN,
         location,
         mode,
+        experience_level,
         jobAuthor: {
           connect: {
             id: userId,

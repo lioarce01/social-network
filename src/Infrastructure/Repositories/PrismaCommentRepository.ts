@@ -3,6 +3,7 @@ import { Comment } from "../../Domain/Entities/Comment";
 import { inject, injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/config";
+import { CommentFilter } from "../Filters/CommentFilter";
 
 @injectable()
 export class PrismaCommentRepository implements CommentRepository {
@@ -18,17 +19,35 @@ export class PrismaCommentRepository implements CommentRepository {
     return comments;
   }
 
-  async getPostComments(id: string): Promise<Comment[] | null> {
-    const commentsPost = await prisma.comment.findMany({
+  async getPostComments(
+    id: string,
+    filter?: CommentFilter,
+    offset?: number,
+    limit?: number,
+  ): Promise<{
+    comments: Comment[];
+    totalCount: number;
+  }> {
+    const orderByClause = filter?.buildOrderByClause();
+    const comments = await prisma.comment.findMany({
       where: {
         postId: id,
       },
+      orderBy: orderByClause,
       include: {
         author: true,
       },
+      ...(offset !== undefined && { skip: offset }),
+      ...(limit !== undefined && { take: limit }),
     });
 
-    return commentsPost;
+    const totalCount = await prisma.comment.count({
+      where: {
+        postId: id,
+      },
+    });
+
+    return { comments, totalCount };
   }
 
   async getUserComments(id: string): Promise<Comment[] | null> {
