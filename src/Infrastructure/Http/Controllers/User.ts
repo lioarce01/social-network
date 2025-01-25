@@ -9,6 +9,7 @@ import { DisableUser } from "../../../Application/UseCases/User/DisableUser";
 import { SwitchUserRole } from "../../../Application/UseCases/User/SwitchUserRole";
 import { Role } from "@prisma/client";
 import { FollowUser } from "../../../Application/UseCases/User/FollowUser";
+import { UnfollowUser } from "../../../Application/UseCases/User/UnfollowUser";
 
 @injectable()
 export class UserController {
@@ -22,6 +23,7 @@ export class UserController {
     @inject(DisableUser) private disableUserUseCase: DisableUser,
     @inject(SwitchUserRole) private switchUserRoleUseCase: SwitchUserRole,
     @inject(FollowUser) private followUserUseCase: FollowUser,
+    @inject(UnfollowUser) private unfollowUserUseCase: UnfollowUser,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -160,7 +162,22 @@ export class UserController {
         followingId,
       );
 
-      return res.status(200).json(followRelation);
+      return res.status(201).json(followRelation);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async unfollowUser(req: Request, res: Response, next: NextFunction) {
+    const { userId, followingId } = req.body;
+
+    try {
+      const { message } = await this.unfollowUserUseCase.execute(
+        userId,
+        followingId,
+      );
+
+      return res.status(200).json({ message });
     } catch (e) {
       next(e);
     }

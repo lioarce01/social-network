@@ -19,6 +19,11 @@ router.get("/:identifier", (req, res, next) =>
 router.put("/:id/update", (req, res, next) =>
   userController.updateUser(req, res, next),
 );
+
+router.delete("/unfollow", (req, res, next) =>
+  userController.unfollowUser(req, res, next),
+);
+
 router.delete("/:id", (req, res, next) =>
   userController.deleteUser(req, res, next),
 );

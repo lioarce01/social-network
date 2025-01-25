@@ -31,19 +31,19 @@ export interface UserRepository {
     userId: string,
     followingId: string,
   ): Promise<{ message: string }>;
-  getUserApplications(
-    id: string,
-  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
-  getUserJobPostings(
-    id: string,
-  ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>;
-  getUserLikedPosts(
-    id: string,
-  ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
-  getUserFollowers(
-    id: string,
-  ): Promise<{ userFollowers: UserFollow[]; totalCount: number }>;
-  getUserFollowings(
-    id: string,
-  ): Promise<{ userFollowings: UserFollow[]; totalCount: number }>;
+  // getUserApplications(
+  //   id: string,
+  // ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
+  // getUserJobPostings(
+  //   id: string,
+  // ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>;
+  // getUserLikedPosts(
+  //   id: string,
+  // ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
+  // getUserFollowers(
+  //   id: string,
+  // ): Promise<{ userFollowers: UserFollow[]; totalCount: number }>;
+  // getUserFollowings(
+  //   id: string,
+  // ): Promise<{ userFollowings: UserFollow[]; totalCount: number }>;
 }

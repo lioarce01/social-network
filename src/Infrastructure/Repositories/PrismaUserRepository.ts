@@ -223,7 +223,7 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (existingFollow) {
-      throw new CustomError(`You already are a following.`, 400);
+      throw new CustomError(`You already are a follower.`, 400);
     }
 
     // Transacción para mantener la consistencia de los datos
@@ -255,7 +255,53 @@ export class PrismaUserRepository implements UserRepository {
     userId: string,
     followingId: string,
   ): Promise<{ message: string }> {
-    throw new Error("Method not implemented.");
+    if (!userId || !followingId) {
+      throw new CustomError("User ID and Following ID are required.", 400);
+    }
+
+    if (userId === followingId) {
+      throw new CustomError("A user cannot unfollow themselves.", 400);
+    }
+
+    const existingFollow = await prisma.userFollow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: followingId,
+        },
+      },
+    });
+
+    if (!existingFollow) {
+      throw new CustomError(`You are not a follower of this user.`, 400);
+    }
+
+    const { message } = await prisma.$transaction(async (prisma) => {
+      await prisma.userFollow.delete({
+        where: {
+          followerId_followingId: {
+            followerId: userId,
+            followingId: followingId,
+          },
+        },
+      });
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { followingCount: { decrement: 1 } },
+      });
+
+      await prisma.user.update({
+        where: { id: followingId },
+        data: { followersCount: { decrement: 1 } },
+      });
+
+      return { message: "Unfollowed successfully." };
+    });
+
+    return {
+      message,
+    };
   }
 
   // HELPER METHODS

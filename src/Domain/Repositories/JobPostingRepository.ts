@@ -23,5 +23,5 @@ export interface JobPostingRepository {
   getJobApplicants(jobId: string): Promise<JobApplication[] | null>;
 
   //=========TO DO===========//
-  rejectApplicant(id: string): Promise<{ message: string }>;
+  // rejectApplicant(id: string): Promise<{ message: string }>;
 }
