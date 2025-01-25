@@ -8,7 +8,7 @@ export class FollowUser {
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(userId: String, followingId: String): Promise<UserFollow> {
+  async execute(userId: string, followingId: string): Promise<UserFollow> {
     const result = await this.userRepository.followUser(userId, followingId);
 
     return result;

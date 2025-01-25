@@ -9,8 +9,8 @@ export class UnfollowUser {
   ) {}
 
   async execute(
-    userId: String,
-    followingId: String,
+    userId: string,
+    followingId: string,
   ): Promise<{ message: string }> {
     const { message } = await this.userRepository.unfollowUser(
       userId,

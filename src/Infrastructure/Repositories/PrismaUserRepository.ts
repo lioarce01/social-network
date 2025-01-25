@@ -5,6 +5,7 @@ import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
 import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { UserFollow } from "../../Domain/Entities/UserFollow";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -16,36 +17,52 @@ export class PrismaUserRepository implements UserRepository {
         comments: true,
         jobPostings: true,
         applications: true,
+        followers: {
+          include: {
+            follower: true,
+          },
+        },
+        following: {
+          include: {
+            following: true,
+          },
+        },
       },
     });
 
-    const transformedUser = this.transformUser(user);
-
-    if (user) {
-      return transformedUser;
+    if (!user) {
+      return null;
     }
 
-    return null;
+    return this.transformUser(user);
   }
 
   async getUserById(id: string): Promise<User | null> {
+    if (!id) {
+      throw new Error("User ID is required.");
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: id },
       include: {
-        posts: true,
-        comments: true,
-        jobPostings: true,
-        applications: true,
+        followers: {
+          include: {
+            follower: true,
+          },
+        },
+        following: {
+          include: {
+            following: true,
+          },
+        },
       },
     });
 
-    const transformedUser = this.transformUser(user);
-
-    if (user) {
-      return transformedUser;
+    if (!user) {
+      return null;
     }
 
-    return null;
+    return this.transformUser(user);
   }
 
   async updateUser(
@@ -175,6 +192,74 @@ export class PrismaUserRepository implements UserRepository {
     return users.map((user) => this.transformUser(user));
   }
 
+  async followUser(userId: string, followingId: string): Promise<UserFollow> {
+    if (!userId || !followingId) {
+      throw new CustomError("User ID and Following ID are required.", 400);
+    }
+
+    if (userId === followingId) {
+      throw new CustomError("A user cannot follow themselves.", 400);
+    }
+
+    const users = await prisma.user.findMany({
+      where: {
+        id: { in: [userId, followingId] },
+      },
+      select: { id: true },
+    });
+
+    if (users.length !== 2) {
+      throw new CustomError("One or both users do not exist.", 404);
+    }
+
+    const existingFollow = await prisma.userFollow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: followingId,
+        },
+      },
+    });
+
+    if (existingFollow) {
+      throw new CustomError(
+        `User ${userId} is already a follower of ${followingId}.`,
+        400,
+      );
+    }
+
+    // Transacción para mantener la consistencia de los datos
+    const result = await prisma.$transaction(async (prisma) => {
+      const followRelation = await prisma.userFollow.create({
+        data: {
+          followerId: userId,
+          followingId: followingId,
+        },
+      });
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { followingCount: { increment: 1 } },
+      });
+
+      await prisma.user.update({
+        where: { id: followingId },
+        data: { followersCount: { increment: 1 } },
+      });
+
+      return followRelation;
+    });
+
+    return result;
+  }
+
+  async unfollowUser(
+    userId: string,
+    followingId: string,
+  ): Promise<{ message: string }> {
+    throw new Error("Method not implemented.");
+  }
+
   // HELPER METHODS
   private getUserRole(nextRole: Role): Role {
     return nextRole === Role.ADMIN ? Role.USER : Role.ADMIN;
@@ -213,6 +298,8 @@ export class PrismaUserRepository implements UserRepository {
       user.role,
       user.createdAt,
       user.updatedAt,
+      user.followingCount,
+      user.followersCount,
       user.headline ?? "",
       user.country ?? "",
       user.postal_code ?? "",
@@ -223,6 +310,26 @@ export class PrismaUserRepository implements UserRepository {
       [],
       user.jobPostings ?? [],
       user.applications ?? [],
+      user.followers?.map(
+        (f: any) =>
+          new UserFollow(
+            f.id,
+            f.followerId,
+            f.followingId,
+            f.follower,
+            undefined,
+          ),
+      ) ?? [],
+      user.following?.map(
+        (f: any) =>
+          new UserFollow(
+            f.id,
+            f.followerId,
+            f.followingId,
+            undefined,
+            f.following,
+          ),
+      ) ?? [],
     );
   }
 }

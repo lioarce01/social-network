@@ -11,20 +11,20 @@ export interface UserRepository {
     limit?: number,
   ): Promise<User[] | null>;
   getUserBySub(sub: string): Promise<User | null>;
-  getUserById(id: String): Promise<User | null>;
+  getUserById(id: string): Promise<User | null>;
   updateUser(
     id: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
-  deleteUser(id: String): Promise<{ message: string }>;
+  deleteUser(id: string): Promise<{ message: string }>;
   createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }>;
-  disableUser(id: String): Promise<{ message: string; user: User }>;
-  switchUserRole(id: String): Promise<{ message: string; user: User }>;
-  followUser(userId: String, followingId: String): Promise<UserFollow>;
+  disableUser(id: string): Promise<{ message: string; user: User }>;
+  switchUserRole(id: string): Promise<{ message: string; user: User }>;
+  followUser(userId: string, followingId: string): Promise<UserFollow>;
   unfollowUser(
-    userId: String,
-    followingId: String,
+    userId: string,
+    followingId: string,
   ): Promise<{ message: string }>;
 }

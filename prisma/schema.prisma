@@ -29,8 +29,8 @@ model User {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @default(now())
 
-  followers      UserFollow[] @relation("UserFollowers")
-  following      UserFollow[] @relation("UserFollowing")
+  followers        UserFollow[]  @relation("UserFollowers") 
+  following        UserFollow[]  @relation("UserFollowing")
   followingCount Int @default(0)
   followersCount Int @default(0)
 }
@@ -104,8 +104,8 @@ model UserFollow {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   followerId  String   @db.ObjectId
   followingId String   @db.ObjectId
-  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])

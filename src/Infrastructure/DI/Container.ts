@@ -44,6 +44,8 @@ import { GetJobApplicants } from "../../Application/UseCases/JobPosting/GetJobAp
 import { AddPost } from "../../Application/UseCases/Post/AddPosts";
 import { GetRecentPosts } from "../../Application/UseCases/Post/GetRecentPosts";
 import { PostNotificationService } from "../../Domain/Services/PostNotificationService";
+import { FollowUser } from "../../Application/UseCases/User/FollowUser";
+import { UnfollowUser } from "../../Application/UseCases/User/UnfollowUser";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -90,6 +92,8 @@ container.registerSingleton("DeleteUser", DeleteUser);
 container.registerSingleton("DisableUser", DisableUser);
 container.registerSingleton("SwitchUserRole", SwitchUserRole);
 container.registerSingleton("UpdateUser", UpdateUser);
+container.registerSingleton("FollowUser", FollowUser);
+container.registerSingleton("UnfollowUser", UnfollowUser);
 
 //Register Post use cases
 container.registerSingleton("GetAllPosts", GetAllPosts);

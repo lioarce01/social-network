@@ -29,4 +29,8 @@ router.put("/switch-role", (req, res, next) =>
   userController.switchUserRole(req, res, next),
 );
 
+router.post("/follow", (req, res, next) =>
+  userController.followUser(req, res, next),
+);
+
 export default router;
