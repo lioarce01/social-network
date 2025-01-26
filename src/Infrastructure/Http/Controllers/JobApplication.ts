@@ -25,10 +25,11 @@ export class JobApplicationController {
   }
 
   async rejectApplicant(req: Request, res: Response, next: NextFunction) {
-    const { userId, jobId } = req.body;
+    const { id } = req.params;
+    const { userId } = req.body;
 
     try {
-      const result = await this.rejectApplicantUseCase.execute(userId, jobId);
+      const result = await this.rejectApplicantUseCase.execute(userId, id);
 
       return res.status(200).json(result);
     } catch (e) {

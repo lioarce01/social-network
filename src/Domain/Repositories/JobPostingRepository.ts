@@ -20,5 +20,9 @@ export interface JobPostingRepository {
   ): Promise<{ message: string; jobPosting: JobPosting }>;
   deleteJobPosting(id: string): Promise<{ message: string }>;
   disableJobPosting(id: string): Promise<{ message: string }>;
-  getJobApplicants(jobId: string): Promise<JobApplication[] | null>;
+  getJobApplicants(
+    jobId: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ applications: JobApplication[]; totalCount: number }>;
 }

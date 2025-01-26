@@ -146,11 +146,14 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     };
   }
 
-  async getJobApplicants(jobId: string): Promise<JobApplication[] | null> {
+  async getJobApplicants(
+    jobId: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ applications: JobApplication[]; totalCount: number }> {
     const applicants = await prisma.jobApplication.findMany({
       where: {
         jobPostingId: jobId,
-        isRejected: false,
       },
       include: {
         user: {
@@ -162,9 +165,20 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
           },
         },
       },
+      skip: offset,
+      take: limit,
     });
 
-    return applicants;
+    const totalCount = await prisma.jobApplication.count({
+      where: {
+        jobPostingId: jobId,
+      },
+    });
+
+    return {
+      applications: applicants,
+      totalCount: totalCount,
+    };
   }
 
   //HELPERS METHODS
@@ -183,7 +197,6 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
       data: { status: newStatus },
     });
   }
-
   private async getUserById(id: string) {
     return prisma.user.findUnique({ where: { id } });
   }
