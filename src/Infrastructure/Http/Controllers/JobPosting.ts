@@ -7,7 +7,7 @@ import { CreateJobPosting } from "../../../Application/UseCases/JobPosting/Creat
 import { DeleteJobPosting } from "../../../Application/UseCases/JobPosting/DeleteJobPosting";
 import { DisableJobPosting } from "../../../Application/UseCases/JobPosting/DisableJobPosting";
 import { GetJobApplicants } from "../../../Application/UseCases/JobPosting/GetJobApplicants";
-import { JobPostingStatus, Prisma } from "@prisma/client";
+import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
 
 @injectable()
 export class JobPostingController {
@@ -29,11 +29,30 @@ export class JobPostingController {
 
   async getJobPostings(req: Request, res: Response, next: NextFunction) {
     try {
-      const { status, category, sortBy, sortOrder, offset, limit } = req.query;
+      const {
+        status,
+        category,
+        sortBy,
+        sortOrder,
+        offset,
+        limit,
+        searchTerm,
+        mode,
+      } = req.query;
+
+      let parsedMode: Mode | undefined;
+      if (mode) {
+        const validModes = Object.values(Mode);
+        if (validModes.includes(mode as Mode)) {
+          parsedMode = mode as Mode;
+        }
+      }
 
       const filters = {
         status: status ? (status as JobPostingStatus) : undefined,
         category: category as string,
+        searchTerm: searchTerm as string,
+        mode: parsedMode,
       };
 
       const sortOptions = {

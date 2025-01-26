@@ -1,8 +1,10 @@
-import { JobPostingStatus, Prisma } from "@prisma/client";
+import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
 
 export interface JobPostingFilters {
   category?: string;
   status?: JobPostingStatus;
+  searchTerm?: string;
+  mode?: Mode;
 }
 
 export interface JobPostingSortOptions {
@@ -31,6 +33,22 @@ export class JobPostingFilter {
 
     if (this.filters.status) {
       whereClause.status = this.filters.status;
+    }
+
+    if (this.filters.searchTerm) {
+      whereClause.OR = [
+        { title: { contains: this.filters.searchTerm, mode: "insensitive" } },
+        {
+          description: {
+            contains: this.filters.searchTerm,
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
+
+    if (this.filters.mode) {
+      whereClause.mode = this.filters.mode;
     }
 
     return whereClause;
