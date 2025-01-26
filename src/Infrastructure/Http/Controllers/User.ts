@@ -197,10 +197,16 @@ export class UserController {
   }
 
   async getUserApplications(req: Request, res: Response, next: NextFunction) {
-    const { userId } = req.body;
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
 
     try {
-      const result = await this.getUserApplicationsUseCase.execute(userId);
+      const result = await this.getUserApplicationsUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
 
       return res.status(200).json(result);
     } catch (e) {

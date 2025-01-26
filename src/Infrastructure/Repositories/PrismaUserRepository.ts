@@ -310,6 +310,8 @@ export class PrismaUserRepository implements UserRepository {
 
   async getUserApplications(
     userId: string,
+    offset?: number,
+    limit?: number,
   ): Promise<{ jobApplications: JobApplication[]; totalCount: number }> {
     const user = await this.getById(userId);
 
@@ -321,6 +323,8 @@ export class PrismaUserRepository implements UserRepository {
       where: {
         userId: userId,
       },
+      skip: offset,
+      take: limit,
     });
 
     const totalCount = await prisma.jobApplication.count({
@@ -433,7 +437,6 @@ export class PrismaUserRepository implements UserRepository {
       },
     });
 
-    // Mapear solo los seguidores (follower)
     const followers = userFollowers.map(
       (f) =>
         new FollowerDTO(

@@ -33,6 +33,8 @@ export interface UserRepository {
   ): Promise<{ message: string }>;
   getUserApplications(
     id: string,
+    offset?: number,
+    limit?: number,
   ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
   getUserJobPostings(
     id: string,
