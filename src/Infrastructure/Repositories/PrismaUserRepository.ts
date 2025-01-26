@@ -4,7 +4,7 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
-import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { FollowerDTO, UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../../Domain/Entities/UserFollow";
 import { CustomError } from "../../Shared/CustomError";
 import { JobApplication } from "../../Domain/Entities/JobApplication";
@@ -401,6 +401,51 @@ export class PrismaUserRepository implements UserRepository {
 
     return {
       likedPosts,
+      totalCount,
+    };
+  }
+
+  async getUserFollowers(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ followers: FollowerDTO[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const userFollowers = await prisma.userFollow.findMany({
+      where: {
+        followingId: id,
+      },
+      include: {
+        follower: true,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.userFollow.count({
+      where: {
+        followingId: id,
+      },
+    });
+
+    // Mapear solo los seguidores (follower)
+    const followers = userFollowers.map(
+      (f) =>
+        new FollowerDTO(
+          f.follower.id,
+          f.follower.name,
+          f.follower.profile_pic,
+          f.follower.headline || "",
+        ),
+    );
+
+    return {
+      followers,
       totalCount,
     };
   }

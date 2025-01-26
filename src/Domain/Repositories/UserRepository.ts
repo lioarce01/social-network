@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
-import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { FollowerDTO, UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../Entities/UserFollow";
 import { JobApplication } from "../Entities/JobApplication";
 import { JobPosting } from "../Entities/JobPosting";
@@ -44,9 +44,11 @@ export interface UserRepository {
     offset?: number,
     limit?: number,
   ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
-  // getUserFollowers(
-  //   id: string,
-  // ): Promise<{ userFollowers: UserFollow[]; totalCount: number }>;
+  getUserFollowers(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ followers: FollowerDTO[]; totalCount: number }>;
   // getUserFollowings(
   //   id: string,
   // ): Promise<{ userFollowings: UserFollow[]; totalCount: number }>;

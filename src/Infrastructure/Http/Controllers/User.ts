@@ -13,6 +13,7 @@ import { UnfollowUser } from "../../../Application/UseCases/User/UnfollowUser";
 import { GetUserApplications } from "../../../Application/UseCases/User/GetUserApplications";
 import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJobPostings";
 import { GetUserLikedPosts } from "../../../Application/UseCases/User/GetUserLikedPosts";
+import { GetUserFollowers } from "../../../Application/UseCases/User/GetUserFollowers";
 
 @injectable()
 export class UserController {
@@ -33,6 +34,7 @@ export class UserController {
     private getUserJobPostingsUseCase: GetUserJobPostings,
     @inject(GetUserLikedPosts)
     private getUserLikedPostsUseCase: GetUserLikedPosts,
+    @inject(GetUserFollowers) private getUserFollowersUseCase: GetUserFollowers,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -229,6 +231,24 @@ export class UserController {
 
     try {
       const result = await this.getUserLikedPostsUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserFollowers(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserFollowersUseCase.execute(
         id,
         offset,
         limit,
