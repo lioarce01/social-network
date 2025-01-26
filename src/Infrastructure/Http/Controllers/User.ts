@@ -19,24 +19,26 @@ import { GetUserFollowing } from "../../../Application/UseCases/User/GetUserFoll
 @injectable()
 export class UserController {
   constructor(
-    @inject(GetAllUsers) private getAllUsersUseCase: GetAllUsers,
-    @inject(GetUserByIdentifier)
+    @inject("GetAllUsers") private getAllUsersUseCase: GetAllUsers,
+    @inject("GetUserByIdentifier")
     private getUserByIdentifierUseCase: GetUserByIdentifier,
-    @inject(UpdateUser) private updateUserUseCase: UpdateUser,
-    @inject(DeleteUser) private deleteUserUseCase: DeleteUser,
-    @inject(CreateUser) private createUserUseCase: CreateUser,
-    @inject(DisableUser) private disableUserUseCase: DisableUser,
-    @inject(SwitchUserRole) private switchUserRoleUseCase: SwitchUserRole,
-    @inject(FollowUser) private followUserUseCase: FollowUser,
-    @inject(UnfollowUser) private unfollowUserUseCase: UnfollowUser,
-    @inject(GetUserApplications)
+    @inject("UpdateUser") private updateUserUseCase: UpdateUser,
+    @inject("DeleteUser") private deleteUserUseCase: DeleteUser,
+    @inject("CreateUser") private createUserUseCase: CreateUser,
+    @inject("DisableUser") private disableUserUseCase: DisableUser,
+    @inject("SwitchUserRole") private switchUserRoleUseCase: SwitchUserRole,
+    @inject("FollowUser") private followUserUseCase: FollowUser,
+    @inject("UnfollowUser") private unfollowUserUseCase: UnfollowUser,
+    @inject("GetUserApplications")
     private getUserApplicationsUseCase: GetUserApplications,
-    @inject(GetUserJobPostings)
+    @inject("GetUserJobPostings")
     private getUserJobPostingsUseCase: GetUserJobPostings,
-    @inject(GetUserLikedPosts)
+    @inject("GetUserLikedPosts")
     private getUserLikedPostsUseCase: GetUserLikedPosts,
-    @inject(GetUserFollowers) private getUserFollowersUseCase: GetUserFollowers,
-    @inject(GetUserFollowing) private getUserFollowingUseCase: GetUserFollowing,
+    @inject("GetUserFollowers")
+    private getUserFollowersUseCase: GetUserFollowers,
+    @inject("GetUserFollowing")
+    private getUserFollowingUseCase: GetUserFollowing,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
