@@ -14,6 +14,7 @@ import { GetUserApplications } from "../../../Application/UseCases/User/GetUserA
 import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJobPostings";
 import { GetUserLikedPosts } from "../../../Application/UseCases/User/GetUserLikedPosts";
 import { GetUserFollowers } from "../../../Application/UseCases/User/GetUserFollowers";
+import { GetUserFollowing } from "../../../Application/UseCases/User/GetUserFollowing";
 
 @injectable()
 export class UserController {
@@ -35,6 +36,7 @@ export class UserController {
     @inject(GetUserLikedPosts)
     private getUserLikedPostsUseCase: GetUserLikedPosts,
     @inject(GetUserFollowers) private getUserFollowersUseCase: GetUserFollowers,
+    @inject(GetUserFollowing) private getUserFollowingUseCase: GetUserFollowing,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -249,6 +251,24 @@ export class UserController {
 
     try {
       const result = await this.getUserFollowersUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserFollowing(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserFollowingUseCase.execute(
         id,
         offset,
         limit,

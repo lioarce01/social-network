@@ -49,7 +49,9 @@ export interface UserRepository {
     offset?: number,
     limit?: number,
   ): Promise<{ followers: FollowerDTO[]; totalCount: number }>;
-  // getUserFollowings(
-  //   id: string,
-  // ): Promise<{ userFollowings: UserFollow[]; totalCount: number }>;
+  getUserFollowing(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ following: FollowerDTO[]; totalCount: number }>;
 }

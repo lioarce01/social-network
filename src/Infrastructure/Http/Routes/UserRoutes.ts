@@ -28,6 +28,10 @@ router.get("/:id/followers", (req, res, next) =>
   userController.getUserFollowers(req, res, next),
 );
 
+router.get("/:id/following", (req, res, next) =>
+  userController.getUserFollowing(req, res, next),
+);
+
 router.post("/", (req, res, next) => userController.createUser(req, res, next));
 
 router.put("/disable", (req, res, next) =>

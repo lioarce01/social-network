@@ -440,12 +440,56 @@ export class PrismaUserRepository implements UserRepository {
           f.follower.id,
           f.follower.name,
           f.follower.profile_pic,
-          f.follower.headline || "",
+          f.follower.headline ?? "",
         ),
     );
 
     return {
       followers,
+      totalCount,
+    };
+  }
+
+  async getUserFollowing(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ following: FollowerDTO[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const userFollowing = await prisma.userFollow.findMany({
+      where: {
+        followerId: id,
+      },
+      include: {
+        following: true,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.userFollow.count({
+      where: {
+        followerId: id,
+      },
+    });
+
+    const following = userFollowing.map(
+      (f) =>
+        new FollowerDTO(
+          f.following.id,
+          f.following.name,
+          f.following.profile_pic,
+          f.following.headline ?? "",
+        ),
+    );
+
+    return {
+      following,
       totalCount,
     };
   }

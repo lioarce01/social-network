@@ -50,6 +50,7 @@ import { GetUserApplications } from "../../Application/UseCases/User/GetUserAppl
 import { GetUserJobPostings } from "../../Application/UseCases/User/GetUserJobPostings";
 import { GetUserLikedPosts } from "../../Application/UseCases/User/GetUserLikedPosts";
 import { GetUserFollowers } from "../../Application/UseCases/User/GetUserFollowers";
+import { GetUserFollowing } from "../../Application/UseCases/User/GetUserFollowing";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -102,6 +103,7 @@ container.registerSingleton("GetUserApplications", GetUserApplications);
 container.registerSingleton("GetUserJobPostings", GetUserJobPostings);
 container.registerSingleton("GetUserLikedPosts", GetUserLikedPosts);
 container.registerSingleton("GetUserFollowers", GetUserFollowers);
+container.registerSingleton("GetUserFollowing", GetUserFollowing);
 
 //Register Post use cases
 container.registerSingleton("GetAllPosts", GetAllPosts);
