@@ -10,9 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const httpServer = createServer(app);
+// const httpServer = createServer(app);
 
-const io = initSocketServer(httpServer);
+// const io = initSocketServer(httpServer);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
@@ -20,8 +20,8 @@ app.get("/health", (req, res) => {
 
 app.use("/", router);
 
-app.locals.io = io;
+// app.locals.io = io;
 
 app.use(errorHandler);
 
-export { httpServer, app };
+export { app };

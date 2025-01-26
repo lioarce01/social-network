@@ -9,19 +9,36 @@ import { DisableUser } from "../../../Application/UseCases/User/DisableUser";
 import { SwitchUserRole } from "../../../Application/UseCases/User/SwitchUserRole";
 import { Role } from "@prisma/client";
 import { FollowUser } from "../../../Application/UseCases/User/FollowUser";
+import { UnfollowUser } from "../../../Application/UseCases/User/UnfollowUser";
+import { GetUserApplications } from "../../../Application/UseCases/User/GetUserApplications";
+import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJobPostings";
+import { GetUserLikedPosts } from "../../../Application/UseCases/User/GetUserLikedPosts";
+import { GetUserFollowers } from "../../../Application/UseCases/User/GetUserFollowers";
+import { GetUserFollowing } from "../../../Application/UseCases/User/GetUserFollowing";
 
 @injectable()
 export class UserController {
   constructor(
-    @inject(GetAllUsers) private getAllUsersUseCase: GetAllUsers,
-    @inject(GetUserByIdentifier)
+    @inject("GetAllUsers") private getAllUsersUseCase: GetAllUsers,
+    @inject("GetUserByIdentifier")
     private getUserByIdentifierUseCase: GetUserByIdentifier,
-    @inject(UpdateUser) private updateUserUseCase: UpdateUser,
-    @inject(DeleteUser) private deleteUserUseCase: DeleteUser,
-    @inject(CreateUser) private createUserUseCase: CreateUser,
-    @inject(DisableUser) private disableUserUseCase: DisableUser,
-    @inject(SwitchUserRole) private switchUserRoleUseCase: SwitchUserRole,
-    @inject(FollowUser) private followUserUseCase: FollowUser,
+    @inject("UpdateUser") private updateUserUseCase: UpdateUser,
+    @inject("DeleteUser") private deleteUserUseCase: DeleteUser,
+    @inject("CreateUser") private createUserUseCase: CreateUser,
+    @inject("DisableUser") private disableUserUseCase: DisableUser,
+    @inject("SwitchUserRole") private switchUserRoleUseCase: SwitchUserRole,
+    @inject("FollowUser") private followUserUseCase: FollowUser,
+    @inject("UnfollowUser") private unfollowUserUseCase: UnfollowUser,
+    @inject("GetUserApplications")
+    private getUserApplicationsUseCase: GetUserApplications,
+    @inject("GetUserJobPostings")
+    private getUserJobPostingsUseCase: GetUserJobPostings,
+    @inject("GetUserLikedPosts")
+    private getUserLikedPostsUseCase: GetUserLikedPosts,
+    @inject("GetUserFollowers")
+    private getUserFollowersUseCase: GetUserFollowers,
+    @inject("GetUserFollowing")
+    private getUserFollowingUseCase: GetUserFollowing,
   ) {}
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -160,7 +177,112 @@ export class UserController {
         followingId,
       );
 
-      return res.status(200).json(followRelation);
+      return res.status(201).json(followRelation);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async unfollowUser(req: Request, res: Response, next: NextFunction) {
+    const { userId, followingId } = req.body;
+
+    try {
+      const { message } = await this.unfollowUserUseCase.execute(
+        userId,
+        followingId,
+      );
+
+      return res.status(200).json({ message });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserApplications(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserApplicationsUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserJobPostings(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserJobPostingsUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserLikedPosts(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserLikedPostsUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserFollowers(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserFollowersUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getUserFollowing(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+      const result = await this.getUserFollowingUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
+
+      return res.status(200).json(result);
     } catch (e) {
       next(e);
     }

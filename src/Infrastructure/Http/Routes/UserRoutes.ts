@@ -11,26 +11,55 @@ const router = express.Router();
 const userController = container.resolve(UserController);
 
 router.get("/", (req, res, next) => userController.getAllUsers(req, res, next));
-router.post("/", (req, res, next) => userController.createUser(req, res, next));
-router.get("/:identifier", (req, res, next) =>
-  userController.getUserByIdentifier(req, res, next),
-);
 
-router.put("/:id/update", (req, res, next) =>
-  userController.updateUser(req, res, next),
-);
-router.delete("/:id", (req, res, next) =>
-  userController.deleteUser(req, res, next),
-);
+router.post("/", (req, res, next) => userController.createUser(req, res, next));
+
 router.put("/disable", (req, res, next) =>
   userController.disableUser(req, res, next),
 );
+
 router.put("/switch-role", (req, res, next) =>
   userController.switchUserRole(req, res, next),
 );
 
 router.post("/follow", (req, res, next) =>
   userController.followUser(req, res, next),
+);
+
+router.delete("/unfollow", (req, res, next) =>
+  userController.unfollowUser(req, res, next),
+);
+
+router.get("/:id/applications", (req, res, next) =>
+  userController.getUserApplications(req, res, next),
+);
+
+router.get("/:id/job-postings", (req, res, next) =>
+  userController.getUserJobPostings(req, res, next),
+);
+
+router.get("/:id/liked-posts", (req, res, next) =>
+  userController.getUserLikedPosts(req, res, next),
+);
+
+router.get("/:id/followers", (req, res, next) =>
+  userController.getUserFollowers(req, res, next),
+);
+
+router.get("/:id/following", (req, res, next) =>
+  userController.getUserFollowing(req, res, next),
+);
+
+router.get("/:identifier", (req, res, next) =>
+  userController.getUserByIdentifier(req, res, next),
+);
+
+router.delete("/:id", (req, res, next) =>
+  userController.deleteUser(req, res, next),
+);
+
+router.put("/:id/update", (req, res, next) =>
+  userController.updateUser(req, res, next),
 );
 
 export default router;

@@ -4,9 +4,13 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
-import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { FollowerDTO, UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../../Domain/Entities/UserFollow";
 import { CustomError } from "../../Shared/CustomError";
+import { JobApplication } from "../../Domain/Entities/JobApplication";
+import { JobPosting } from "../../Domain/Entities/JobPosting";
+import { ExperienceLevel } from "../../types/JobPosting";
+import { PostLike } from "../../Domain/Entities/PostLike";
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -223,7 +227,7 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (existingFollow) {
-      throw new CustomError(`You already are a following.`, 400);
+      throw new CustomError(`You already are a follower.`, 400);
     }
 
     // Transacción para mantener la consistencia de los datos
@@ -255,7 +259,242 @@ export class PrismaUserRepository implements UserRepository {
     userId: string,
     followingId: string,
   ): Promise<{ message: string }> {
-    throw new Error("Method not implemented.");
+    if (!userId || !followingId) {
+      throw new CustomError("User ID and Following ID are required.", 400);
+    }
+
+    if (userId === followingId) {
+      throw new CustomError("A user cannot unfollow themselves.", 400);
+    }
+
+    const existingFollow = await prisma.userFollow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: followingId,
+        },
+      },
+    });
+
+    if (!existingFollow) {
+      throw new CustomError(`You are not a follower of this user.`, 400);
+    }
+
+    const { message } = await prisma.$transaction(async (prisma) => {
+      await prisma.userFollow.delete({
+        where: {
+          followerId_followingId: {
+            followerId: userId,
+            followingId: followingId,
+          },
+        },
+      });
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { followingCount: { decrement: 1 } },
+      });
+
+      await prisma.user.update({
+        where: { id: followingId },
+        data: { followersCount: { decrement: 1 } },
+      });
+
+      return { message: "Unfollowed successfully." };
+    });
+
+    return {
+      message,
+    };
+  }
+
+  async getUserApplications(
+    userId: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }> {
+    const user = await this.getById(userId);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const userApplications = await prisma.jobApplication.findMany({
+      where: {
+        userId: userId,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.jobApplication.count({
+      where: {
+        userId: userId,
+      },
+    });
+
+    return {
+      jobApplications: userApplications,
+      totalCount: totalCount,
+    };
+  }
+
+  async getUserJobPostings(
+    id: string,
+    offset: number = 0,
+    limit: number = 10,
+  ): Promise<{ jobPostings: JobPosting[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const jobPostings = await prisma.jobPosting.findMany({
+      where: {
+        jobAuthorId: id,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const jobs = jobPostings.map((job) => ({
+      ...job,
+      experience_level: job.experience_level as ExperienceLevel,
+    }));
+
+    const totalCount = await prisma.jobPosting.count({
+      where: {
+        jobAuthorId: id,
+      },
+    });
+
+    return {
+      jobPostings: jobs,
+      totalCount: totalCount,
+    };
+  }
+
+  async getUserLikedPosts(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ likedPosts: PostLike[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const likedPosts = await prisma.postLike.findMany({
+      where: {
+        userId: id,
+      },
+      include: {
+        post: true,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.postLike.count({
+      where: {
+        userId: id,
+      },
+    });
+
+    return {
+      likedPosts,
+      totalCount,
+    };
+  }
+
+  async getUserFollowers(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ followers: FollowerDTO[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const userFollowers = await prisma.userFollow.findMany({
+      where: {
+        followingId: id,
+      },
+      include: {
+        follower: true,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.userFollow.count({
+      where: {
+        followingId: id,
+      },
+    });
+
+    const followers = userFollowers.map(
+      (f) =>
+        new FollowerDTO(
+          f.follower.id,
+          f.follower.name,
+          f.follower.profile_pic,
+          f.follower.headline ?? "",
+        ),
+    );
+
+    return {
+      followers,
+      totalCount,
+    };
+  }
+
+  async getUserFollowing(
+    id: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ following: FollowerDTO[]; totalCount: number }> {
+    const user = await this.getById(id);
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    const userFollowing = await prisma.userFollow.findMany({
+      where: {
+        followerId: id,
+      },
+      include: {
+        following: true,
+      },
+      skip: offset,
+      take: limit,
+    });
+
+    const totalCount = await prisma.userFollow.count({
+      where: {
+        followerId: id,
+      },
+    });
+
+    const following = userFollowing.map(
+      (f) =>
+        new FollowerDTO(
+          f.following.id,
+          f.following.name,
+          f.following.profile_pic,
+          f.following.headline ?? "",
+        ),
+    );
+
+    return {
+      following,
+      totalCount,
+    };
   }
 
   // HELPER METHODS

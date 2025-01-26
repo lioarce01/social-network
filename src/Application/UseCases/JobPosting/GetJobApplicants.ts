@@ -11,8 +11,16 @@ export class GetJobApplicants {
     private jobPostingRepository: JobPostingRepository,
   ) {}
 
-  async execute(jobId: string): Promise<JobApplication[] | null> {
-    const applicants = await this.jobPostingRepository.getJobApplicants(jobId);
+  async execute(
+    jobId: string,
+    offset?: number,
+    limit?: number,
+  ): Promise<{ applications: JobApplication[]; totalCount: number }> {
+    const applicants = await this.jobPostingRepository.getJobApplicants(
+      jobId,
+      offset,
+      limit,
+    );
 
     return applicants;
   }

@@ -14,4 +14,8 @@ router.post("/applyjob", (req, res, next) =>
   jobApplicationController.applyJob(req, res, next),
 );
 
+router.put("/:id/reject-applicant", (req, res, next) =>
+  jobApplicationController.rejectApplicant(req, res, next),
+);
+
 export default router;

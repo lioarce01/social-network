@@ -1,5 +1,4 @@
 import { UserRepository } from "../../../Domain/Repositories/UserRepository";
-import { UserFollow } from "../../../Domain/Entities/UserFollow";
 import { inject, injectable } from "tsyringe";
 
 @injectable()

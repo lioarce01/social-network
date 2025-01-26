@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
-import { UpdateUserDTO } from "../../Application/DTOs/User";
+import { FollowerDTO, UpdateUserDTO } from "../../Application/DTOs/User";
 import { UserFollow } from "../Entities/UserFollow";
 import { JobApplication } from "../Entities/JobApplication";
 import { JobPosting } from "../Entities/JobPosting";
@@ -26,24 +26,33 @@ export interface UserRepository {
   disableUser(id: string): Promise<{ message: string; user: User }>;
   switchUserRole(id: string): Promise<{ message: string; user: User }>;
   followUser(userId: string, followingId: string): Promise<UserFollow>;
-  //=================TO DO==================//
   unfollowUser(
     userId: string,
     followingId: string,
   ): Promise<{ message: string }>;
   getUserApplications(
     id: string,
+    offset?: number,
+    limit?: number,
   ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>;
   getUserJobPostings(
     id: string,
+    offset?: number,
+    limit?: number,
   ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>;
   getUserLikedPosts(
     id: string,
+    offset?: number,
+    limit?: number,
   ): Promise<{ likedPosts: PostLike[]; totalCount: number }>;
   getUserFollowers(
     id: string,
-  ): Promise<{ userFollowers: UserFollow[]; totalCount: number }>;
-  getUserFollowings(
+    offset?: number,
+    limit?: number,
+  ): Promise<{ followers: FollowerDTO[]; totalCount: number }>;
+  getUserFollowing(
     id: string,
-  ): Promise<{ userFollowings: UserFollow[]; totalCount: number }>;
+    offset?: number,
+    limit?: number,
+  ): Promise<{ following: FollowerDTO[]; totalCount: number }>;
 }

@@ -57,7 +57,7 @@ export class JobPostingController {
         parsedLimit,
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         jobs,
         totalCount,
       });
@@ -75,7 +75,7 @@ export class JobPostingController {
         return res.status(404).json({ message: "Job posting not found" });
       }
 
-      res.status(200).json(jobPosting);
+      return res.status(200).json(jobPosting);
     } catch (e) {
       next(e);
     }
@@ -130,7 +130,7 @@ export class JobPostingController {
       const { message, jobPosting } =
         await this.createJobPostingUseCase.execute(userId, postingData);
 
-      res.status(201).json({ message, jobPosting });
+      return res.status(201).json({ message, jobPosting });
     } catch (e) {
       next(e);
     }
@@ -154,7 +154,7 @@ export class JobPostingController {
       const { message, jobPosting } =
         await this.updateJobPostingUseCase.execute(id, updates);
 
-      res.status(200).json({ message, jobPosting });
+      return res.status(200).json({ message, jobPosting });
     } catch (e) {
       next(e);
     }
@@ -165,7 +165,7 @@ export class JobPostingController {
       const { id } = req.params;
       const { message } = await this.deleteJobPostingUseCase.execute(id);
 
-      res.status(200).json({ message });
+      return res.status(200).json({ message });
     } catch (e) {
       next(e);
     }
@@ -177,7 +177,7 @@ export class JobPostingController {
 
       const { message } = await this.disableJobPostingUseCase.execute(id);
 
-      res.status(200).json({ message });
+      return res.status(200).json({ message });
     } catch (e) {
       next(e);
     }
@@ -186,10 +186,16 @@ export class JobPostingController {
   async getJobApplicants(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = parseInt(req.query.limit as string) || 10;
 
-      const jobApplicants = await this.getJobApplicantsUseCase.execute(id);
+      const jobApplicants = await this.getJobApplicantsUseCase.execute(
+        id,
+        offset,
+        limit,
+      );
 
-      res.status(200).json(jobApplicants);
+      return res.status(200).json(jobApplicants);
     } catch (e) {
       next(e);
     }

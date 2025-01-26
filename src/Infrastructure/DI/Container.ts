@@ -46,6 +46,12 @@ import { GetRecentPosts } from "../../Application/UseCases/Post/GetRecentPosts";
 import { PostNotificationService } from "../../Domain/Services/PostNotificationService";
 import { FollowUser } from "../../Application/UseCases/User/FollowUser";
 import { UnfollowUser } from "../../Application/UseCases/User/UnfollowUser";
+import { GetUserApplications } from "../../Application/UseCases/User/GetUserApplications";
+import { GetUserJobPostings } from "../../Application/UseCases/User/GetUserJobPostings";
+import { GetUserLikedPosts } from "../../Application/UseCases/User/GetUserLikedPosts";
+import { GetUserFollowers } from "../../Application/UseCases/User/GetUserFollowers";
+import { GetUserFollowing } from "../../Application/UseCases/User/GetUserFollowing";
+import { RejectApplicant } from "../../Application/UseCases/JobApplication/RejectApplicant";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -94,6 +100,11 @@ container.registerSingleton("SwitchUserRole", SwitchUserRole);
 container.registerSingleton("UpdateUser", UpdateUser);
 container.registerSingleton("FollowUser", FollowUser);
 container.registerSingleton("UnfollowUser", UnfollowUser);
+container.registerSingleton("GetUserApplications", GetUserApplications);
+container.registerSingleton("GetUserJobPostings", GetUserJobPostings);
+container.registerSingleton("GetUserLikedPosts", GetUserLikedPosts);
+container.registerSingleton("GetUserFollowers", GetUserFollowers);
+container.registerSingleton("GetUserFollowing", GetUserFollowing);
 
 //Register Post use cases
 container.registerSingleton("GetAllPosts", GetAllPosts);
@@ -130,3 +141,4 @@ container.registerSingleton("GetJobApplicants", GetJobApplicants);
 
 //Register Job applications use cases
 container.registerSingleton("ApplyJob", ApplyJob);
+container.registerSingleton("RejectApplicant", RejectApplicant);
