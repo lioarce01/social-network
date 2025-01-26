@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { httpServer } from "./Infrastructure/Http/server";
+import { app } from "./Infrastructure/Http/server";
 import { appConfig } from "./config/config";
 
-httpServer.listen(appConfig.port, () => {
+app.listen(appConfig.port, () => {
   console.log(`Server is running on port ${appConfig.port}`);
 });
 

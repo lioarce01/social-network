@@ -80,7 +80,7 @@ export class PostController {
         postData,
       );
 
-      await this.addPostUseCase.execute(post);
+      // await this.addPostUseCase.execute(post);
 
       res.status(201).json({ message, post });
     } catch (e) {
