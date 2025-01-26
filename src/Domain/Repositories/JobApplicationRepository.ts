@@ -5,4 +5,5 @@ export interface JobApplicationRepository {
     userId: string,
     jobId: string,
   ): Promise<{ message: string; jobApplication: JobApplication }>;
+  rejectApplicant(userId: string, jobId: string): Promise<JobApplication>;
 }

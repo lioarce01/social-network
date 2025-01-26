@@ -2,6 +2,7 @@ import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicati
 import { JobApplication } from "../../Domain/Entities/JobApplication";
 import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
+import { CustomError } from "../../Shared/CustomError";
 
 @injectable()
 export class PrismaJobApplicationRepository
@@ -18,7 +19,7 @@ export class PrismaJobApplicationRepository
 
     if (existingApplication) {
       return {
-        message: "You have already applied to this job posting",
+        message: "You already applied to this job posting",
         jobApplication: existingApplication,
       };
     }
@@ -34,6 +35,39 @@ export class PrismaJobApplicationRepository
       message: "Job application submitted successfully",
       jobApplication,
     };
+  }
+
+  async rejectApplicant(
+    userId: string,
+    jobId: string,
+  ): Promise<JobApplication> {
+    if (!userId || !jobId) {
+      throw new CustomError("Invalid user id or job id", 400);
+    }
+
+    if (userId === jobId) {
+      throw new CustomError("Invalid user id or job id", 400);
+    }
+
+    const existingApplication = await this.getExistingApplication(
+      userId,
+      jobId,
+    );
+
+    if (!existingApplication) {
+      throw new CustomError("Application not found", 404);
+    }
+
+    if (existingApplication.isRejected) {
+      throw new CustomError("Application already rejected", 400);
+    }
+
+    const result = await prisma.jobApplication.update({
+      where: { id: existingApplication.id },
+      data: { isRejected: true },
+    });
+
+    return result;
   }
 
   //HELPER METHODS

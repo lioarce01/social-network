@@ -21,7 +21,4 @@ export interface JobPostingRepository {
   deleteJobPosting(id: string): Promise<{ message: string }>;
   disableJobPosting(id: string): Promise<{ message: string }>;
   getJobApplicants(jobId: string): Promise<JobApplication[] | null>;
-
-  //=========TO DO===========//
-  // rejectApplicant(id: string): Promise<{ message: string }>;
 }

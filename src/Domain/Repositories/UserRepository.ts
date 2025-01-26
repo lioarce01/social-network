@@ -26,7 +26,6 @@ export interface UserRepository {
   disableUser(id: string): Promise<{ message: string; user: User }>;
   switchUserRole(id: string): Promise<{ message: string; user: User }>;
   followUser(userId: string, followingId: string): Promise<UserFollow>;
-  //=================TO DO==================//
   unfollowUser(
     userId: string,
     followingId: string,
