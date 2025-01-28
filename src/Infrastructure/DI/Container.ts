@@ -54,6 +54,7 @@ import { GetUserFollowing } from "../../Application/UseCases/User/GetUserFollowi
 import { RejectApplicant } from "../../Application/UseCases/JobApplication/RejectApplicant";
 import { RedisCacheRepository } from "../Repositories/RedisCacheRepository";
 import { CacheRepository } from "../../Domain/Repositories/CacheRepository";
+import { CacheService } from "../../Application/Services/CacheService";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -95,6 +96,8 @@ export function setupContainer() {
     "CacheRepository",
     RedisCacheRepository,
   );
+
+  container.registerSingleton<CacheService>("CacheService", CacheService);
 }
 
 //Register User use cases

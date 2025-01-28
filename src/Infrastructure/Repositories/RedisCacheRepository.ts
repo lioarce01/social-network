@@ -42,4 +42,15 @@ export class RedisCacheRepository implements CacheRepository {
     const result = await this.client.exists(key);
     return result === 1;
   }
+
+  /**
+   * Scans Redis for keys matching a pattern.
+   * @param cursor Current cursor position.
+   * @param pattern Pattern to match (e.g., 'posts:*').
+   * @returns A tuple with the next cursor position and the keys found.
+   */
+  async scan(cursor: number, pattern: string): Promise<[string, string[]]> {
+    const result = await this.client.scan(cursor, { MATCH: pattern });
+    return [result.cursor.toString(), result.keys];
+  }
 }

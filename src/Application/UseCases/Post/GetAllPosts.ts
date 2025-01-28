@@ -16,11 +16,14 @@ export class GetAllPosts {
   ) {}
 
   async execute(
-    sortOptions?: PostSortOptions,
+    sortOptions: PostSortOptions = {
+      sortBy: "createdAt",
+      sortOrder: "desc",
+    },
     offset?: number,
     limit?: number,
   ): Promise<{ posts: Post[]; totalCount: number }> {
-    const cacheKey = "posts";
+    const cacheKey = `posts:offset=${offset}&limit=${limit}&sort=${sortOptions.sortBy}&order=${sortOptions.sortOrder}`;
     const cachedPosts = await this.cacheRepository.get(cacheKey);
 
     // first ask if we have cached posts
@@ -33,8 +36,8 @@ export class GetAllPosts {
     const filter = new PostFilter(sortOptions);
     const result = await this.postRepository.getAllPosts(filter, offset, limit);
 
-    // cache the result for 1 hour
-    await this.cacheRepository.set(cacheKey, JSON.stringify(result), 3600);
+    // cache the result for 30min
+    await this.cacheRepository.set(cacheKey, JSON.stringify(result), 1800);
 
     console.log("Data cached for key:", cacheKey);
     return result;
