@@ -24,7 +24,7 @@ export class PostController {
     @inject("LikePost") private likePostUseCase: LikePost,
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
     @inject("GetRecentPosts") private getRecentPostsUseCase: GetRecentPosts,
-    @inject("AddPost") private addPostUseCase: AddPost,
+    // @inject("AddPost") private addPostUseCase: AddPost,
   ) {}
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {

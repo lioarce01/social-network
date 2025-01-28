@@ -18,10 +18,6 @@ export class PrismaUserRepository implements UserRepository {
     const user = await prisma.user.findUnique({
       where: { sub: sub },
       include: {
-        posts: true,
-        comments: true,
-        jobPostings: true,
-        applications: true,
         followers: {
           include: {
             follower: true,

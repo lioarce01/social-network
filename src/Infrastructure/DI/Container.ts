@@ -52,6 +52,8 @@ import { GetUserLikedPosts } from "../../Application/UseCases/User/GetUserLikedP
 import { GetUserFollowers } from "../../Application/UseCases/User/GetUserFollowers";
 import { GetUserFollowing } from "../../Application/UseCases/User/GetUserFollowing";
 import { RejectApplicant } from "../../Application/UseCases/JobApplication/RejectApplicant";
+import { RedisCacheRepository } from "../Repositories/RedisCacheRepository";
+import { CacheRepository } from "../../Domain/Repositories/CacheRepository";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -87,6 +89,11 @@ export function setupContainer() {
   container.registerSingleton(
     "PostNotificationService",
     PostNotificationService,
+  );
+
+  container.registerSingleton<CacheRepository>(
+    "CacheRepository",
+    RedisCacheRepository,
   );
 }
 
