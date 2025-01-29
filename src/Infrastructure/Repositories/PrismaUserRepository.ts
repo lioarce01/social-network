@@ -1,6 +1,5 @@
 import { UserRepository } from "../../Domain/Repositories/UserRepository";
 import { User } from "../../Domain/Entities/User";
-import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
@@ -11,73 +10,38 @@ import { JobApplication } from "../../Domain/Entities/JobApplication";
 import { JobPosting } from "../../Domain/Entities/JobPosting";
 import { ExperienceLevel } from "../../types/JobPosting";
 import { PostLike } from "../../Domain/Entities/PostLike";
+import { BasePrismaRepository } from "./BasePrismaRepository";
+import { userIncludes } from "../../Shared/userIncludes";
+import { UserTransformer } from "../../Shared/userTransformer";
 
 @injectable()
-export class PrismaUserRepository implements UserRepository {
-  async getUserBySub(sub: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { sub: sub },
-      include: {
-        followers: {
-          include: {
-            follower: true,
-          },
-        },
-        following: {
-          include: {
-            following: true,
-          },
-        },
-      },
-    });
+export class PrismaUserRepository
+  extends BasePrismaRepository<User>
+  implements UserRepository
+{
+  constructor() {
+    super("user");
+  }
+  async getUserBySub(sub: string): Promise<User> {
+    const user = await this.getBySub(sub, userIncludes);
 
-    if (!user) {
-      return null;
-    }
-
-    return this.transformUser(user);
+    return UserTransformer.toDomain(user);
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    if (!id) {
-      throw new Error("User ID is required.");
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: id },
-      include: {
-        followers: {
-          include: {
-            follower: true,
-          },
-        },
-        following: {
-          include: {
-            following: true,
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      return null;
-    }
-
-    return this.transformUser(user);
+  async getUserById(id: string): Promise<User> {
+    const user = await this.getById(id, userIncludes);
+    return UserTransformer.toDomain(user, user.followers, user.followings);
   }
 
   async updateUser(
     id: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }> {
-    const userExist = await prisma.user.findUnique({ where: { id } });
-    if (!userExist) {
-      throw new Error("User not found");
-    }
+    await this.getUserById(id);
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: {
+    const updatedUser = await this.baseUpdate(
+      id,
+      {
         ...userData,
         headline: userData.headline ?? undefined,
         country: userData.country ?? undefined,
@@ -86,43 +50,27 @@ export class PrismaUserRepository implements UserRepository {
         current_position: userData.current_position ?? undefined,
         updatedAt: new Date(),
       },
-      include: {
-        posts: true,
-        comments: true,
-        jobPostings: true,
-        applications: true,
-      },
-    });
-
-    const transformedUser = this.transformUser(updatedUser);
+      userIncludes,
+    );
 
     return {
       message: "User updated successfully",
-      user: transformedUser,
+      user: UserTransformer.toDomain(updatedUser),
     };
   }
 
   async deleteUser(id: string): Promise<{ message: string }> {
-    const userExist = await prisma.user.findUnique({ where: { id } });
-
-    if (!userExist) {
-      return { message: "User not found" };
-    }
-
-    await prisma.user.delete({ where: { id } });
-
-    return {
-      message: "User deleted successfully",
-    };
+    await this.baseDelete(id);
+    return { message: "User deleted successfully" };
   }
 
   async createUser(
     userData: Prisma.UserCreateInput,
   ): Promise<{ message: string; user: User }> {
     try {
-      const user = await prisma.user.create({ data: userData });
+      const user = await this.prisma.user.create({ data: userData });
 
-      const userEntity = this.transformUser(user);
+      const userEntity = UserTransformer.toDomain(user);
 
       return {
         message: "User created successfully",
@@ -139,15 +87,11 @@ export class PrismaUserRepository implements UserRepository {
   async disableUser(id: string): Promise<{ message: string; user: User }> {
     const user = await this.getById(id);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
     const newStatus = this.getUserStatus(user.enabled);
 
     const updatedUser = await this.updateUserStatus(id, newStatus);
 
-    const transformedUser = this.transformUser(updatedUser);
+    const transformedUser = UserTransformer.toDomain(updatedUser);
 
     return {
       message: "User status changed successfully",
@@ -158,15 +102,11 @@ export class PrismaUserRepository implements UserRepository {
   async switchUserRole(id: string): Promise<{ message: string; user: User }> {
     const user = await this.getById(id);
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
     const newRole = this.getUserRole(user.role);
 
     const updatedUser = await this.updateUserRole(id, newRole);
 
-    const transformedUser = this.transformUser(updatedUser);
+    const transformedUser = UserTransformer.toDomain(updatedUser);
 
     return {
       message: "Role switched successfully",
@@ -175,22 +115,20 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async getAllUsers(
+    offset: number,
+    limit: number,
     filter?: UserFilter,
-    offset?: number,
-    limit?: number,
-  ): Promise<User[] | null> {
+  ): Promise<User[]> {
     const whereClause = filter?.buildWhereClause();
-    const users = await prisma.user.findMany({
+
+    const pagination = this.buildPagination(offset, limit);
+
+    const users = await this.prisma.user.findMany({
       where: whereClause,
-      ...(offset && { skip: offset }),
-      ...(limit && { take: limit }),
+      ...pagination,
     });
 
-    if (!users) {
-      return null;
-    }
-
-    return users.map((user) => this.transformUser(user));
+    return users.map((user) => UserTransformer.toDomain(user));
   }
 
   async followUser(userId: string, followingId: string): Promise<UserFollow> {
@@ -202,7 +140,9 @@ export class PrismaUserRepository implements UserRepository {
       throw new CustomError("A user cannot follow themselves.", 400);
     }
 
-    const users = await prisma.user.findMany({
+    await this.getExistingFollow(userId, followingId);
+
+    const users = await this.prisma.user.findMany({
       where: {
         id: { in: [userId, followingId] },
       },
@@ -213,34 +153,20 @@ export class PrismaUserRepository implements UserRepository {
       throw new CustomError("One or both users do not exist.", 404);
     }
 
-    const existingFollow = await prisma.userFollow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: userId,
-          followingId: followingId,
-        },
-      },
-    });
-
-    if (existingFollow) {
-      throw new CustomError(`You already are a follower.`, 400);
-    }
-
-    // Transacción para mantener la consistencia de los datos
-    const result = await prisma.$transaction(async (prisma) => {
-      const followRelation = await prisma.userFollow.create({
+    const result = this.runTransaction(async (tx) => {
+      const followRelation = await this.prisma.userFollow.create({
         data: {
           followerId: userId,
           followingId: followingId,
         },
       });
 
-      await prisma.user.update({
+      await this.prisma.user.update({
         where: { id: userId },
         data: { followingCount: { increment: 1 } },
       });
 
-      await prisma.user.update({
+      await this.prisma.user.update({
         where: { id: followingId },
         data: { followersCount: { increment: 1 } },
       });
@@ -255,28 +181,9 @@ export class PrismaUserRepository implements UserRepository {
     userId: string,
     followingId: string,
   ): Promise<{ message: string }> {
-    if (!userId || !followingId) {
-      throw new CustomError("User ID and Following ID are required.", 400);
-    }
+    await this.getExistingFollow(userId, followingId);
 
-    if (userId === followingId) {
-      throw new CustomError("A user cannot unfollow themselves.", 400);
-    }
-
-    const existingFollow = await prisma.userFollow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: userId,
-          followingId: followingId,
-        },
-      },
-    });
-
-    if (!existingFollow) {
-      throw new CustomError(`You are not a follower of this user.`, 400);
-    }
-
-    const { message } = await prisma.$transaction(async (prisma) => {
+    const { message } = await this.prisma.$transaction(async (prisma) => {
       await prisma.userFollow.delete({
         where: {
           followerId_followingId: {
@@ -306,24 +213,21 @@ export class PrismaUserRepository implements UserRepository {
 
   async getUserApplications(
     userId: string,
-    offset?: number,
-    limit?: number,
+    offset: number,
+    limit: number,
   ): Promise<{ jobApplications: JobApplication[]; totalCount: number }> {
-    const user = await this.getById(userId);
+    await this.getById(userId);
 
-    if (!user) {
-      throw new CustomError("User not found", 404);
-    }
+    const pagination = this.buildPagination(offset, limit);
 
-    const userApplications = await prisma.jobApplication.findMany({
+    const userApplications = await this.prisma.jobApplication.findMany({
       where: {
         userId: userId,
       },
-      skip: offset,
-      take: limit,
+      ...pagination,
     });
 
-    const totalCount = await prisma.jobApplication.count({
+    const totalCount = await this.prisma.jobApplication.count({
       where: {
         userId: userId,
       },
@@ -337,21 +241,18 @@ export class PrismaUserRepository implements UserRepository {
 
   async getUserJobPostings(
     id: string,
-    offset: number = 0,
-    limit: number = 10,
+    offset: number,
+    limit: number,
   ): Promise<{ jobPostings: JobPosting[]; totalCount: number }> {
-    const user = await this.getById(id);
+    await this.getById(id);
 
-    if (!user) {
-      throw new CustomError("User not found", 404);
-    }
+    const pagination = this.buildPagination(offset, limit);
 
-    const jobPostings = await prisma.jobPosting.findMany({
+    const jobPostings = await this.prisma.jobPosting.findMany({
       where: {
         jobAuthorId: id,
       },
-      skip: offset,
-      take: limit,
+      ...pagination,
     });
 
     const jobs = jobPostings.map((job) => ({
@@ -359,7 +260,7 @@ export class PrismaUserRepository implements UserRepository {
       experience_level: job.experience_level as ExperienceLevel,
     }));
 
-    const totalCount = await prisma.jobPosting.count({
+    const totalCount = await this.prisma.jobPosting.count({
       where: {
         jobAuthorId: id,
       },
@@ -373,27 +274,24 @@ export class PrismaUserRepository implements UserRepository {
 
   async getUserLikedPosts(
     id: string,
-    offset?: number,
-    limit?: number,
+    offset: number,
+    limit: number,
   ): Promise<{ likedPosts: PostLike[]; totalCount: number }> {
-    const user = await this.getById(id);
+    await this.getById(id);
 
-    if (!user) {
-      throw new CustomError("User not found", 404);
-    }
+    const pagination = this.buildPagination(offset, limit);
 
-    const likedPosts = await prisma.postLike.findMany({
+    const likedPosts = await this.prisma.postLike.findMany({
       where: {
         userId: id,
       },
       include: {
         post: true,
       },
-      skip: offset,
-      take: limit,
+      ...pagination,
     });
 
-    const totalCount = await prisma.postLike.count({
+    const totalCount = await this.prisma.postLike.count({
       where: {
         userId: id,
       },
@@ -407,27 +305,24 @@ export class PrismaUserRepository implements UserRepository {
 
   async getUserFollowers(
     id: string,
-    offset?: number,
-    limit?: number,
+    offset: number,
+    limit: number,
   ): Promise<{ followers: FollowerDTO[]; totalCount: number }> {
-    const user = await this.getById(id);
+    await this.getById(id);
 
-    if (!user) {
-      throw new CustomError("User not found", 404);
-    }
+    const pagination = this.buildPagination(offset, limit);
 
-    const userFollowers = await prisma.userFollow.findMany({
+    const userFollowers = await this.prisma.userFollow.findMany({
       where: {
         followingId: id,
       },
       include: {
         follower: true,
       },
-      skip: offset,
-      take: limit,
+      ...pagination,
     });
 
-    const totalCount = await prisma.userFollow.count({
+    const totalCount = await this.prisma.userFollow.count({
       where: {
         followingId: id,
       },
@@ -451,27 +346,24 @@ export class PrismaUserRepository implements UserRepository {
 
   async getUserFollowing(
     id: string,
-    offset?: number,
-    limit?: number,
+    offset: number,
+    limit: number,
   ): Promise<{ following: FollowerDTO[]; totalCount: number }> {
-    const user = await this.getById(id);
+    await this.getById(id);
 
-    if (!user) {
-      throw new CustomError("User not found", 404);
-    }
+    const pagination = this.buildPagination(offset, limit);
 
-    const userFollowing = await prisma.userFollow.findMany({
+    const userFollowing = await this.prisma.userFollow.findMany({
       where: {
         followerId: id,
       },
       include: {
         following: true,
       },
-      skip: offset,
-      take: limit,
+      ...pagination,
     });
 
-    const totalCount = await prisma.userFollow.count({
+    const totalCount = await this.prisma.userFollow.count({
       where: {
         followerId: id,
       },
@@ -503,66 +395,44 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   private async updateUserStatus(id: string, newStatus: boolean) {
-    return prisma.user.update({
+    return this.prisma.user.update({
       where: { id },
       data: { enabled: newStatus },
     });
   }
 
   private async updateUserRole(id: string, newRole: Role) {
-    return prisma.user.update({
+    return this.prisma.user.update({
       where: { id },
       data: { role: newRole },
     });
   }
 
-  private async getById(id: string) {
-    return prisma.user.findUnique({ where: { id } });
-  }
+  private async getExistingFollow(userId: string, followingId: string) {
+    if (!userId || !followingId) {
+      throw new CustomError("User ID and Following ID are required.", 400);
+    }
 
-  private transformUser(user: any) {
-    return new User(
-      user.id,
-      user.sub,
-      user.name,
-      user.email,
-      user.profile_pic,
-      user.enabled,
-      user.role,
-      user.createdAt,
-      user.updatedAt,
-      user.followingCount,
-      user.followersCount,
-      user.headline ?? "",
-      user.country ?? "",
-      user.postal_code ?? "",
-      user.city ?? "",
-      user.current_position ?? "",
-      user.posts ?? [],
-      user.comments ?? [],
-      [],
-      user.jobPostings ?? [],
-      user.applications ?? [],
-      user.followers?.map(
-        (f: any) =>
-          new UserFollow(
-            f.id,
-            f.followerId,
-            f.followingId,
-            f.follower,
-            undefined,
-          ),
-      ) ?? [],
-      user.following?.map(
-        (f: any) =>
-          new UserFollow(
-            f.id,
-            f.followerId,
-            f.followingId,
-            undefined,
-            f.following,
-          ),
-      ) ?? [],
-    );
+    if (userId === followingId) {
+      throw new CustomError("A user cannot unfollow themselves.", 400);
+    }
+
+    await this.getById(userId);
+    await this.getById(followingId);
+
+    const existingFollow = await this.prisma.userFollow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: followingId,
+        },
+      },
+    });
+
+    if (existingFollow) {
+      throw new CustomError(`You already are a follower.`, 400);
+    }
+
+    return existingFollow;
   }
 }

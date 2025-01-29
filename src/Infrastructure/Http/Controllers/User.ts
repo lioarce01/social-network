@@ -43,30 +43,19 @@ export class UserController {
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const { offset, limit, role } = req.query;
+      const { role } = req.query;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = parseInt(req.query.limit as string) || 10;
 
       const filters = {
         role: role as Role,
       };
 
-      const parsedOffset =
-        typeof offset === "string" && offset.trim() !== ""
-          ? Number(offset)
-          : undefined;
-      const parsedLimit =
-        typeof limit === "string" && limit.trim() !== ""
-          ? Number(limit)
-          : undefined;
-
       const users = await this.getAllUsersUseCase.execute(
+        offset,
+        limit,
         filters,
-        parsedOffset,
-        parsedLimit,
       );
-
-      if (!users || users.length === 0) {
-        return res.status(404).json({ message: "No users found" });
-      }
 
       res.status(200).json(users);
     } catch (e) {
@@ -109,10 +98,6 @@ export class UserController {
     try {
       const { identifier } = req.params;
       const user = await this.getUserByIdentifierUseCase.execute(identifier);
-
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
 
       res.status(200).json(user);
     } catch (e) {

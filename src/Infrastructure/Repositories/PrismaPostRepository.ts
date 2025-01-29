@@ -110,33 +110,6 @@ export class PrismaPostRepository implements PostRepository {
     return { posts, totalCount };
   }
 
-  async getRecentPosts(
-    lastPostDate: Date,
-    limit: number = 10,
-  ): Promise<{ posts: Post[]; totalCount: number }> {
-    console.log("Obteniendo posts recientes desde:", lastPostDate);
-    const posts = await prisma.post.findMany({
-      where: {
-        createdAt: { gt: lastPostDate },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: limit,
-      include: {
-        author: true,
-      },
-    });
-    console.log("Posts recientes encontrados:", posts);
-    const totalCount = await prisma.post.count({
-      where: {
-        createdAt: { gt: lastPostDate },
-      },
-    });
-    console.log("Total de posts recientes:", totalCount);
-    return { posts, totalCount };
-  }
-
   //HELPER METHODS
   private async getUserById(id: string) {
     return prisma.user.findUnique({ where: { id } });

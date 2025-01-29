@@ -9,9 +9,9 @@ import { PostLike } from "../Entities/PostLike";
 
 export interface UserRepository {
   getAllUsers(
-    filter?: UserFilter,
     offset?: number,
     limit?: number,
+    filter?: UserFilter,
   ): Promise<User[] | null>;
   getUserBySub(sub: string): Promise<User | null>;
   getUserById(id: string): Promise<User | null>;
