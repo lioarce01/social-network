@@ -5,6 +5,7 @@ import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { PostFilter } from "../Filters/PostFilter";
 import { BasePrismaRepository } from "./BasePrismaRepository";
+import { CustomError } from "../../Shared/CustomError";
 
 @injectable()
 export class PrismaPostRepository
@@ -64,8 +65,12 @@ export class PrismaPostRepository
       },
     });
 
-    if (post?.author?.sub?.split("|")[1] !== ownerId) {
-      throw new Error("You are not authorized to delete this post");
+    if (!post) {
+      throw new CustomError("Post does not exist", 404);
+    }
+
+    if (ownerId !== post?.author?.sub?.split("|")[1]) {
+      throw new CustomError("You are not the owner of this post", 403);
     }
 
     this.baseDelete(id);
@@ -74,27 +79,31 @@ export class PrismaPostRepository
   }
 
   async updatePost(
-    userId: string,
     postId: string,
+    userId: string,
     postData: { content: string },
   ): Promise<{ message: string; post: Post }> {
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      include: { author: true },
+      include: {
+        author: true,
+      },
     });
 
     if (!post) {
-      throw new Error("Post does not exist");
+      throw new CustomError("Post does not exist", 404);
     }
 
-    if (post.author.id !== userId) {
-      throw new Error("You are not the author of this post");
+    console.log("author sub:", post?.author?.sub);
+
+    if (userId !== post?.author?.sub?.split("|")[1]) {
+      throw new CustomError("You are not the owner of this post", 403);
     }
 
     const updatedPost = await prisma.post.update({
       where: { id: postId },
       data: {
-        ...postData,
+        content: postData.content,
         updatedAt: new Date(),
       },
     });

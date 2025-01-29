@@ -25,26 +25,19 @@ export class PostController {
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { sortBy, sortOrder, offset, limit } = req.query;
+      const { sortBy, sortOrder } = req.query;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = parseInt(req.query.limit as string) || 10;
 
       const sortOptions = {
         sortBy: sortBy as "createdAt",
         sortOrder: sortOrder as "asc" | "desc",
       };
 
-      const parsedOffset =
-        typeof offset === "string" && offset.trim() !== ""
-          ? Number(offset)
-          : undefined;
-      const parsedLimit =
-        typeof limit === "string" && limit.trim() !== ""
-          ? Number(limit)
-          : undefined;
-
       const { posts, totalCount } = await this.getAllPostsUseCase.execute(
         sortOptions,
-        parsedOffset,
-        parsedLimit,
+        offset,
+        limit,
       );
 
       res.status(200).json({
@@ -98,25 +91,32 @@ export class PostController {
 
   async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, postId, content } = req.body;
+      const { id, content } = req.body;
+      const userId = req.auth?.sub?.split("|")[1];
+      console.log("userId:", userId);
+
+      if (!id) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "Post ID is required",
+        });
+      }
+
       const { message, post } = await this.updatePostUseCase.execute(
-        userId,
-        postId,
+        id,
+        userId!,
         {
           content,
         },
       );
 
-      res.status(200).json({ message, post });
+      res.status(200).json({
+        code: 200,
+        message: message,
+        post: post,
+      });
     } catch (e) {
-      if (
-        e instanceof Error &&
-        e.message === "You are not the author of this post"
-      ) {
-        return res
-          .status(403)
-          .json({ message: "You are not the author of this post" });
-      }
       next(e);
     }
   }

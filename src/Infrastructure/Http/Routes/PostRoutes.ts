@@ -33,8 +33,11 @@ router.delete(
   auth.handleError,
   (req: any, res: any, next: any) => postController.deletePost(req, res, next),
 );
-router.put("/update", (req, res, next) =>
-  postController.updatePost(req, res, next),
+router.put(
+  "/update",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => postController.updatePost(req, res, next),
 );
 router.put("/like", (req, res, next) =>
   postController.likePost(req, res, next),
