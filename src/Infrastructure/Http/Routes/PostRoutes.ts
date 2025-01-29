@@ -11,12 +11,7 @@ const router = express.Router();
 const postController = container.resolve(PostController);
 
 router.get("/", (req, res, next) => postController.getAllPosts(req, res, next));
-router.get("/recent", (req, res, next) =>
-  postController.getRecentPosts(req, res, next),
-);
-// router.get("/recent/count", (req, res, next) =>
-//   postController.countRecentPosts(req, res, next),
-// );
+
 router.get("/:id", (req, res, next) =>
   postController.getPostById(req, res, next),
 );

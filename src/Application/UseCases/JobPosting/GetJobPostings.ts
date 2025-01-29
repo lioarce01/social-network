@@ -23,8 +23,9 @@ export class GetJobPostings {
     offset?: number,
     limit?: number,
   ): Promise<{ jobs: JobPosting[]; totalCount: number }> {
-    const cacheKey = `jobs:offset=${offset}&limit=${limit}`;
+    const cacheKey = `jobs:offset=${offset}&limit=${limit}&sort=${sortOptions?.sortBy}&order=${sortOptions?.sortOrder}&filterByMode${filters?.mode}&filterBySearchTerm${filters?.searchTerm}&filterByStatus${filters?.status}`;
     const cachedJobs = await this.cacheRepository.get(cacheKey);
+
     if (cachedJobs) {
       console.log("Cache hit for key:", cacheKey);
       return JSON.parse(cachedJobs);

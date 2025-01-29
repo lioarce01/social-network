@@ -20,8 +20,4 @@ export interface PostRepository {
     postId: string,
     postData: Partial<Post>,
   ): Promise<{ message: string; post: Post }>;
-  getRecentPosts(
-    lastPostDate: Date,
-    limit: number,
-  ): Promise<{ posts: Post[]; totalCount: number }>;
 }

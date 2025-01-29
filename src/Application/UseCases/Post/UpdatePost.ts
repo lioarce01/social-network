@@ -1,7 +1,6 @@
 import { PostRepository } from "../../../Domain/Repositories/PostRepository";
 import { Post } from "../../../Domain/Entities/Post";
 import { inject, injectable } from "tsyringe";
-import { Prisma } from "@prisma/client";
 import { CacheService } from "../../Services/CacheService";
 
 @injectable()

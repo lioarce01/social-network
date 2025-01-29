@@ -1,5 +1,4 @@
 import { PostRepository } from "../../../Domain/Repositories/PostRepository";
-import { Post } from "../../../Domain/Entities/Post";
 import { inject, injectable } from "tsyringe";
 import { CacheService } from "../../Services/CacheService";
 

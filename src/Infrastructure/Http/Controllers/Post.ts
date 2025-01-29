@@ -9,8 +9,6 @@ import { DeletePost } from "../../../Application/UseCases/Post/DeletePost";
 import { LikePost } from "../../../Application/UseCases/PostLike/Like";
 import { Prisma } from "@prisma/client";
 import { UnlikePost } from "../../../Application/UseCases/PostLike/Unlike";
-import { GetRecentPosts } from "../../../Application/UseCases/Post/GetRecentPosts";
-import { AddPost } from "../../../Application/UseCases/Post/AddPosts";
 
 @injectable()
 export class PostController {
@@ -23,8 +21,6 @@ export class PostController {
     @inject("DeletePost") private deletePostUseCase: DeletePost,
     @inject("LikePost") private likePostUseCase: LikePost,
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
-    @inject("GetRecentPosts") private getRecentPostsUseCase: GetRecentPosts,
-    // @inject("AddPost") private addPostUseCase: AddPost,
   ) {}
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
@@ -176,22 +172,6 @@ export class PostController {
       const { message } = await this.unlikePostUseCase.execute(userId, postId);
 
       res.status(200).json({ message });
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getRecentPosts(req: Request, res: Response, next: NextFunction) {
-    try {
-      const lastPostDate = req.query.lastPostDate;
-      const limit = parseInt(req.query.limit as string) || 10;
-
-      const { posts, totalCount } = await this.getRecentPostsUseCase.execute(
-        lastPostDate ? new Date(lastPostDate as string) : new Date(),
-        limit,
-      );
-
-      res.status(200).json({ posts, totalCount });
     } catch (e) {
       next(e);
     }
