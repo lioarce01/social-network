@@ -1,17 +1,10 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { CustomError } from "../../Shared/CustomError";
 import { prisma } from "../../config/config";
-import { injectable } from "tsyringe";
 
-@injectable()
-export class BasePrismaRepository<T> {
-  protected prisma: PrismaClient;
-  protected entityName: string;
-
-  constructor(entityName: string) {
-    this.prisma = prisma;
-    this.entityName = entityName;
-  }
+export abstract class BasePrismaRepository<T> {
+  protected prisma: PrismaClient = prisma;
+  protected abstract entityName: string;
 
   protected handleNotFound(entityId: string, entity?: any): void {
     if (!entity) {

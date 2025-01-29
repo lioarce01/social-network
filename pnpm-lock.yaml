@@ -17,6 +17,9 @@ importers:
       express-jwt:
         specifier: ^8.5.1
         version: 8.5.1
+      jose:
+        specifier: ^5.9.6
+        version: 5.9.6
       jwks-rsa:
         specifier: ^3.1.0
         version: 3.1.0
@@ -516,6 +519,9 @@ packages:
 
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
+
+  jose@5.9.6:
+    resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
 
   jsonwebtoken@9.0.2:
     resolution: {integrity: sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==}
@@ -1381,6 +1387,8 @@ snapshots:
   is-number@7.0.0: {}
 
   jose@4.15.9: {}
+
+  jose@5.9.6: {}
 
   jsonwebtoken@9.0.2:
     dependencies:

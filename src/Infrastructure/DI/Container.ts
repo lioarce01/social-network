@@ -52,6 +52,7 @@ import { RejectApplicant } from "../../Application/UseCases/JobApplication/Rejec
 import { RedisCacheRepository } from "../Repositories/RedisCacheRepository";
 import { CacheRepository } from "../../Domain/Repositories/CacheRepository";
 import { CacheService } from "../../Application/Services/CacheService";
+import { AuthMiddleware } from "../Middlewares/auth";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -90,6 +91,8 @@ export function setupContainer() {
   );
 
   container.registerSingleton<CacheService>("CacheService", CacheService);
+
+  container.registerSingleton("AuthMiddleware", AuthMiddleware);
 }
 
 //Register User use cases

@@ -8,3 +8,12 @@ export const userIncludes = {
     include: { following: true },
   },
 } satisfies Prisma.UserInclude;
+
+export const postIncludes = {
+  author: {
+    select: {
+      id: true,
+      sub: true,
+    },
+  },
+} satisfies Prisma.PostInclude;

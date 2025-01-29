@@ -76,8 +76,6 @@ export class PostController {
         postData,
       );
 
-      // await this.addPostUseCase.execute(post);
-
       res.status(201).json({ message, post });
     } catch (e) {
       next(e);
@@ -126,10 +124,23 @@ export class PostController {
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.body;
+      const userId = req.auth?.sub?.split("|")[1];
 
-      const { message } = await this.deletePostUseCase.execute(id);
+      if (!id) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "Post ID is required in request body",
+        });
+      }
 
-      res.status(200).json({ message });
+      const { message } = await this.deletePostUseCase.execute(id, userId!);
+
+      res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }

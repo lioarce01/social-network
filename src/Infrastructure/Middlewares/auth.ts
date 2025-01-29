@@ -1,22 +1,75 @@
-// import * as jwt from "express-jwt";
-// import jwksRsa from "jwks-rsa";
-// import * as dotenv from "dotenv";
+import { Request, Response, NextFunction } from "express";
+import { expressjwt, GetVerificationKey } from "express-jwt";
+import jwks from "jwks-rsa";
+import { config } from "dotenv";
+import { CustomError } from "../../Shared/CustomError";
 
-// dotenv.config();
+config();
 
-// const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
-// const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
+const authConfig = {
+  auth0Domain: process.env.AUTH0_DOMAIN,
+  auth0Audience: process.env.AUTH0_AUDIENCE,
+};
 
-// const checkJwt = jwt({
-//   secret: jwksRsa.expressJwtSecret({
-//     cache: true,
-//     rateLimit: true,
-//     jwksRequestsPerMinute: 5,
-//     jwksUri: `https://${AUTH0_DOMAIN}/.well-known/jwks.json`,
-//   }),
-//   audience: `${AUTH0_AUDIENCE}`,
-//   issuer: `https://${AUTH0_DOMAIN}/`,
-//   algorithms: ["RS256"],
-// });
+declare global {
+  namespace Express {
+    interface Request {
+      auth?: {
+        sub: string;
+        [key: string]: any;
+      };
+    }
+  }
+}
 
-// export default checkJwt;
+export class AuthMiddleware {
+  constructor() {}
+
+  public authenticate() {
+    return expressjwt({
+      secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `https://${authConfig.auth0Domain}/.well-known/jwks.json`,
+      }) as GetVerificationKey,
+      audience: authConfig.auth0Audience,
+      issuer: `https://${authConfig.auth0Domain}/`,
+      algorithms: ["RS256"],
+      requestProperty: "auth",
+    });
+  }
+
+  public handleError(
+    err: any,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    if (err.name === "UnauthorizedError") {
+      return res.status(401).json({
+        code: 401,
+        error: "UNAUTHORIZED",
+        message: "Invalid or missing authentication token",
+        details: err.inner?.message,
+      });
+    }
+
+    if (err instanceof CustomError) {
+      return res.status(err.statusCode).json({ message: err.message });
+    }
+
+    next(err);
+  }
+
+  public requireAuth(req: Request, res: Response, next: NextFunction) {
+    if (!req.auth?.sub) {
+      return res.status(401).json({
+        code: 401,
+        error: "AUTH_REQUIRED",
+        message: "Authentication required to access this resource",
+      });
+    }
+    next();
+  }
+}

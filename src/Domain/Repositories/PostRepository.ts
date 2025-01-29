@@ -14,7 +14,7 @@ export interface PostRepository {
     id: string,
     postData: Prisma.PostCreateInput,
   ): Promise<{ message: string; post: Post }>;
-  deletePost(id: string): Promise<{ message: string }>;
+  deletePost(id: string, ownerId: string): Promise<{ message: string }>;
   updatePost(
     userId: string,
     postId: string,

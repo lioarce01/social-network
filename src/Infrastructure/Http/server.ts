@@ -3,6 +3,10 @@ import express from "express";
 import cors from "cors";
 import router from "../Http/Routes/index";
 import errorHandler from "../Middlewares/errorHandler";
+import { AuthMiddleware } from "../Middlewares/auth";
+import { container } from "tsyringe";
+
+const authMiddleware = container.resolve(AuthMiddleware);
 
 const app = express();
 app.use(
@@ -20,5 +24,6 @@ app.get("/health", (req, res) => {
 app.use("/", router);
 
 app.use(errorHandler);
+app.use(authMiddleware.handleError);
 
 export { app };

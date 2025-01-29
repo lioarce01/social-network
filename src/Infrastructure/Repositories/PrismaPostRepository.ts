@@ -4,9 +4,15 @@ import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { PostFilter } from "../Filters/PostFilter";
+import { BasePrismaRepository } from "./BasePrismaRepository";
 
 @injectable()
-export class PrismaPostRepository implements PostRepository {
+export class PrismaPostRepository
+  extends BasePrismaRepository<Post>
+  implements PostRepository
+{
+  protected entityName = "post";
+
   async getPostById(id: string): Promise<Post | null> {
     return await prisma.post.findUnique({
       where: { id },
@@ -50,8 +56,20 @@ export class PrismaPostRepository implements PostRepository {
     return { message: "Post created successfully", post: createdPost };
   }
 
-  async deletePost(id: string): Promise<{ message: string }> {
-    await prisma.post.delete({ where: { id } });
+  async deletePost(id: string, ownerId: string): Promise<{ message: string }> {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      include: {
+        author: true,
+      },
+    });
+
+    if (post?.author?.sub?.split("|")[1] !== ownerId) {
+      throw new Error("You are not authorized to delete this post");
+    }
+
+    this.baseDelete(id);
+
     return { message: "Post deleted successfully" };
   }
 

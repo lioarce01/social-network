@@ -19,9 +19,8 @@ export class PrismaUserRepository
   extends BasePrismaRepository<User>
   implements UserRepository
 {
-  constructor() {
-    super("user");
-  }
+  protected entityName = "user";
+
   async getUserBySub(sub: string): Promise<User> {
     const user = await this.getBySub(sub, userIncludes);
 

@@ -9,8 +9,12 @@ export class DeletePost {
     @inject("CacheService") private readonly cacheService: CacheService,
   ) {}
 
-  async execute(id: string): Promise<{ message: string }> {
-    const { message } = await this.postRepository.deletePost(id);
+  async execute(id: string, ownerId: string): Promise<{ message: string }> {
+    if (!id || !ownerId) {
+      throw new Error("Post ID and User ID are required");
+    }
+
+    const { message } = await this.postRepository.deletePost(id, ownerId);
 
     await this.cacheService.invalidateKeys("posts:*");
 
