@@ -51,14 +51,31 @@ export class PrismaJobApplicationRepository
 
   async rejectApplicant(
     userId: string,
+    ownerId: string,
     jobId: string,
   ): Promise<JobApplication> {
     if (!userId || !jobId) {
-      throw new CustomError("Invalid user id or job id", 400);
+      throw new CustomError("Invalid user id, job id", 400);
     }
 
-    if (userId === jobId) {
-      throw new CustomError("Invalid user id or job id", 400);
+    const owner = await this.prisma.user.findUnique({
+      where: { sub: ownerId },
+    });
+
+    const job = await this.prisma.jobPosting.findUnique({
+      where: { id: jobId },
+      select: { jobAuthorId: true },
+    });
+
+    if (!job) {
+      throw new CustomError("Job posting not found", 404);
+    }
+
+    if (job.jobAuthorId !== owner?.id) {
+      throw new CustomError(
+        "You are not authorized to reject this applicant",
+        403,
+      );
     }
 
     const existingApplication = await this.getExistingApplication(

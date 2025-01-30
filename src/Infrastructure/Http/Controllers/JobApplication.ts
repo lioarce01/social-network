@@ -42,11 +42,21 @@ export class JobApplicationController {
   async rejectApplicant(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     const { userId } = req.body;
+    const ownerId = req.auth?.sub;
 
     try {
-      const result = await this.rejectApplicantUseCase.execute(userId, id);
+      const result = await this.rejectApplicantUseCase.execute(
+        userId,
+        ownerId!,
+        id,
+      );
 
-      return res.status(200).json(result);
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: "Applicant rejected successfully",
+        result,
+      });
     } catch (e) {
       next(e);
     }

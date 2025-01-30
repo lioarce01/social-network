@@ -20,8 +20,12 @@ router.post(
     jobApplicationController.applyJob(req, res, next),
 );
 
-router.put("/:id/reject-applicant", (req, res, next) =>
-  jobApplicationController.rejectApplicant(req, res, next),
+router.put(
+  "/:id/reject-applicant",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) =>
+    jobApplicationController.rejectApplicant(req, res, next),
 );
 
 export default router;
