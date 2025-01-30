@@ -225,10 +225,18 @@ export class JobPostingController {
   async disableJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = req.auth?.sub;
 
-      const { message } = await this.disableJobPostingUseCase.execute(id);
+      const { message } = await this.disableJobPostingUseCase.execute(
+        id,
+        userId!,
+      );
 
-      return res.status(200).json({ message });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }

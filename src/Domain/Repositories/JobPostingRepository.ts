@@ -23,7 +23,10 @@ export interface JobPostingRepository {
     jobId: string,
     authorId: string,
   ): Promise<{ message: string }>;
-  disableJobPosting(id: string): Promise<{ message: string }>;
+  disableJobPosting(
+    jobId: string,
+    userId: string,
+  ): Promise<{ message: string }>;
   getJobApplicants(
     jobId: string,
     offset?: number,

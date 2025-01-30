@@ -39,8 +39,12 @@ router.delete(
   (req: any, res: any, next: any) =>
     jobPostingController.deleteJobPosting(req, res, next),
 );
-router.put("/:id/change-status", (req, res, next) =>
-  jobPostingController.disableJobPosting(req, res, next),
+router.put(
+  "/:id/change-status",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) =>
+    jobPostingController.disableJobPosting(req, res, next),
 );
 router.get("/:id/applicants", (req, res, next) =>
   jobPostingController.getJobApplicants(req, res, next),

@@ -169,20 +169,34 @@ export class PrismaJobPostingRepository
     );
   }
 
-  async disableJobPosting(id: string): Promise<{ message: string }> {
-    const jobPosting = await this.getJobPostingById(id);
+  async disableJobPosting(
+    jobId: string,
+    userId: string,
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } });
+    const job = await this.getJobPostingById(jobId);
 
-    if (!jobPosting) {
-      return { message: "Job Posting does not exist" };
+    if (!job) {
+      throw new CustomError("Job not found", 404);
     }
 
-    const newStatus = this.getNextStatus(jobPosting.status);
+    const newStatus = this.getNextStatus(job.status);
 
-    const updatedJobPosting = await this.updateJobPostingStatus(id, newStatus);
+    if (user?.id === job.jobAuthorId || user?.role === "ADMIN") {
+      const updatedJobPosting = await this.updateJobPostingStatus(
+        jobId,
+        newStatus,
+      );
 
-    return {
-      message: `Job Posting status updated to ${updatedJobPosting.status} successfully`,
-    };
+      return {
+        message: `Job Posting status updated to: ${updatedJobPosting.status}`,
+      };
+    }
+
+    throw new CustomError(
+      " You are not authorized to update this job posting",
+      403,
+    );
   }
 
   async getJobApplicants(
