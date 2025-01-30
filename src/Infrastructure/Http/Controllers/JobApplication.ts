@@ -12,13 +12,28 @@ export class JobApplicationController {
 
   async applyJob(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, jobPostingId } = req.body;
+      const { jobPostingId } = req.body;
+      const userId = req.auth?.sub;
+
+      if (!jobPostingId) {
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Job posting ID is required",
+        });
+      }
+
       const { message, jobApplication } = await this.applyJobUseCase.execute(
-        userId,
+        userId!,
         jobPostingId,
       );
 
-      res.status(201).json({ message, jobApplication });
+      res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        message,
+        jobApplication,
+      });
     } catch (e) {
       next(e);
     }
