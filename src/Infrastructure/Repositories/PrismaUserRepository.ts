@@ -159,19 +159,24 @@ export class PrismaUserRepository
   }
 
   async followUser(userId: string, followingId: string): Promise<UserFollow> {
-    if (!userId || !followingId) {
-      throw new CustomError("User ID and Following ID are required.", 400);
-    }
+    const follower = await this.getBySub(userId);
 
-    if (userId === followingId) {
+    if (follower.id === followingId) {
       throw new CustomError("A user cannot follow themselves.", 400);
     }
 
-    await this.getExistingFollow(userId, followingId);
+    const existingFollow = await this.getExistingFollow(
+      follower.id,
+      followingId,
+    );
+
+    if (existingFollow) {
+      throw new CustomError("User is already following this user.", 400);
+    }
 
     const users = await this.prisma.user.findMany({
       where: {
-        id: { in: [userId, followingId] },
+        id: { in: [(userId = follower.id), followingId] },
       },
       select: { id: true },
     });
@@ -183,13 +188,13 @@ export class PrismaUserRepository
     const result = await this.runTransaction(async (tx) => {
       const followRelation = await tx.userFollow.create({
         data: {
-          followerId: userId,
+          followerId: follower.id,
           followingId: followingId,
         },
       });
 
       await tx.user.update({
-        where: { id: userId },
+        where: { id: follower.id },
         data: { followingCount: { increment: 1 } },
       });
 
@@ -208,20 +213,33 @@ export class PrismaUserRepository
     userId: string,
     followingId: string,
   ): Promise<{ message: string }> {
-    await this.getExistingFollow(userId, followingId);
+    const follower = await this.getBySub(userId);
+
+    if (follower.id === followingId) {
+      throw new CustomError("A user cannot unfollow themselves.", 400);
+    }
+
+    const existingFollow = await this.getExistingFollow(
+      follower.id,
+      followingId,
+    );
+
+    if (!existingFollow) {
+      throw new CustomError("You are not following this user.", 404);
+    }
 
     const { message } = await this.runTransaction(async (tx) => {
       await tx.userFollow.delete({
         where: {
           followerId_followingId: {
-            followerId: userId,
+            followerId: follower.id,
             followingId: followingId,
           },
         },
       });
 
       await tx.user.update({
-        where: { id: userId },
+        where: { id: follower.id },
         data: { followingCount: { decrement: 1 } },
       });
 
@@ -436,8 +454,8 @@ export class PrismaUserRepository
   }
 
   private async getExistingFollow(userId: string, followingId: string) {
-    if (!userId || !followingId) {
-      throw new CustomError("User ID and Following ID are required.", 400);
+    if (!followingId) {
+      throw new CustomError("Following ID is required.", 400);
     }
 
     if (userId === followingId) {
@@ -455,10 +473,6 @@ export class PrismaUserRepository
         },
       },
     });
-
-    if (existingFollow) {
-      throw new CustomError(`You already are a follower.`, 400);
-    }
 
     return existingFollow;
   }

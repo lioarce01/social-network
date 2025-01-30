@@ -163,29 +163,40 @@ export class UserController {
   }
 
   async followUser(req: Request, res: Response, next: NextFunction) {
-    const { userId, followingId } = req.body;
+    const { followingId } = req.body;
+
+    const userId = req.auth?.sub;
+
     try {
       const followRelation = await this.followUserUseCase.execute(
-        userId,
+        userId!,
         followingId,
       );
 
-      return res.status(201).json(followRelation);
+      return res.status(201).json({
+        code: 201,
+        relation: followRelation,
+      });
     } catch (e) {
       next(e);
     }
   }
 
   async unfollowUser(req: Request, res: Response, next: NextFunction) {
-    const { userId, followingId } = req.body;
+    const { followingId } = req.body;
+
+    const userId = req.auth?.sub;
 
     try {
       const { message } = await this.unfollowUserUseCase.execute(
-        userId,
+        userId!,
         followingId,
       );
 
-      return res.status(200).json({ message });
+      return res.status(200).json({
+        code: 200,
+        message,
+      });
     } catch (e) {
       next(e);
     }

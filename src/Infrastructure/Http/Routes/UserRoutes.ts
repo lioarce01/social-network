@@ -36,12 +36,19 @@ router.put(
     userController.switchUserRole(req, res, next),
 );
 
-router.post("/follow", (req, res, next) =>
-  userController.followUser(req, res, next),
+router.post(
+  "/follow",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => userController.followUser(req, res, next),
 );
 
-router.delete("/unfollow", (req, res, next) =>
-  userController.unfollowUser(req, res, next),
+router.delete(
+  "/unfollow",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) =>
+    userController.unfollowUser(req, res, next),
 );
 
 router.get("/:id/applications", (req, res, next) =>
