@@ -14,12 +14,12 @@ export class GetAllUsers {
   ) {}
 
   async execute(
+    offset: number,
+    limit: number,
     filters?: UserFilters,
-    offset?: number,
-    limit?: number,
   ): Promise<User[] | null> {
     const filter = new UserFilter(filters);
-    const users = await this.userRepository.getAllUsers(filter, offset, limit);
+    const users = await this.userRepository.getAllUsers(offset, limit, filter);
 
     return users;
   }

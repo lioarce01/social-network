@@ -1,32 +1,44 @@
 import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicationRepository";
 import { JobApplication } from "../../Domain/Entities/JobApplication";
-import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { CustomError } from "../../Shared/CustomError";
+import { BasePrismaRepository } from "./BasePrismaRepository";
 
 @injectable()
 export class PrismaJobApplicationRepository
+  extends BasePrismaRepository<JobApplication>
   implements JobApplicationRepository
 {
+  entityName = "jobApplication";
+
   async applyJob(
     userId: string,
     jobPostingId: string,
   ): Promise<{ message: string; jobApplication: JobApplication }> {
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } });
+    const job = await this.prisma.jobPosting.findUnique({
+      where: { id: jobPostingId },
+    });
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    if (!job) {
+      throw new CustomError("Job not found", 404);
+    }
+
     const existingApplication = await this.getExistingApplication(
-      userId,
+      user.id,
       jobPostingId,
     );
 
     if (existingApplication) {
-      return {
-        message: "You already applied to this job posting",
-        jobApplication: existingApplication,
-      };
+      throw new CustomError("You already applied to this job", 400);
     }
 
-    const jobApplication = await prisma.jobApplication.create({
+    const jobApplication = await this.prisma.jobApplication.create({
       data: {
-        userId,
+        userId: user.id,
         jobPostingId,
       },
     });
@@ -39,14 +51,31 @@ export class PrismaJobApplicationRepository
 
   async rejectApplicant(
     userId: string,
+    ownerId: string,
     jobId: string,
   ): Promise<JobApplication> {
     if (!userId || !jobId) {
-      throw new CustomError("Invalid user id or job id", 400);
+      throw new CustomError("Invalid user id, job id", 400);
     }
 
-    if (userId === jobId) {
-      throw new CustomError("Invalid user id or job id", 400);
+    const owner = await this.prisma.user.findUnique({
+      where: { sub: ownerId },
+    });
+
+    const job = await this.prisma.jobPosting.findUnique({
+      where: { id: jobId },
+      select: { jobAuthorId: true },
+    });
+
+    if (!job) {
+      throw new CustomError("Job posting not found", 404);
+    }
+
+    if (job.jobAuthorId !== owner?.id) {
+      throw new CustomError(
+        "You are not authorized to reject this applicant",
+        403,
+      );
     }
 
     const existingApplication = await this.getExistingApplication(
@@ -62,7 +91,7 @@ export class PrismaJobApplicationRepository
       throw new CustomError("Application already rejected", 400);
     }
 
-    const result = await prisma.jobApplication.update({
+    const result = await this.prisma.jobApplication.update({
       where: { id: existingApplication.id },
       data: { isRejected: true },
     });
@@ -72,7 +101,7 @@ export class PrismaJobApplicationRepository
 
   //HELPER METHODS
   private async getExistingApplication(userId: string, jobPostingId: string) {
-    return await prisma.jobApplication.findUnique({
+    return await this.prisma.jobApplication.findUnique({
       where: {
         userId_jobPostingId: { userId, jobPostingId },
       },

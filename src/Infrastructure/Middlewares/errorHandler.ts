@@ -11,6 +11,10 @@ const errorHandler = (
     return res.status(err.statusCode).json({ message: err.message });
   }
 
+  if (err.name === "UnauthorizedError") {
+    throw new CustomError("Invalid token or no token provided", 401);
+  }
+
   res.status(500).json({ message: err.message || "Internal Server Error" });
 };
 

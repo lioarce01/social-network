@@ -8,8 +8,11 @@ export class DisableJobPosting {
     private readonly jobPostingRepository: JobPostingRepository,
   ) {}
 
-  async execute(id: string): Promise<{ message: string }> {
-    const { message } = await this.jobPostingRepository.disableJobPosting(id);
+  async execute(jobId: string, userId: string): Promise<{ message: string }> {
+    const { message } = await this.jobPostingRepository.disableJobPosting(
+      jobId,
+      userId,
+    );
 
     return { message };
   }

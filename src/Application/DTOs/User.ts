@@ -8,6 +8,15 @@ export type UpdateUserDTO = {
   current_position?: string;
 };
 
+export class CreateUserDTO {
+  constructor(
+    public readonly sub: string,
+    public readonly name: string,
+    public readonly profile_pic: string,
+    public readonly email: string,
+  ) {}
+}
+
 export class FollowerDTO {
   constructor(
     public readonly id: string,

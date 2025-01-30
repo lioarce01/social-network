@@ -3,6 +3,10 @@ import express from "express";
 import cors from "cors";
 import router from "../Http/Routes/index";
 import errorHandler from "../Middlewares/errorHandler";
+import { AuthMiddleware } from "../Middlewares/auth";
+import { container } from "tsyringe";
+
+const authMiddleware = container.resolve(AuthMiddleware);
 
 const app = express();
 app.use(
@@ -13,18 +17,13 @@ app.use(
 );
 app.use(express.json());
 
-// const httpServer = createServer(app);
-
-// const io = initSocketServer(httpServer);
-
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
 });
 
 app.use("/", router);
 
-// app.locals.io = io;
-
 app.use(errorHandler);
+app.use(authMiddleware.handleError);
 
 export { app };

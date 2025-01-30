@@ -11,17 +11,25 @@ export interface JobPostingRepository {
   ): Promise<{ jobs: JobPosting[]; totalCount: number }>;
   getJobPostingById(id: string): Promise<JobPosting | null>;
   updateJobPosting(
-    id: string,
+    userId: string,
+    jobId: string,
     jobPostingData: Partial<JobPosting>,
   ): Promise<{ message: string; jobPosting: JobPosting }>;
   createJobPosting(
     id: string,
     jobPostingData: Prisma.JobPostingCreateInput,
   ): Promise<{ message: string; jobPosting: JobPosting }>;
-  deleteJobPosting(id: string): Promise<{ message: string }>;
-  disableJobPosting(id: string): Promise<{ message: string }>;
+  deleteJobPosting(
+    jobId: string,
+    authorId: string,
+  ): Promise<{ message: string }>;
+  disableJobPosting(
+    jobId: string,
+    userId: string,
+  ): Promise<{ message: string }>;
   getJobApplicants(
     jobId: string,
+    userId: string,
     offset?: number,
     limit?: number,
   ): Promise<{ applications: JobApplication[]; totalCount: number }>;

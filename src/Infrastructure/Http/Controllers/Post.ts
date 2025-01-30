@@ -9,8 +9,6 @@ import { DeletePost } from "../../../Application/UseCases/Post/DeletePost";
 import { LikePost } from "../../../Application/UseCases/PostLike/Like";
 import { Prisma } from "@prisma/client";
 import { UnlikePost } from "../../../Application/UseCases/PostLike/Unlike";
-import { GetRecentPosts } from "../../../Application/UseCases/Post/GetRecentPosts";
-import { AddPost } from "../../../Application/UseCases/Post/AddPosts";
 
 @injectable()
 export class PostController {
@@ -23,35 +21,26 @@ export class PostController {
     @inject("DeletePost") private deletePostUseCase: DeletePost,
     @inject("LikePost") private likePostUseCase: LikePost,
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
-    @inject("GetRecentPosts") private getRecentPostsUseCase: GetRecentPosts,
-    @inject("AddPost") private addPostUseCase: AddPost,
   ) {}
 
   async getAllPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { sortBy, sortOrder, offset, limit } = req.query;
+      const { sortBy, sortOrder } = req.query;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = parseInt(req.query.limit as string) || 10;
 
       const sortOptions = {
         sortBy: sortBy as "createdAt",
         sortOrder: sortOrder as "asc" | "desc",
       };
 
-      const parsedOffset =
-        typeof offset === "string" && offset.trim() !== ""
-          ? Number(offset)
-          : undefined;
-      const parsedLimit =
-        typeof limit === "string" && limit.trim() !== ""
-          ? Number(limit)
-          : undefined;
-
       const { posts, totalCount } = await this.getAllPostsUseCase.execute(
         sortOptions,
-        parsedOffset,
-        parsedLimit,
+        offset,
+        limit,
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         posts,
         totalCount,
       });
@@ -62,7 +51,8 @@ export class PostController {
 
   async createPost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, content } = req.body;
+      const { content } = req.body;
+      const userId = req.auth?.sub;
 
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
@@ -71,18 +61,20 @@ export class PostController {
       const postData: Prisma.PostCreateInput = {
         content,
         author: {
-          connect: { id: userId },
+          connect: { sub: userId },
         },
       };
 
       const { message, post } = await this.createPostUseCase.execute(
-        userId,
+        userId!,
         postData,
       );
 
-      // await this.addPostUseCase.execute(post);
-
-      res.status(201).json({ message, post });
+      return res.status(201).json({
+        code: 201,
+        message,
+        post,
+      });
     } catch (e) {
       next(e);
     }
@@ -96,7 +88,7 @@ export class PostController {
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
-      res.status(200).json(post);
+      return res.status(200).json(post);
     } catch (e) {
       next(e);
     }
@@ -104,25 +96,31 @@ export class PostController {
 
   async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, postId, content } = req.body;
+      const { id, content } = req.body;
+      const userId = req.auth?.sub?.split("|")[1];
+
+      if (!id) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "Post ID is required",
+        });
+      }
+
       const { message, post } = await this.updatePostUseCase.execute(
-        userId,
-        postId,
+        id,
+        userId!,
         {
           content,
         },
       );
 
-      res.status(200).json({ message, post });
+      return res.status(200).json({
+        code: 200,
+        message: message,
+        post: post,
+      });
     } catch (e) {
-      if (
-        e instanceof Error &&
-        e.message === "You are not the author of this post"
-      ) {
-        return res
-          .status(403)
-          .json({ message: "You are not the author of this post" });
-      }
       next(e);
     }
   }
@@ -130,10 +128,23 @@ export class PostController {
   async deletePost(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.body;
+      const userId = req.auth?.sub?.split("|")[1];
 
-      const { message } = await this.deletePostUseCase.execute(id);
+      if (!id) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "Post ID is required in request body",
+        });
+      }
 
-      res.status(200).json({ message });
+      const { message } = await this.deletePostUseCase.execute(id, userId!);
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }
@@ -148,7 +159,7 @@ export class PostController {
         return res.status(404).json({ message: "No posts found" });
       }
 
-      res.status(200).json(posts);
+      return res.status(200).json(posts);
     } catch (e) {
       next(e);
     }
@@ -156,14 +167,28 @@ export class PostController {
 
   async likePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, postId } = req.body;
+      const { postId } = req.body;
+      const userId = req.auth?.sub;
+
+      if (!userId) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "User ID is missing in authentication token",
+        });
+      }
 
       const { message, postLike } = await this.likePostUseCase.execute(
-        userId,
+        userId!,
         postId,
       );
 
-      res.status(201).json({ message, postLike });
+      return res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        message: message,
+        postLike: postLike,
+      });
     } catch (e) {
       next(e);
     }
@@ -171,27 +196,24 @@ export class PostController {
 
   async unlikePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, postId } = req.body;
+      const { postId } = req.body;
+      const userId = req.auth?.sub;
 
-      const { message } = await this.unlikePostUseCase.execute(userId, postId);
+      if (!userId) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "User ID is missing in authentication token",
+        });
+      }
 
-      res.status(200).json({ message });
-    } catch (e) {
-      next(e);
-    }
-  }
+      const { message } = await this.unlikePostUseCase.execute(userId!, postId);
 
-  async getRecentPosts(req: Request, res: Response, next: NextFunction) {
-    try {
-      const lastPostDate = req.query.lastPostDate;
-      const limit = parseInt(req.query.limit as string) || 10;
-
-      const { posts, totalCount } = await this.getRecentPostsUseCase.execute(
-        lastPostDate ? new Date(lastPostDate as string) : new Date(),
-        limit,
-      );
-
-      res.status(200).json({ posts, totalCount });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }

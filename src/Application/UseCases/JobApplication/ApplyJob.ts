@@ -15,6 +15,7 @@ export class ApplyJob {
   ): Promise<{ message: string; jobApplication: JobApplication }> {
     const { message, jobApplication } =
       await this.jobApplicationRepository.applyJob(userId, jobPostingId);
+
     return { message, jobApplication };
   }
 }

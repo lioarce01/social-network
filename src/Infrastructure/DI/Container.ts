@@ -41,9 +41,6 @@ import { JobApplicationRepository } from "../../Domain/Repositories/JobApplicati
 import { PrismaJobApplicationRepository } from "../Repositories/PrismaJobApplicationRepository";
 import { ApplyJob } from "../../Application/UseCases/JobApplication/ApplyJob";
 import { GetJobApplicants } from "../../Application/UseCases/JobPosting/GetJobApplicants";
-import { AddPost } from "../../Application/UseCases/Post/AddPosts";
-import { GetRecentPosts } from "../../Application/UseCases/Post/GetRecentPosts";
-import { PostNotificationService } from "../../Domain/Services/PostNotificationService";
 import { FollowUser } from "../../Application/UseCases/User/FollowUser";
 import { UnfollowUser } from "../../Application/UseCases/User/UnfollowUser";
 import { GetUserApplications } from "../../Application/UseCases/User/GetUserApplications";
@@ -52,6 +49,10 @@ import { GetUserLikedPosts } from "../../Application/UseCases/User/GetUserLikedP
 import { GetUserFollowers } from "../../Application/UseCases/User/GetUserFollowers";
 import { GetUserFollowing } from "../../Application/UseCases/User/GetUserFollowing";
 import { RejectApplicant } from "../../Application/UseCases/JobApplication/RejectApplicant";
+import { RedisCacheRepository } from "../Repositories/RedisCacheRepository";
+import { CacheRepository } from "../../Domain/Repositories/CacheRepository";
+import { CacheService } from "../../Application/Services/CacheService";
+import { AuthMiddleware } from "../Middlewares/auth";
 
 export function setupContainer() {
   container.registerSingleton<UserRepository>(
@@ -84,10 +85,14 @@ export function setupContainer() {
     PrismaJobApplicationRepository,
   );
 
-  container.registerSingleton(
-    "PostNotificationService",
-    PostNotificationService,
+  container.registerSingleton<CacheRepository>(
+    "CacheRepository",
+    RedisCacheRepository,
   );
+
+  container.registerSingleton<CacheService>("CacheService", CacheService);
+
+  container.registerSingleton("AuthMiddleware", AuthMiddleware);
 }
 
 //Register User use cases
@@ -113,10 +118,6 @@ container.registerSingleton("GetUserPosts", GetUserPosts);
 container.registerSingleton("CreatePost", CreatePost);
 container.registerSingleton("DeletePost", DeletePost);
 container.registerSingleton("UpdatePost", UpdatePost);
-container.registerSingleton("GetRecentPosts", GetRecentPosts);
-
-//Notification service use cases:
-container.registerSingleton("AddPost", AddPost);
 
 //Register Comment use cases
 container.registerSingleton("GetAllComments", GetAllComments);

@@ -1,6 +1,4 @@
 import { JobApplication } from "../../../Domain/Entities/JobApplication";
-import { JobPosting } from "../../../Domain/Entities/JobPosting";
-import { User } from "../../../Domain/Entities/User";
 import { JobPostingRepository } from "../../../Domain/Repositories/JobPostingRepository";
 import { inject, injectable } from "tsyringe";
 
@@ -13,11 +11,13 @@ export class GetJobApplicants {
 
   async execute(
     jobId: string,
+    userId: string,
     offset?: number,
     limit?: number,
   ): Promise<{ applications: JobApplication[]; totalCount: number }> {
     const applicants = await this.jobPostingRepository.getJobApplicants(
       jobId,
+      userId,
       offset,
       limit,
     );

@@ -14,14 +14,10 @@ export interface PostRepository {
     id: string,
     postData: Prisma.PostCreateInput,
   ): Promise<{ message: string; post: Post }>;
-  deletePost(id: string): Promise<{ message: string }>;
+  deletePost(id: string, ownerId: string): Promise<{ message: string }>;
   updatePost(
     userId: string,
     postId: string,
     postData: Partial<Post>,
   ): Promise<{ message: string; post: Post }>;
-  getRecentPosts(
-    lastPostDate: Date,
-    limit: number,
-  ): Promise<{ posts: Post[]; totalCount: number }>;
 }

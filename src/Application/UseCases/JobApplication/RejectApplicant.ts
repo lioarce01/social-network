@@ -9,9 +9,14 @@ export class RejectApplicant {
     private readonly jobApplicationRepository: JobApplicationRepository,
   ) {}
 
-  async execute(userId: string, jobId: string): Promise<JobApplication> {
+  async execute(
+    userId: string,
+    ownerId: string,
+    jobId: string,
+  ): Promise<JobApplication> {
     const result = await this.jobApplicationRepository.rejectApplicant(
       userId,
+      ownerId,
       jobId,
     );
 

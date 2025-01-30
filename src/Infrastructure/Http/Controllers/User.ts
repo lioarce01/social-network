@@ -43,32 +43,25 @@ export class UserController {
 
   async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const { offset, limit, role } = req.query;
+      const { role } = req.query;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const limit = parseInt(req.query.limit as string) || 10;
 
       const filters = {
         role: role as Role,
       };
 
-      const parsedOffset =
-        typeof offset === "string" && offset.trim() !== ""
-          ? Number(offset)
-          : undefined;
-      const parsedLimit =
-        typeof limit === "string" && limit.trim() !== ""
-          ? Number(limit)
-          : undefined;
-
       const users = await this.getAllUsersUseCase.execute(
+        offset,
+        limit,
         filters,
-        parsedOffset,
-        parsedLimit,
       );
 
-      if (!users || users.length === 0) {
-        return res.status(404).json({ message: "No users found" });
-      }
-
-      res.status(200).json(users);
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        data: users,
+      });
     } catch (e) {
       next(e);
     }
@@ -76,27 +69,18 @@ export class UserController {
 
   async createUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const {
-        name,
-        email,
-        sub,
-        profile_pic,
-        followingCount = 0,
-        followersCount = 0,
-      } = req.body;
+      const { name, email, profile_pic } = req.body;
+
+      const sub = req.auth?.sub!;
 
       const { message, user } = await this.createUserUseCase.execute({
         name,
         email,
         sub,
         profile_pic,
-        enabled: true,
-        role: Role.USER,
-        followingCount,
-        followersCount,
       });
 
-      res.status(201).json({ message, user });
+      res.status(201).json({ code: 201, status: "SUCCESS", message, user });
     } catch (error: any) {
       if (error.message === "User already exists") {
         return res.status(409).json({ message: error.message });
@@ -110,11 +94,7 @@ export class UserController {
       const { identifier } = req.params;
       const user = await this.getUserByIdentifierUseCase.execute(identifier);
 
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      res.status(200).json(user);
+      return res.status(200).json(user);
     } catch (e) {
       next(e);
     }
@@ -122,12 +102,31 @@ export class UserController {
 
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
       const { ...body } = req.body;
 
-      const { message, user } = await this.updateUserUseCase.execute(id, body);
+      const sub = req.auth?.sub;
+      const id = req.params.id;
 
-      res.status(200).json({ message, user });
+      if (!id) {
+        return res.status(400).json({
+          code: 404,
+          status: "Not Found",
+          message: "User not found",
+        });
+      }
+
+      const { message, user } = await this.updateUserUseCase.execute(
+        sub!,
+        id,
+        body,
+      );
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+        user,
+      });
     } catch (e) {
       next(e);
     }
@@ -136,10 +135,15 @@ export class UserController {
   async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = req.auth?.sub;
 
-      const { message } = await this.deleteUserUseCase.execute(id);
+      const { message } = await this.deleteUserUseCase.execute(userId!, id);
 
-      res.status(200).json({ message });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }
@@ -149,9 +153,15 @@ export class UserController {
     try {
       const { id } = req.body;
 
-      const { message, user } = await this.disableUserUseCase.execute(id);
+      const adminId = req.auth?.sub;
 
-      res.status(200).json({ message, user });
+      const { message } = await this.disableUserUseCase.execute(id, adminId!);
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+      });
     } catch (e) {
       next(e);
     }
@@ -161,38 +171,60 @@ export class UserController {
     try {
       const { id } = req.body;
 
-      const { message, user } = await this.switchUserRoleUseCase.execute(id);
+      const adminId = req.auth?.sub;
 
-      res.status(200).json({ message, user });
+      const { message } = await this.switchUserRoleUseCase.execute(
+        id,
+        adminId!,
+      );
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+      });
     } catch (e) {
       next(e);
     }
   }
 
   async followUser(req: Request, res: Response, next: NextFunction) {
-    const { userId, followingId } = req.body;
+    const { followingId } = req.body;
+
+    const userId = req.auth?.sub;
+
     try {
       const followRelation = await this.followUserUseCase.execute(
-        userId,
+        userId!,
         followingId,
       );
 
-      return res.status(201).json(followRelation);
+      return res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        relation: followRelation,
+      });
     } catch (e) {
       next(e);
     }
   }
 
   async unfollowUser(req: Request, res: Response, next: NextFunction) {
-    const { userId, followingId } = req.body;
+    const { followingId } = req.body;
+
+    const userId = req.auth?.sub;
 
     try {
       const { message } = await this.unfollowUserUseCase.execute(
-        userId,
+        userId!,
         followingId,
       );
 
-      return res.status(200).json({ message });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+      });
     } catch (e) {
       next(e);
     }

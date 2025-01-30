@@ -1,5 +1,4 @@
 import { UserRepository } from "../../../Domain/Repositories/UserRepository";
-import { User } from "../../../Domain/Entities/User";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
@@ -8,8 +7,11 @@ export class DeleteUser {
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(id: string): Promise<{ message: string }> {
-    const { message } = await this.userRepository.deleteUser(id);
+  async execute(
+    userId: string,
+    targetId: string,
+  ): Promise<{ message: string }> {
+    const { message } = await this.userRepository.deleteUser(userId, targetId);
 
     return { message };
   }

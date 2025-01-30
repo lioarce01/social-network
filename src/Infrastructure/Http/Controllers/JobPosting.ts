@@ -103,7 +103,6 @@ export class JobPostingController {
   async createJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
       const {
-        userId,
         title,
         description,
         budget,
@@ -115,6 +114,8 @@ export class JobPostingController {
         experience_level,
       } = req.body;
 
+      const userId = req.auth?.sub;
+
       if (
         !title ||
         !description ||
@@ -123,9 +124,11 @@ export class JobPostingController {
         !techRequired ||
         !category
       ) {
-        return res
-          .status(400)
-          .json({ message: "Job posting data is required" });
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Missing required fields",
+        });
       }
 
       const postingData: Prisma.JobPostingCreateInput = {
@@ -147,9 +150,14 @@ export class JobPostingController {
       };
 
       const { message, jobPosting } =
-        await this.createJobPostingUseCase.execute(userId, postingData);
+        await this.createJobPostingUseCase.execute(userId!, postingData);
 
-      return res.status(201).json({ message, jobPosting });
+      return res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        message: message,
+        jobPosting: jobPosting,
+      });
     } catch (e) {
       next(e);
     }
@@ -159,11 +167,14 @@ export class JobPostingController {
     try {
       const updates = { ...req.body };
       const { id } = req.params;
+      const userId = req.auth?.sub;
 
       if (Object.keys(updates).length === 0) {
-        return res
-          .status(400)
-          .json({ message: "No fields to update provided" });
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Missing required fields",
+        });
       }
 
       if (updates.deadline) {
@@ -171,9 +182,14 @@ export class JobPostingController {
       }
 
       const { message, jobPosting } =
-        await this.updateJobPostingUseCase.execute(id, updates);
+        await this.updateJobPostingUseCase.execute(userId!, id, updates);
 
-      return res.status(200).json({ message, jobPosting });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+        jobPosting: jobPosting,
+      });
     } catch (e) {
       next(e);
     }
@@ -182,9 +198,25 @@ export class JobPostingController {
   async deleteJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { message } = await this.deleteJobPostingUseCase.execute(id);
+      const userId = req.auth?.sub;
+      const { message } = await this.deleteJobPostingUseCase.execute(
+        id,
+        userId!,
+      );
 
-      return res.status(200).json({ message });
+      if (!id) {
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Missing required fields",
+        });
+      }
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }
@@ -193,10 +225,18 @@ export class JobPostingController {
   async disableJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = req.auth?.sub;
 
-      const { message } = await this.disableJobPostingUseCase.execute(id);
+      const { message } = await this.disableJobPostingUseCase.execute(
+        id,
+        userId!,
+      );
 
-      return res.status(200).json({ message });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }
@@ -205,16 +245,22 @@ export class JobPostingController {
   async getJobApplicants(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = req.auth?.sub;
       const offset = parseInt(req.query.offset as string) || 0;
       const limit = parseInt(req.query.limit as string) || 10;
 
       const jobApplicants = await this.getJobApplicantsUseCase.execute(
         id,
+        userId!,
         offset,
         limit,
       );
 
-      return res.status(200).json(jobApplicants);
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        jobApplicants,
+      });
     } catch (e) {
       next(e);
     }
