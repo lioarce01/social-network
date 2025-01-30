@@ -3,7 +3,11 @@ import { User } from "../../Domain/Entities/User";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
-import { FollowerDTO, UpdateUserDTO } from "../../Application/DTOs/User";
+import {
+  CreateUserDTO,
+  FollowerDTO,
+  UpdateUserDTO,
+} from "../../Application/DTOs/User";
 import { UserFollow } from "../../Domain/Entities/UserFollow";
 import { CustomError } from "../../Shared/CustomError";
 import { JobApplication } from "../../Domain/Entities/JobApplication";
@@ -64,23 +68,24 @@ export class PrismaUserRepository
   }
 
   async createUser(
-    userData: Prisma.UserCreateInput,
+    userData: CreateUserDTO,
   ): Promise<{ message: string; user: User }> {
-    try {
-      const user = await this.prisma.user.create({ data: userData });
+    const existingUser = await this.prisma.user.findUnique({
+      where: { sub: userData.sub },
+    });
 
-      const userEntity = UserTransformer.toDomain(user);
-
-      return {
-        message: "User created successfully",
-        user: userEntity,
-      };
-    } catch (error: any) {
-      if (error.code === "P2002") {
-        throw new Error("User already exists");
-      }
-      throw error;
+    if (existingUser) {
+      throw new CustomError("User already exists", 400);
     }
+
+    const user = await this.prisma.user.create({ data: userData });
+
+    const userEntity = UserTransformer.toDomain(user);
+
+    return {
+      message: "User created successfully",
+      user: userEntity,
+    };
   }
 
   async disableUser(id: string): Promise<{ message: string; user: User }> {

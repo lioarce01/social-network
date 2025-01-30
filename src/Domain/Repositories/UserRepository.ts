@@ -1,7 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
-import { FollowerDTO, UpdateUserDTO } from "../../Application/DTOs/User";
+import {
+  CreateUserDTO,
+  FollowerDTO,
+  UpdateUserDTO,
+} from "../../Application/DTOs/User";
 import { UserFollow } from "../Entities/UserFollow";
 import { JobApplication } from "../Entities/JobApplication";
 import { JobPosting } from "../Entities/JobPosting";
@@ -20,9 +24,7 @@ export interface UserRepository {
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
   deleteUser(id: string): Promise<{ message: string }>;
-  createUser(
-    userData: Prisma.UserCreateInput,
-  ): Promise<{ message: string; user: User }>;
+  createUser(userData: CreateUserDTO): Promise<{ message: string; user: User }>;
   disableUser(id: string): Promise<{ message: string; user: User }>;
   switchUserRole(id: string): Promise<{ message: string; user: User }>;
   followUser(userId: string, followingId: string): Promise<UserFollow>;

@@ -65,24 +65,19 @@ export class UserController {
 
   async createUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const {
-        name,
-        email,
-        sub,
-        profile_pic,
-        followingCount = 0,
-        followersCount = 0,
-      } = req.body;
+      const { name, email, profile_pic } = req.body;
+
+      const sub = req.auth?.sub!;
+
+      if (!req.auth?.sub) {
+        return res.status(400).json({ message: "Missing auth0 sub" });
+      }
 
       const { message, user } = await this.createUserUseCase.execute({
         name,
         email,
         sub,
         profile_pic,
-        enabled: true,
-        role: Role.USER,
-        followingCount,
-        followersCount,
       });
 
       res.status(201).json({ message, user });

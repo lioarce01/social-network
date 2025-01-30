@@ -3,16 +3,23 @@ import express from "express";
 import { container } from "tsyringe";
 import { UserController } from "../Controllers/User";
 import { setupContainer } from "../../DI/Container";
+import { AuthMiddleware } from "../../Middlewares/auth";
 
 setupContainer();
 
 const router = express.Router();
 
 const userController = container.resolve(UserController);
+const auth = container.resolve(AuthMiddleware);
 
 router.get("/", (req, res, next) => userController.getAllUsers(req, res, next));
 
-router.post("/", (req, res, next) => userController.createUser(req, res, next));
+router.post(
+  "/",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => userController.createUser(req, res, next),
+);
 
 router.put("/disable", (req, res, next) =>
   userController.disableUser(req, res, next),
