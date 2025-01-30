@@ -10,11 +10,13 @@ export class UpdateUser {
   ) {}
 
   async execute(
-    id: string,
+    userId: string,
+    targetId: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }> {
     const { message, user } = await this.userRepository.updateUser(
-      id,
+      userId,
+      targetId,
       userData,
     );
 

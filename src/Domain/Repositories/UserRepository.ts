@@ -20,7 +20,8 @@ export interface UserRepository {
   getUserBySub(sub: string): Promise<User | null>;
   getUserById(id: string): Promise<User | null>;
   updateUser(
-    id: string,
+    userId: string,
+    targetId: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
   deleteUser(userId: string, targetId: string): Promise<{ message: string }>;

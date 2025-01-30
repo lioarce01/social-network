@@ -82,8 +82,11 @@ router.delete(
   (req: any, res: any, next: any) => userController.deleteUser(req, res, next),
 );
 
-router.put("/:id/update", (req, res, next) =>
-  userController.updateUser(req, res, next),
+router.put(
+  "/:id/update",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => userController.updateUser(req, res, next),
 );
 
 export default router;

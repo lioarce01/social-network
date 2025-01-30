@@ -57,7 +57,11 @@ export class UserController {
         filters,
       );
 
-      return res.status(200).json(users);
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        data: users,
+      });
     } catch (e) {
       next(e);
     }
@@ -69,10 +73,6 @@ export class UserController {
 
       const sub = req.auth?.sub!;
 
-      if (!req.auth?.sub) {
-        return res.status(400).json({ message: "Missing auth0 sub" });
-      }
-
       const { message, user } = await this.createUserUseCase.execute({
         name,
         email,
@@ -80,7 +80,7 @@ export class UserController {
         profile_pic,
       });
 
-      res.status(201).json({ message, user });
+      res.status(201).json({ code: 201, status: "SUCCESS", message, user });
     } catch (error: any) {
       if (error.message === "User already exists") {
         return res.status(409).json({ message: error.message });
@@ -102,12 +102,31 @@ export class UserController {
 
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
       const { ...body } = req.body;
 
-      const { message, user } = await this.updateUserUseCase.execute(id, body);
+      const sub = req.auth?.sub;
+      const id = req.params.id;
 
-      return res.status(200).json({ message, user });
+      if (!id) {
+        return res.status(400).json({
+          code: 404,
+          status: "Not Found",
+          message: "User not found",
+        });
+      }
+
+      const { message, user } = await this.updateUserUseCase.execute(
+        sub!,
+        id,
+        body,
+      );
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+        user,
+      });
     } catch (e) {
       next(e);
     }
@@ -122,6 +141,7 @@ export class UserController {
 
       return res.status(200).json({
         code: 200,
+        status: "SUCCESS",
         message: message,
       });
     } catch (e) {
@@ -139,6 +159,7 @@ export class UserController {
 
       return res.status(200).json({
         code: 200,
+        status: "SUCCESS",
         message,
       });
     } catch (e) {
@@ -159,6 +180,7 @@ export class UserController {
 
       return res.status(200).json({
         code: 200,
+        status: "SUCCESS",
         message,
       });
     } catch (e) {
@@ -179,6 +201,7 @@ export class UserController {
 
       return res.status(201).json({
         code: 201,
+        status: "SUCCESS",
         relation: followRelation,
       });
     } catch (e) {
@@ -199,6 +222,7 @@ export class UserController {
 
       return res.status(200).json({
         code: 200,
+        status: "SUCCESS",
         message,
       });
     } catch (e) {

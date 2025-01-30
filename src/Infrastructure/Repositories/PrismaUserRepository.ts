@@ -37,13 +37,23 @@ export class PrismaUserRepository
   }
 
   async updateUser(
-    id: string,
+    authUserId: string,
+    targetUserId: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }> {
-    await this.getUserById(id);
+    if (!targetUserId) {
+      throw new CustomError("User ID is required", 400);
+    }
+
+    const authUser = await this.getBySub(authUserId);
+    const targetUser = await this.getById(targetUserId);
+
+    if (authUser.role !== "ADMIN" && authUser.id !== targetUser.id) {
+      throw new CustomError("You are not authorized to update this user", 403);
+    }
 
     const updatedUser = await this.baseUpdate(
-      id,
+      targetUser.id,
       {
         ...userData,
         headline: userData.headline ?? undefined,
