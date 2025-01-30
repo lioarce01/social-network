@@ -28,8 +28,12 @@ router.put(
   (req: any, res: any, next: any) => userController.disableUser(req, res, next),
 );
 
-router.put("/switch-role", (req, res, next) =>
-  userController.switchUserRole(req, res, next),
+router.put(
+  "/switch-role",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) =>
+    userController.switchUserRole(req, res, next),
 );
 
 router.post("/follow", (req, res, next) =>

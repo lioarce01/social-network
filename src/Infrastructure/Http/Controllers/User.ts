@@ -146,9 +146,17 @@ export class UserController {
     try {
       const { id } = req.body;
 
-      const { message, user } = await this.switchUserRoleUseCase.execute(id);
+      const adminId = req.auth?.sub;
 
-      return res.status(200).json({ message, user });
+      const { message } = await this.switchUserRoleUseCase.execute(
+        id,
+        adminId!,
+      );
+
+      return res.status(200).json({
+        code: 200,
+        message,
+      });
     } catch (e) {
       next(e);
     }

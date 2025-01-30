@@ -89,8 +89,16 @@ export class PrismaUserRepository
   }
 
   async disableUser(id: string, adminId: string): Promise<{ message: string }> {
-    const admin = await this.getUserBySub(adminId);
-    const user = await this.getUserById(id);
+    if (!id) {
+      throw new CustomError("User ID is required", 400);
+    }
+
+    if (!adminId) {
+      throw new CustomError("Admin ID is required", 400);
+    }
+
+    const admin = await this.getBySub(adminId);
+    const user = await this.getById(id);
 
     if (admin.role !== "ADMIN") {
       throw new CustomError("Only admins can disable users", 403);
@@ -98,25 +106,38 @@ export class PrismaUserRepository
 
     const newStatus = this.getUserStatus(user.enabled);
 
-    const updatedUser = await this.updateUserStatus(id, newStatus);
+    this.updateUserStatus(id, newStatus);
 
     return {
-      message: `User status changed to ${newStatus}`,
+      message: `User status changed to: ${newStatus}`,
     };
   }
 
-  async switchUserRole(id: string): Promise<{ message: string; user: User }> {
+  async switchUserRole(
+    id: string,
+    adminId: string,
+  ): Promise<{ message: string }> {
+    if (!id) {
+      throw new CustomError("User ID is required", 400);
+    }
+
+    if (!adminId) {
+      throw new CustomError("Admin ID is required", 400);
+    }
+
+    const admin = await this.getBySub(adminId);
     const user = await this.getById(id);
+
+    if (admin.role !== "ADMIN") {
+      throw new CustomError("Only admins can switch user roles", 403);
+    }
 
     const newRole = this.getUserRole(user.role);
 
-    const updatedUser = await this.updateUserRole(id, newRole);
-
-    const transformedUser = UserTransformer.toDomain(updatedUser);
+    await this.updateUserRole(id, newRole);
 
     return {
-      message: "Role switched successfully",
-      user: transformedUser,
+      message: `Role switched successfully to: ${newRole}`,
     };
   }
 

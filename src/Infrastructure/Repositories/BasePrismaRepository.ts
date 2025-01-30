@@ -31,7 +31,7 @@ export abstract class BasePrismaRepository<T> {
     sub: string,
     include?: Prisma.UserInclude,
   ): Promise<any> {
-    const entity = await (this.prisma as any).user.findUnique({
+    const entity = await (this.prisma as any)[this.entityName].findUnique({
       where: { sub },
       include,
     });

@@ -8,9 +8,9 @@ export class SwitchUserRole {
     @inject("UserRepository") private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(id: string): Promise<{ message: string; user: User }> {
-    const { message, user } = await this.userRepository.switchUserRole(id);
+  async execute(id: string, adminId: string): Promise<{ message: string }> {
+    const { message } = await this.userRepository.switchUserRole(id, adminId);
 
-    return { message, user };
+    return { message };
   }
 }
