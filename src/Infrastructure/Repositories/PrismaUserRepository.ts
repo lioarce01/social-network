@@ -152,20 +152,20 @@ export class PrismaUserRepository
       throw new CustomError("One or both users do not exist.", 404);
     }
 
-    const result = this.runTransaction(async (tx) => {
-      const followRelation = await this.prisma.userFollow.create({
+    const result = await this.runTransaction(async (tx) => {
+      const followRelation = await tx.userFollow.create({
         data: {
           followerId: userId,
           followingId: followingId,
         },
       });
 
-      await this.prisma.user.update({
+      await tx.user.update({
         where: { id: userId },
         data: { followingCount: { increment: 1 } },
       });
 
-      await this.prisma.user.update({
+      await tx.user.update({
         where: { id: followingId },
         data: { followersCount: { increment: 1 } },
       });
@@ -182,8 +182,8 @@ export class PrismaUserRepository
   ): Promise<{ message: string }> {
     await this.getExistingFollow(userId, followingId);
 
-    const { message } = await this.prisma.$transaction(async (prisma) => {
-      await prisma.userFollow.delete({
+    const { message } = await this.runTransaction(async (tx) => {
+      await tx.userFollow.delete({
         where: {
           followerId_followingId: {
             followerId: userId,
@@ -192,12 +192,12 @@ export class PrismaUserRepository
         },
       });
 
-      await prisma.user.update({
+      await tx.user.update({
         where: { id: userId },
         data: { followingCount: { decrement: 1 } },
       });
 
-      await prisma.user.update({
+      await tx.user.update({
         where: { id: followingId },
         data: { followersCount: { decrement: 1 } },
       });

@@ -40,7 +40,7 @@ export class PostController {
         limit,
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         posts,
         totalCount,
       });
@@ -70,7 +70,11 @@ export class PostController {
         postData,
       );
 
-      res.status(201).json({ message, post });
+      return res.status(201).json({
+        code: 201,
+        message,
+        post,
+      });
     } catch (e) {
       next(e);
     }
@@ -84,7 +88,7 @@ export class PostController {
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
-      res.status(200).json(post);
+      return res.status(200).json(post);
     } catch (e) {
       next(e);
     }
@@ -111,7 +115,7 @@ export class PostController {
         },
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         code: 200,
         message: message,
         post: post,
@@ -136,7 +140,7 @@ export class PostController {
 
       const { message } = await this.deletePostUseCase.execute(id, userId!);
 
-      res.status(200).json({
+      return res.status(200).json({
         code: 200,
         status: "SUCCESS",
         message: message,
@@ -155,7 +159,7 @@ export class PostController {
         return res.status(404).json({ message: "No posts found" });
       }
 
-      res.status(200).json(posts);
+      return res.status(200).json(posts);
     } catch (e) {
       next(e);
     }
@@ -163,14 +167,28 @@ export class PostController {
 
   async likePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, postId } = req.body;
+      const { postId } = req.body;
+      const userId = req.auth?.sub;
+
+      if (!userId) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "User ID is missing in authentication token",
+        });
+      }
 
       const { message, postLike } = await this.likePostUseCase.execute(
-        userId,
+        userId!,
         postId,
       );
 
-      res.status(201).json({ message, postLike });
+      return res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        message: message,
+        postLike: postLike,
+      });
     } catch (e) {
       next(e);
     }
@@ -178,11 +196,24 @@ export class PostController {
 
   async unlikePost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, postId } = req.body;
+      const { postId } = req.body;
+      const userId = req.auth?.sub;
 
-      const { message } = await this.unlikePostUseCase.execute(userId, postId);
+      if (!userId) {
+        return res.status(400).json({
+          code: 400,
+          error: "BAD_REQUEST",
+          message: "User ID is missing in authentication token",
+        });
+      }
 
-      res.status(200).json({ message });
+      const { message } = await this.unlikePostUseCase.execute(userId!, postId);
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }

@@ -1,6 +1,5 @@
 import { PostRepository } from "../../Domain/Repositories/PostRepository";
 import { Post } from "../../Domain/Entities/Post";
-import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { PostFilter } from "../Filters/PostFilter";
@@ -15,14 +14,14 @@ export class PrismaPostRepository
   protected entityName = "post";
 
   async getPostById(id: string): Promise<Post | null> {
-    return await prisma.post.findUnique({
+    return await this.prisma.post.findUnique({
       where: { id },
       include: { author: true, comments: true, likes: true },
     });
   }
 
   async getUserPosts(id: string): Promise<Post[] | null> {
-    return await prisma.post.findMany({
+    return await this.prisma.post.findMany({
       where: { id },
     });
   }
@@ -41,7 +40,7 @@ export class PrismaPostRepository
       throw new CustomError("User not found", 404);
     }
 
-    const createdPost = await prisma.post.create({
+    const createdPost = await this.prisma.post.create({
       data: {
         content: postData.content,
         author: {
@@ -58,7 +57,7 @@ export class PrismaPostRepository
   }
 
   async deletePost(id: string, ownerId: string): Promise<{ message: string }> {
-    const post = await prisma.post.findUnique({
+    const post = await this.prisma.post.findUnique({
       where: { id },
       include: {
         author: true,
@@ -83,7 +82,7 @@ export class PrismaPostRepository
     userId: string,
     postData: { content: string },
   ): Promise<{ message: string; post: Post }> {
-    const post = await prisma.post.findUnique({
+    const post = await this.prisma.post.findUnique({
       where: { id: postId },
       include: {
         author: true,
@@ -98,7 +97,7 @@ export class PrismaPostRepository
       throw new CustomError("You are not the owner of this post", 403);
     }
 
-    const updatedPost = await prisma.post.update({
+    const updatedPost = await this.prisma.post.update({
       where: { id: postId },
       data: {
         content: postData.content,
@@ -118,7 +117,7 @@ export class PrismaPostRepository
     limit: number = 10,
   ): Promise<{ posts: Post[]; totalCount: number }> {
     const orderByClause = filter?.buildOrderByClause();
-    const posts = await prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       where: {},
       orderBy: orderByClause,
       include: {
@@ -128,7 +127,7 @@ export class PrismaPostRepository
       take: limit,
     });
 
-    const totalCount = await prisma.post.count({
+    const totalCount = await this.prisma.post.count({
       where: {},
     });
 

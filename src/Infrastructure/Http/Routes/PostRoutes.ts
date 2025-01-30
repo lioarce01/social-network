@@ -17,9 +17,11 @@ router.get("/", (req, res, next) => postController.getAllPosts(req, res, next));
 router.get("/:id", (req, res, next) =>
   postController.getPostById(req, res, next),
 );
+
 router.get("/user/:id", (req, res, next) =>
   postController.getUserPosts(req, res, next),
 );
+
 router.post(
   "/",
   auth.authenticate(),
@@ -33,17 +35,26 @@ router.delete(
   auth.handleError,
   (req: any, res: any, next: any) => postController.deletePost(req, res, next),
 );
+
 router.put(
   "/update",
   auth.authenticate(),
   auth.handleError,
   (req: any, res: any, next: any) => postController.updatePost(req, res, next),
 );
-router.put("/like", (req, res, next) =>
-  postController.likePost(req, res, next),
+
+router.put(
+  "/like",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => postController.likePost(req, res, next),
 );
-router.put("/unlike", (req, res, next) =>
-  postController.unlikePost(req, res, next),
+
+router.put(
+  "/unlike",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => postController.unlikePost(req, res, next),
 );
 
 export default router;
