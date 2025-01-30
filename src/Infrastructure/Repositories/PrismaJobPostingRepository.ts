@@ -140,18 +140,33 @@ export class PrismaJobPostingRepository
     };
   }
 
-  async deleteJobPosting(id: string): Promise<{ message: string }> {
-    const jobPostingExist = await this.getJobPostingById(id);
+  async deleteJobPosting(
+    jobId: string,
+    authorId: string,
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { sub: authorId },
+    });
 
-    if (!jobPostingExist) {
-      return {
-        message: "Job posting does not exist",
-      };
+    if (!user) {
+      throw new CustomError("User does not exist", 404);
     }
 
-    await prisma.jobPosting.delete({ where: { id } });
+    const job = await this.getJobPostingById(jobId);
 
-    return { message: "Job Posting deleted successfully" };
+    if (!job) {
+      throw new CustomError("Job not found", 404);
+    }
+
+    if (user.id === job.jobAuthorId || user.role === "ADMIN") {
+      await prisma.jobPosting.delete({ where: { id: jobId } });
+      return { message: "Job Posting deleted successfully" };
+    }
+
+    throw new CustomError(
+      "You are not authorized to delete this job posting",
+      403,
+    );
   }
 
   async disableJobPosting(id: string): Promise<{ message: string }> {

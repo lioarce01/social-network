@@ -198,9 +198,25 @@ export class JobPostingController {
   async deleteJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { message } = await this.deleteJobPostingUseCase.execute(id);
+      const userId = req.auth?.sub;
+      const { message } = await this.deleteJobPostingUseCase.execute(
+        id,
+        userId!,
+      );
 
-      return res.status(200).json({ message });
+      if (!id) {
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Missing required fields",
+        });
+      }
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+      });
     } catch (e) {
       next(e);
     }

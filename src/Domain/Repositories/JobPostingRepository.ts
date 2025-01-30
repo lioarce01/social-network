@@ -19,7 +19,10 @@ export interface JobPostingRepository {
     id: string,
     jobPostingData: Prisma.JobPostingCreateInput,
   ): Promise<{ message: string; jobPosting: JobPosting }>;
-  deleteJobPosting(id: string): Promise<{ message: string }>;
+  deleteJobPosting(
+    jobId: string,
+    authorId: string,
+  ): Promise<{ message: string }>;
   disableJobPosting(id: string): Promise<{ message: string }>;
   getJobApplicants(
     jobId: string,

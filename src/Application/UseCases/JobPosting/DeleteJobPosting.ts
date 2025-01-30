@@ -10,8 +10,11 @@ export class DeleteJobPosting {
     @inject("CacheService") private readonly cacheService: CacheService,
   ) {}
 
-  async execute(id: string): Promise<{ message: string }> {
-    const { message } = await this.jobPostingRepository.deleteJobPosting(id);
+  async execute(jobId: string, authorId: string): Promise<{ message: string }> {
+    const { message } = await this.jobPostingRepository.deleteJobPosting(
+      jobId,
+      authorId,
+    );
 
     await this.cacheService.invalidateKeys("jobs:*");
 
