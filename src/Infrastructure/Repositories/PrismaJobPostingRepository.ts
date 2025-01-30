@@ -75,24 +75,41 @@ export class PrismaJobPostingRepository
   }
 
   async updateJobPosting(
-    id: string,
+    userId: string,
+    jobId: string,
     jobPostingData: Partial<Omit<JobPosting, "applicants" | "jobAuthor">>,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
-    const updatedPost = await prisma.jobPosting.update({
-      where: { id },
-      data: {
-        ...jobPostingData,
-        updatedAt: new Date(),
-      },
+    const user = await prisma.user.findUnique({ where: { sub: userId } });
+    const job = await prisma.jobPosting.findUnique({
+      where: { id: jobId },
     });
 
-    return {
-      message: "Job posting updated successfully",
-      jobPosting: {
-        ...updatedPost,
-        experience_level: updatedPost.experience_level as ExperienceLevel,
-      },
-    };
+    if (!job) {
+      throw new CustomError("Job posting not found", 404);
+    }
+
+    if (!user) {
+      throw new CustomError("User not found", 404);
+    }
+
+    if (user.id === job.jobAuthorId) {
+      const updatedPost = await prisma.jobPosting.update({
+        where: { id: jobId },
+        data: {
+          ...jobPostingData,
+          updatedAt: new Date(),
+        },
+      });
+      return {
+        message: "Job posting updated successfully",
+        jobPosting: {
+          ...updatedPost,
+          experience_level: updatedPost.experience_level as ExperienceLevel,
+        },
+      };
+    }
+
+    throw new CustomError("You are not the author of this job posting", 403);
   }
 
   async createJobPosting(

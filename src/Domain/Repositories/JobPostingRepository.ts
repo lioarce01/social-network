@@ -11,7 +11,8 @@ export interface JobPostingRepository {
   ): Promise<{ jobs: JobPosting[]; totalCount: number }>;
   getJobPostingById(id: string): Promise<JobPosting | null>;
   updateJobPosting(
-    id: string,
+    userId: string,
+    jobId: string,
     jobPostingData: Partial<JobPosting>,
   ): Promise<{ message: string; jobPosting: JobPosting }>;
   createJobPosting(

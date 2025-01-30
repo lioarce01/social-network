@@ -167,11 +167,14 @@ export class JobPostingController {
     try {
       const updates = { ...req.body };
       const { id } = req.params;
+      const userId = req.auth?.sub;
 
       if (Object.keys(updates).length === 0) {
-        return res
-          .status(400)
-          .json({ message: "No fields to update provided" });
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Missing required fields",
+        });
       }
 
       if (updates.deadline) {
@@ -179,9 +182,14 @@ export class JobPostingController {
       }
 
       const { message, jobPosting } =
-        await this.updateJobPostingUseCase.execute(id, updates);
+        await this.updateJobPostingUseCase.execute(userId!, id, updates);
 
-      return res.status(200).json({ message, jobPosting });
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message: message,
+        jobPosting: jobPosting,
+      });
     } catch (e) {
       next(e);
     }

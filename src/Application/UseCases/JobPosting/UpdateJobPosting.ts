@@ -12,11 +12,16 @@ export class UpdateJobPosting {
   ) {}
 
   async execute(
-    id: string,
+    userId: string,
+    jobId: string,
     jobPostingData: Partial<JobPosting>,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
     const { message, jobPosting } =
-      await this.jobPostingRepository.updateJobPosting(id, jobPostingData);
+      await this.jobPostingRepository.updateJobPosting(
+        userId,
+        jobId,
+        jobPostingData,
+      );
 
     await this.cacheService.invalidateKeys("jobs:*");
 
