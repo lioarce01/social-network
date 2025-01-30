@@ -1,6 +1,5 @@
 import { JobPostingRepository } from "../../Domain/Repositories/JobPostingRepository";
 import { JobPosting } from "../../Domain/Entities/JobPosting";
-import { prisma } from "../../config/config";
 import { injectable } from "tsyringe";
 import { JobApplication, JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
@@ -24,7 +23,7 @@ export class PrismaJobPostingRepository
     const orderByClause = filter?.buildOrderByClause();
 
     const jobs = (
-      await prisma.jobPosting.findMany({
+      await this.prisma.jobPosting.findMany({
         where: whereClause,
         orderBy: orderByClause,
         ...(offset && { skip: offset }),
@@ -35,7 +34,7 @@ export class PrismaJobPostingRepository
       experience_level: job.experience_level as ExperienceLevel,
     }));
 
-    const totalCount = await prisma.jobPosting.count({
+    const totalCount = await this.prisma.jobPosting.count({
       where: whereClause,
     });
 
@@ -43,7 +42,7 @@ export class PrismaJobPostingRepository
   }
 
   async getJobPostingById(id: string): Promise<JobPosting | null> {
-    const jobPosting = await prisma.jobPosting.findUnique({
+    const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { id },
       include: {
         applicants: true,
@@ -79,8 +78,8 @@ export class PrismaJobPostingRepository
     jobId: string,
     jobPostingData: Partial<Omit<JobPosting, "applicants" | "jobAuthor">>,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
-    const user = await prisma.user.findUnique({ where: { sub: userId } });
-    const job = await prisma.jobPosting.findUnique({
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } });
+    const job = await this.prisma.jobPosting.findUnique({
       where: { id: jobId },
     });
 
@@ -93,7 +92,7 @@ export class PrismaJobPostingRepository
     }
 
     if (user.id === job.jobAuthorId) {
-      const updatedPost = await prisma.jobPosting.update({
+      const updatedPost = await this.prisma.jobPosting.update({
         where: { id: jobId },
         data: {
           ...jobPostingData,
@@ -122,7 +121,7 @@ export class PrismaJobPostingRepository
       throw new CustomError("User does not exist", 404);
     }
 
-    const createdPost = await prisma.jobPosting.create({
+    const createdPost = await this.prisma.jobPosting.create({
       data: {
         ...jobPostingData,
         jobAuthor: {
@@ -159,7 +158,7 @@ export class PrismaJobPostingRepository
     }
 
     if (user.id === job.jobAuthorId || user.role === "ADMIN") {
-      await prisma.jobPosting.delete({ where: { id: jobId } });
+      await this.prisma.jobPosting.delete({ where: { id: jobId } });
       return { message: "Job Posting deleted successfully" };
     }
 
@@ -225,7 +224,7 @@ export class PrismaJobPostingRepository
       );
     }
 
-    const applicants = await prisma.jobApplication.findMany({
+    const applicants = await this.prisma.jobApplication.findMany({
       where: {
         jobPostingId: jobId,
       },
@@ -243,7 +242,7 @@ export class PrismaJobPostingRepository
       take: limit,
     });
 
-    const totalCount = await prisma.jobApplication.count({
+    const totalCount = await this.prisma.jobApplication.count({
       where: {
         jobPostingId: jobId,
       },
@@ -266,12 +265,12 @@ export class PrismaJobPostingRepository
     id: string,
     newStatus: JobPostingStatus,
   ) {
-    return prisma.jobPosting.update({
+    return this.prisma.jobPosting.update({
       where: { id },
       data: { status: newStatus },
     });
   }
   private async getUserById(id: string) {
-    return prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({ where: { id } });
   }
 }
