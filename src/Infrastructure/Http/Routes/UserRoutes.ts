@@ -21,8 +21,11 @@ router.post(
   (req: any, res: any, next: any) => userController.createUser(req, res, next),
 );
 
-router.put("/disable", (req, res, next) =>
-  userController.disableUser(req, res, next),
+router.put(
+  "/disable",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => userController.disableUser(req, res, next),
 );
 
 router.put("/switch-role", (req, res, next) =>

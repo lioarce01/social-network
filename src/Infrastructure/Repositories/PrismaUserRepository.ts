@@ -88,18 +88,20 @@ export class PrismaUserRepository
     };
   }
 
-  async disableUser(id: string): Promise<{ message: string; user: User }> {
-    const user = await this.getById(id);
+  async disableUser(id: string, adminId: string): Promise<{ message: string }> {
+    const admin = await this.getUserBySub(adminId);
+    const user = await this.getUserById(id);
+
+    if (admin.role !== "ADMIN") {
+      throw new CustomError("Only admins can disable users", 403);
+    }
 
     const newStatus = this.getUserStatus(user.enabled);
 
     const updatedUser = await this.updateUserStatus(id, newStatus);
 
-    const transformedUser = UserTransformer.toDomain(updatedUser);
-
     return {
-      message: "User status changed successfully",
-      user: transformedUser,
+      message: `User status changed to ${newStatus}`,
     };
   }
 

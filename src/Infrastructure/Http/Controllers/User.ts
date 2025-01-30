@@ -57,7 +57,7 @@ export class UserController {
         filters,
       );
 
-      res.status(200).json(users);
+      return res.status(200).json(users);
     } catch (e) {
       next(e);
     }
@@ -94,7 +94,7 @@ export class UserController {
       const { identifier } = req.params;
       const user = await this.getUserByIdentifierUseCase.execute(identifier);
 
-      res.status(200).json(user);
+      return res.status(200).json(user);
     } catch (e) {
       next(e);
     }
@@ -107,7 +107,7 @@ export class UserController {
 
       const { message, user } = await this.updateUserUseCase.execute(id, body);
 
-      res.status(200).json({ message, user });
+      return res.status(200).json({ message, user });
     } catch (e) {
       next(e);
     }
@@ -119,7 +119,7 @@ export class UserController {
 
       const { message } = await this.deleteUserUseCase.execute(id);
 
-      res.status(200).json({ message });
+      return res.status(200).json({ message });
     } catch (e) {
       next(e);
     }
@@ -129,9 +129,14 @@ export class UserController {
     try {
       const { id } = req.body;
 
-      const { message, user } = await this.disableUserUseCase.execute(id);
+      const adminId = req.auth?.sub;
 
-      res.status(200).json({ message, user });
+      const { message } = await this.disableUserUseCase.execute(id, adminId!);
+
+      return res.status(200).json({
+        code: 200,
+        message,
+      });
     } catch (e) {
       next(e);
     }
@@ -143,7 +148,7 @@ export class UserController {
 
       const { message, user } = await this.switchUserRoleUseCase.execute(id);
 
-      res.status(200).json({ message, user });
+      return res.status(200).json({ message, user });
     } catch (e) {
       next(e);
     }
