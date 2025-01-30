@@ -3,12 +3,14 @@ import express from "express";
 import { container } from "tsyringe";
 import { JobPostingController } from "../Controllers/JobPosting";
 import { setupContainer } from "../../DI/Container";
+import { AuthMiddleware } from "../../Middlewares/auth";
 
 setupContainer();
 
 const router = express.Router();
 
 const jobPostingController = container.resolve(JobPostingController);
+const auth = container.resolve(AuthMiddleware);
 
 router.get("/", (req, res, next) =>
   jobPostingController.getJobPostings(req, res, next),
@@ -16,8 +18,12 @@ router.get("/", (req, res, next) =>
 router.get("/:id", (req, res, next) =>
   jobPostingController.getJobPostingById(req, res, next),
 );
-router.post("/", (req, res, next) =>
-  jobPostingController.createJobPosting(req, res, next),
+router.post(
+  "/",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) =>
+    jobPostingController.createJobPosting(req, res, next),
 );
 router.put("/:id/update", (req, res, next) =>
   jobPostingController.updateJobPosting(req, res, next),

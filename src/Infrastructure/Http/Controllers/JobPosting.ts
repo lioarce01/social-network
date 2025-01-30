@@ -103,7 +103,6 @@ export class JobPostingController {
   async createJobPosting(req: Request, res: Response, next: NextFunction) {
     try {
       const {
-        userId,
         title,
         description,
         budget,
@@ -115,6 +114,8 @@ export class JobPostingController {
         experience_level,
       } = req.body;
 
+      const userId = req.auth?.sub;
+
       if (
         !title ||
         !description ||
@@ -123,9 +124,11 @@ export class JobPostingController {
         !techRequired ||
         !category
       ) {
-        return res
-          .status(400)
-          .json({ message: "Job posting data is required" });
+        return res.status(400).json({
+          code: 400,
+          status: "BAD_REQUEST",
+          message: "Missing required fields",
+        });
       }
 
       const postingData: Prisma.JobPostingCreateInput = {
@@ -147,9 +150,14 @@ export class JobPostingController {
       };
 
       const { message, jobPosting } =
-        await this.createJobPostingUseCase.execute(userId, postingData);
+        await this.createJobPostingUseCase.execute(userId!, postingData);
 
-      return res.status(201).json({ message, jobPosting });
+      return res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        message: message,
+        jobPosting: jobPosting,
+      });
     } catch (e) {
       next(e);
     }

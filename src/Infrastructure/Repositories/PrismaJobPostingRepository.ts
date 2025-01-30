@@ -5,9 +5,16 @@ import { injectable } from "tsyringe";
 import { JobApplication, JobPostingStatus, Mode, Prisma } from "@prisma/client";
 import { JobPostingFilter } from "../Filters/JobPostingFilter";
 import { ExperienceLevel } from "../../types/JobPosting";
+import { BasePrismaRepository } from "./BasePrismaRepository";
+import { CustomError } from "../../Shared/CustomError";
 
 @injectable()
-export class PrismaJobPostingRepository implements JobPostingRepository {
+export class PrismaJobPostingRepository
+  extends BasePrismaRepository<JobPosting>
+  implements JobPostingRepository
+{
+  entityName = "jobPosting";
+
   async getAllJobPostings(
     filter?: JobPostingFilter,
     offset?: number,
@@ -92,17 +99,17 @@ export class PrismaJobPostingRepository implements JobPostingRepository {
     userId: string,
     jobPostingData: Prisma.JobPostingCreateInput,
   ): Promise<{ message: string; jobPosting: JobPosting }> {
-    const userExist = await this.getUserById(userId);
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } });
 
-    if (!userExist) {
-      throw new Error("User does not exist");
+    if (!user) {
+      throw new CustomError("User does not exist", 404);
     }
 
     const createdPost = await prisma.jobPosting.create({
       data: {
         ...jobPostingData,
         jobAuthor: {
-          connect: { id: userId },
+          connect: { id: user.id },
         },
       },
     });
