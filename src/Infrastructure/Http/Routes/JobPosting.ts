@@ -46,8 +46,12 @@ router.put(
   (req: any, res: any, next: any) =>
     jobPostingController.disableJobPosting(req, res, next),
 );
-router.get("/:id/applicants", (req, res, next) =>
-  jobPostingController.getJobApplicants(req, res, next),
+router.get(
+  "/:id/applicants",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) =>
+    jobPostingController.getJobApplicants(req, res, next),
 );
 
 export default router;

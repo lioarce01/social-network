@@ -29,6 +29,7 @@ export interface JobPostingRepository {
   ): Promise<{ message: string }>;
   getJobApplicants(
     jobId: string,
+    userId: string,
     offset?: number,
     limit?: number,
   ): Promise<{ applications: JobApplication[]; totalCount: number }>;

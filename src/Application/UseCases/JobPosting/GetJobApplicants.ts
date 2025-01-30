@@ -11,11 +11,13 @@ export class GetJobApplicants {
 
   async execute(
     jobId: string,
+    userId: string,
     offset?: number,
     limit?: number,
   ): Promise<{ applications: JobApplication[]; totalCount: number }> {
     const applicants = await this.jobPostingRepository.getJobApplicants(
       jobId,
+      userId,
       offset,
       limit,
     );

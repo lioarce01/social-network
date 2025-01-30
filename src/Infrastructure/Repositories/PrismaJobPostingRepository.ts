@@ -201,9 +201,30 @@ export class PrismaJobPostingRepository
 
   async getJobApplicants(
     jobId: string,
+    userId: string,
     offset?: number,
     limit?: number,
   ): Promise<{ applications: JobApplication[]; totalCount: number }> {
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } });
+    const job = await this.prisma.jobPosting.findUnique({
+      where: { id: jobId },
+      select: { jobAuthorId: true },
+    });
+
+    if (!job) {
+      throw new CustomError("Job posting not found", 404);
+    }
+
+    const isOwner = job?.jobAuthorId === user?.id;
+    const isAdmin = user?.role === "ADMIN";
+
+    if (!isOwner && !isAdmin) {
+      throw new CustomError(
+        "You are not authorized to view these applicants",
+        403,
+      );
+    }
+
     const applicants = await prisma.jobApplication.findMany({
       where: {
         jobPostingId: jobId,

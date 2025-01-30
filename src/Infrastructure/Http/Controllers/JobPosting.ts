@@ -245,16 +245,22 @@ export class JobPostingController {
   async getJobApplicants(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = req.auth?.sub;
       const offset = parseInt(req.query.offset as string) || 0;
       const limit = parseInt(req.query.limit as string) || 10;
 
       const jobApplicants = await this.getJobApplicantsUseCase.execute(
         id,
+        userId!,
         offset,
         limit,
       );
 
-      return res.status(200).json(jobApplicants);
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        jobApplicants,
+      });
     } catch (e) {
       next(e);
     }
