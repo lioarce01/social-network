@@ -35,17 +35,17 @@ export class PrismaPostRepository
       throw new Error("Content is required");
     }
 
-    const userExist = await this.getUserById(userId);
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } });
 
-    if (!userExist) {
-      throw new Error("User does not exist");
+    if (!user) {
+      throw new CustomError("User not found", 404);
     }
 
     const createdPost = await prisma.post.create({
       data: {
         content: postData.content,
         author: {
-          connect: { id: userId },
+          connect: { sub: userId },
         },
       },
       include: {
@@ -94,8 +94,6 @@ export class PrismaPostRepository
       throw new CustomError("Post does not exist", 404);
     }
 
-    console.log("author sub:", post?.author?.sub);
-
     if (userId !== post?.author?.sub?.split("|")[1]) {
       throw new CustomError("You are not the owner of this post", 403);
     }
@@ -135,10 +133,5 @@ export class PrismaPostRepository
     });
 
     return { posts, totalCount };
-  }
-
-  //HELPER METHODS
-  private async getUserById(id: string) {
-    return prisma.user.findUnique({ where: { id } });
   }
 }

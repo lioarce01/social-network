@@ -51,7 +51,8 @@ export class PostController {
 
   async createPost(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId, content } = req.body;
+      const { content } = req.body;
+      const userId = req.auth?.sub;
 
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
@@ -60,12 +61,12 @@ export class PostController {
       const postData: Prisma.PostCreateInput = {
         content,
         author: {
-          connect: { id: userId },
+          connect: { sub: userId },
         },
       };
 
       const { message, post } = await this.createPostUseCase.execute(
-        userId,
+        userId!,
         postData,
       );
 
@@ -93,7 +94,6 @@ export class PostController {
     try {
       const { id, content } = req.body;
       const userId = req.auth?.sub?.split("|")[1];
-      console.log("userId:", userId);
 
       if (!id) {
         return res.status(400).json({
