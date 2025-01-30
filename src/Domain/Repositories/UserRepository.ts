@@ -23,7 +23,7 @@ export interface UserRepository {
     id: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
-  deleteUser(id: string): Promise<{ message: string }>;
+  deleteUser(userId: string, targetId: string): Promise<{ message: string }>;
   createUser(userData: CreateUserDTO): Promise<{ message: string; user: User }>;
   disableUser(id: string, adminId: string): Promise<{ message: string }>;
   switchUserRole(id: string, adminId: string): Promise<{ message: string }>;

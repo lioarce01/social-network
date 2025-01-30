@@ -116,10 +116,14 @@ export class UserController {
   async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      const userId = req.auth?.sub;
 
-      const { message } = await this.deleteUserUseCase.execute(id);
+      const { message } = await this.deleteUserUseCase.execute(userId!, id);
 
-      return res.status(200).json({ message });
+      return res.status(200).json({
+        code: 200,
+        message: message,
+      });
     } catch (e) {
       next(e);
     }

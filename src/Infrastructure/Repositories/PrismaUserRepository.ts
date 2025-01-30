@@ -62,8 +62,17 @@ export class PrismaUserRepository
     };
   }
 
-  async deleteUser(id: string): Promise<{ message: string }> {
-    await this.baseDelete(id);
+  async deleteUser(
+    userId: string,
+    targetId: string,
+  ): Promise<{ message: string }> {
+    const user = await this.getBySub(userId);
+
+    if (user.role !== "ADMIN" && user.id !== targetId) {
+      throw new CustomError("You are not authorized to delete this user", 403);
+    }
+
+    await this.baseDelete(targetId);
     return { message: "User deleted successfully" };
   }
 

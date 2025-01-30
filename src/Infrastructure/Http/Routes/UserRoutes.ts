@@ -75,8 +75,11 @@ router.get("/:identifier", (req, res, next) =>
   userController.getUserByIdentifier(req, res, next),
 );
 
-router.delete("/:id", (req, res, next) =>
-  userController.deleteUser(req, res, next),
+router.delete(
+  "/:id",
+  auth.authenticate(),
+  auth.handleError,
+  (req: any, res: any, next: any) => userController.deleteUser(req, res, next),
 );
 
 router.put("/:id/update", (req, res, next) =>
