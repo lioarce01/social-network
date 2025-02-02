@@ -5,10 +5,13 @@ import router from "../Http/Routes/index";
 import errorHandler from "../Middlewares/errorHandler";
 import { AuthMiddleware } from "../Middlewares/auth";
 import { container } from "tsyringe";
+import helmet from "helmet";
+import { apiLimiter } from "../../Shared/Limiter";
 
 const authMiddleware = container.resolve(AuthMiddleware);
 
 const app = express();
+app.use(helmet());
 app.use(
   cors({
     origin: "*",
@@ -20,8 +23,14 @@ app.use(express.json());
 
 app.get("/health", (req, res) =>
 {
-  res.status(200).json({ status: "OK", message: "Server is running" });
+  res.status(200).json({
+    code: 200,
+    status: "OK",
+    message: "Server is running",
+  });
 });
+
+app.use(apiLimiter);
 
 app.use("/", router);
 
