@@ -11,7 +11,8 @@ import { Prisma } from "@prisma/client";
 import { UnlikePost } from "../../../Application/UseCases/PostLike/Unlike";
 
 @injectable()
-export class PostController {
+export class PostController
+{
   constructor(
     @inject("GetAllPosts") private getAllPostsUseCase: GetAllPosts,
     @inject("GetPostById") private getPostByIdUseCase: GetPostById,
@@ -21,9 +22,12 @@ export class PostController {
     @inject("DeletePost") private deletePostUseCase: DeletePost,
     @inject("LikePost") private likePostUseCase: LikePost,
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
-  ) {}
+  ) { }
 
-  async getAllPosts(req: Request, res: Response, next: NextFunction) {
+  namespace = 'https://socialnetwork.com/'
+
+  async getAllPosts(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { sortBy, sortOrder } = req.query;
       const offset = parseInt(req.query.offset as string) || 0;
@@ -49,10 +53,11 @@ export class PostController {
     }
   }
 
-  async createPost(req: Request, res: Response, next: NextFunction) {
+  async createPost(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { content } = req.body;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`];
 
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
@@ -80,7 +85,8 @@ export class PostController {
     }
   }
 
-  async getPostById(req: Request, res: Response, next: NextFunction) {
+  async getPostById(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
       const post = await this.getPostByIdUseCase.execute(id);
@@ -94,10 +100,11 @@ export class PostController {
     }
   }
 
-  async updatePost(req: Request, res: Response, next: NextFunction) {
+  async updatePost(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id, content } = req.body;
-      const userId = req.auth?.sub?.split("|")[1];
+      const userId = req.auth![`${this.namespace}sub`].split("|")[1];
 
       if (!id) {
         return res.status(400).json({
@@ -125,10 +132,11 @@ export class PostController {
     }
   }
 
-  async deletePost(req: Request, res: Response, next: NextFunction) {
+  async deletePost(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.body;
-      const userId = req.auth?.sub?.split("|")[1];
+      const userId = req.auth![`${this.namespace}sub`].split("|")[1];
 
       if (!id) {
         return res.status(400).json({
@@ -150,7 +158,8 @@ export class PostController {
     }
   }
 
-  async getUserPosts(req: Request, res: Response, next: NextFunction) {
+  async getUserPosts(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.body;
       const posts = await this.getUserPostsUseCase.execute(id);
@@ -165,10 +174,11 @@ export class PostController {
     }
   }
 
-  async likePost(req: Request, res: Response, next: NextFunction) {
+  async likePost(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { postId } = req.body;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
 
       if (!userId) {
         return res.status(400).json({
@@ -194,10 +204,11 @@ export class PostController {
     }
   }
 
-  async unlikePost(req: Request, res: Response, next: NextFunction) {
+  async unlikePost(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { postId } = req.body;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
 
       if (!userId) {
         return res.status(400).json({

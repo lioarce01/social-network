@@ -128,7 +128,7 @@ export class UserController
     try {
       const { ...body } = req.body;
 
-      const sub = req.auth?.sub;
+      const sub = req.auth![`${this.namespace}sub`];
       const id = req.params.id;
 
       if (!id) {
@@ -160,7 +160,8 @@ export class UserController
   {
     try {
       const { id } = req.params;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`];
+
 
       const { message } = await this.deleteUserUseCase.execute(userId!, id);
 
@@ -179,7 +180,8 @@ export class UserController
     try {
       const { id } = req.body;
 
-      const adminId = req.auth?.sub;
+      const adminId = req.auth![`${this.namespace}sub`];
+
 
       const { message } = await this.disableUserUseCase.execute(id, adminId!);
 
@@ -198,7 +200,7 @@ export class UserController
     try {
       const { id } = req.body;
 
-      const adminId = req.auth?.sub;
+      const adminId = req.auth![`${this.namespace}sub`];
 
       const { message } = await this.switchUserRoleUseCase.execute(
         id,
@@ -219,7 +221,7 @@ export class UserController
   {
     const { followingId } = req.body;
 
-    const userId = req.auth?.sub;
+    const userId = req.auth![`${this.namespace}sub`];
 
     try {
       const followRelation = await this.followUserUseCase.execute(
@@ -241,7 +243,7 @@ export class UserController
   {
     const { followingId } = req.body;
 
-    const userId = req.auth?.sub;
+    const userId = req.auth![`${this.namespace}sub`];
 
     try {
       const { message } = await this.unfollowUserUseCase.execute(

@@ -4,13 +4,18 @@ import { inject, injectable } from "tsyringe";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/config";
 import { CommentFilter } from "../Filters/CommentFilter";
+import { BasePrismaRepository } from "./BasePrismaRepository";
+import { CustomError } from "../../Shared/CustomError";
 
 @injectable()
-export class PrismaCommentRepository implements CommentRepository {
+export class PrismaCommentRepository extends BasePrismaRepository<Comment> implements CommentRepository
+{
+  entityName = "Comment"
   async getAllComments(
     offset?: number,
     limit?: number,
-  ): Promise<Comment[] | null> {
+  ): Promise<Comment[] | null>
+  {
     const comments = await prisma.comment.findMany({
       ...(offset && { skip: offset }),
       ...(limit && { take: limit }),
@@ -27,7 +32,8 @@ export class PrismaCommentRepository implements CommentRepository {
   ): Promise<{
     comments: Comment[];
     totalCount: number;
-  }> {
+  }>
+  {
     const orderByClause = filter?.buildOrderByClause();
     const comments = await prisma.comment.findMany({
       where: {
@@ -50,7 +56,8 @@ export class PrismaCommentRepository implements CommentRepository {
     return { comments, totalCount };
   }
 
-  async getUserComments(id: string): Promise<Comment[] | null> {
+  async getUserComments(id: string): Promise<Comment[] | null>
+  {
     const userComments = await prisma.comment.findMany({
       where: {
         authorId: id,
@@ -64,22 +71,19 @@ export class PrismaCommentRepository implements CommentRepository {
     userId: string,
     postId: string,
     commentData: Prisma.CommentCreateInput,
-  ): Promise<{ message: string; comment: Comment }> {
+  ): Promise<{ message: string; comment: Comment }>
+  {
     if (!commentData.content) {
-      throw new Error("Content is required");
+      throw new CustomError("Content is required", 400)
     }
 
-    const postExist = await this.getPostById(postId);
+    const post = await this.getPostById(postId);
 
-    if (!postExist) {
-      throw new Error("Post not found");
+    if (!post) {
+      throw new CustomError("Post not found", 404);
     }
 
-    const userExist = await this.getUserById(userId);
-
-    if (!userExist) {
-      throw new Error("User not found");
-    }
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } })
 
     const createdComment = await prisma.comment.create({
       data: {
@@ -88,7 +92,7 @@ export class PrismaCommentRepository implements CommentRepository {
           connect: { id: postId },
         },
         author: {
-          connect: { id: userId },
+          connect: { id: user?.id },
         },
       },
       include: {
@@ -99,62 +103,73 @@ export class PrismaCommentRepository implements CommentRepository {
     return { message: "Comment created successfully", comment: createdComment };
   }
 
-  async deleteComment(id: string): Promise<{ message: string }> {
-    const commentExist = await this.getCommentById(id);
+  async deleteComment(id: string, userId: string): Promise<{ message: string }>
+  {
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } })
+    const comment = await this.getCommentById(id);
 
-    if (!commentExist) {
-      return { message: "Comment not found" };
+    if (!comment) {
+      throw new CustomError("Comment not found", 404)
     }
 
-    await prisma.comment.delete({ where: { id } });
-    return { message: "Comment deleted successfully" };
+    if (user?.id === comment.authorId || user?.role === "ADMIN") {
+      await prisma.comment.delete({ where: { id } });
+      return { message: "Comment deleted successfully" };
+    }
+
+    throw new CustomError("You are not authorized to delete this comment", 403)
   }
 
   async updateComment(
     userId: string,
     commentId: string,
     commentData: { content: string },
-  ): Promise<{ message: string; comment: Comment }> {
+  ): Promise<{ message: string; comment: Comment }>
+  {
+    const user = await this.prisma.user.findUnique({ where: { sub: userId } })
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
       include: { author: true },
     });
 
     if (!comment) {
-      throw new Error("Comment not found");
+      throw new CustomError("Comment not found", 404);
     }
 
-    if (comment.authorId !== userId) {
-      throw new Error("User does not have permission to update this comment");
+    if (user?.id === comment?.author?.id) {
+      const updatedComment = await prisma.comment.update({
+        where: { id: commentId },
+        data: {
+          ...commentData,
+          updatedAt: new Date(),
+        },
+        include: {
+          author: true,
+        },
+      });
+
+      return {
+        message: "Comment updated successfully",
+        comment: updatedComment,
+      };
     }
 
-    const updatedComment = await prisma.comment.update({
-      where: { id: commentId },
-      data: {
-        ...commentData,
-        updatedAt: new Date(),
-      },
-      include: {
-        author: true,
-      },
-    });
-
-    return {
-      message: "Comment updated successfully",
-      comment: updatedComment,
-    };
+    throw new CustomError("You are not authorized to update this comment", 403)
   }
 
   //HELPER METHODS
-  private async getCommentById(id: string) {
+  private async getCommentById(id: string)
+  {
     return await prisma.comment.findUnique({ where: { id } });
   }
 
-  private async getUserById(id: string) {
+  private async getUserById(id: string)
+  {
     return await prisma.user.findUnique({ where: { id } });
   }
 
-  private async getPostById(id: string) {
+  private async getPostById(id: string)
+  {
     return await prisma.post.findUnique({ where: { id } });
   }
 }

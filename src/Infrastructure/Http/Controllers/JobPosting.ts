@@ -10,7 +10,8 @@ import { GetJobApplicants } from "../../../Application/UseCases/JobPosting/GetJo
 import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
 
 @injectable()
-export class JobPostingController {
+export class JobPostingController
+{
   constructor(
     @inject("GetJobPostings") private getJobPostingsUseCase: GetJobPostings,
     @inject("GetJobPostingById")
@@ -25,9 +26,12 @@ export class JobPostingController {
     private disableJobPostingUseCase: DisableJobPosting,
     @inject("GetJobApplicants")
     private getJobApplicantsUseCase: GetJobApplicants,
-  ) {}
+  ) { }
 
-  async getJobPostings(req: Request, res: Response, next: NextFunction) {
+  namespace = 'https://socialnetwork.com/'
+
+  async getJobPostings(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const {
         status,
@@ -85,7 +89,8 @@ export class JobPostingController {
     }
   }
 
-  async getJobPostingById(req: Request, res: Response, next: NextFunction) {
+  async getJobPostingById(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
       const jobPosting = await this.getJobPostingByIdUseCase.execute(id);
@@ -100,7 +105,8 @@ export class JobPostingController {
     }
   }
 
-  async createJobPosting(req: Request, res: Response, next: NextFunction) {
+  async createJobPosting(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const {
         title,
@@ -114,7 +120,7 @@ export class JobPostingController {
         experience_level,
       } = req.body;
 
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
 
       if (
         !title ||
@@ -163,11 +169,12 @@ export class JobPostingController {
     }
   }
 
-  async updateJobPosting(req: Request, res: Response, next: NextFunction) {
+  async updateJobPosting(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const updates = { ...req.body };
       const { id } = req.params;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
 
       if (Object.keys(updates).length === 0) {
         return res.status(400).json({
@@ -195,10 +202,11 @@ export class JobPostingController {
     }
   }
 
-  async deleteJobPosting(req: Request, res: Response, next: NextFunction) {
+  async deleteJobPosting(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
       const { message } = await this.deleteJobPostingUseCase.execute(
         id,
         userId!,
@@ -222,10 +230,11 @@ export class JobPostingController {
     }
   }
 
-  async disableJobPosting(req: Request, res: Response, next: NextFunction) {
+  async disableJobPosting(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
 
       const { message } = await this.disableJobPostingUseCase.execute(
         id,
@@ -242,10 +251,11 @@ export class JobPostingController {
     }
   }
 
-  async getJobApplicants(req: Request, res: Response, next: NextFunction) {
+  async getJobApplicants(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
-      const userId = req.auth?.sub;
+      const userId = req.auth![`${this.namespace}sub`]
       const offset = parseInt(req.query.offset as string) || 0;
       const limit = parseInt(req.query.limit as string) || 10;
 

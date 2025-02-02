@@ -2,7 +2,8 @@ import { Prisma } from "@prisma/client";
 import { Comment } from "../Entities/Comment";
 import { CommentFilter } from "../../Infrastructure/Filters/CommentFilter";
 
-export interface CommentRepository {
+export interface CommentRepository
+{
   getAllComments(offset?: number, limit?: number): Promise<Comment[] | null>;
   getPostComments(
     id: string,
@@ -16,7 +17,7 @@ export interface CommentRepository {
     postId: string,
     commentData: Prisma.CommentCreateInput,
   ): Promise<{ message: string; comment: Comment }>;
-  deleteComment(id: string): Promise<{ message: string }>;
+  deleteComment(id: string, userId: string): Promise<{ message: string }>;
   updateComment(
     userId: string,
     commentId: string,
