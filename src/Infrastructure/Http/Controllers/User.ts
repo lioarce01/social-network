@@ -15,6 +15,7 @@ import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJo
 import { GetUserLikedPosts } from "../../../Application/UseCases/User/GetUserLikedPosts";
 import { GetUserFollowers } from "../../../Application/UseCases/User/GetUserFollowers";
 import { GetUserFollowing } from "../../../Application/UseCases/User/GetUserFollowing";
+import { GetMe } from "../../../Application/UseCases/User/GetMe";
 
 @injectable()
 export class UserController
@@ -40,8 +41,26 @@ export class UserController
     private getUserFollowersUseCase: GetUserFollowers,
     @inject("GetUserFollowing")
     private getUserFollowingUseCase: GetUserFollowing,
+    @inject("GetMe") private getMeUseCase: GetMe
   ) { }
 
+  namespace = 'https://socialnetwork.com/'
+  async getMe(req: Request, res: Response, next: NextFunction)
+  {
+    try {
+      const sub = req.auth![`${this.namespace}sub`];
+
+      const user = await this.getMeUseCase.execute(sub)
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        user
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
   async getAllUsers(req: Request, res: Response, next: NextFunction)
   {
     try {
@@ -71,11 +90,11 @@ export class UserController
 
   async createUser(req: Request, res: Response, next: NextFunction)
   {
-    const namespace = 'https://socialnetwork.com/'
+
     try {
-      const sub = req.auth![`${namespace}sub`];
-      const email = req.auth![`${namespace}email`];
-      const picture = req.auth![`${namespace}picture`];
+      const sub = req.auth![`${this.namespace}sub`];
+      const email = req.auth![`${this.namespace}email`];
+      const picture = req.auth![`${this.namespace}picture`];
 
       const { message, user } = await this.createUserUseCase.execute({
         sub,

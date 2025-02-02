@@ -53,8 +53,10 @@ import { RedisCacheRepository } from "../Repositories/RedisCacheRepository";
 import { CacheRepository } from "../../Domain/Repositories/CacheRepository";
 import { CacheService } from "../../Application/Services/CacheService";
 import { AuthMiddleware } from "../Middlewares/auth";
+import { GetMe } from "../../Application/UseCases/User/GetMe";
 
-export function setupContainer() {
+export function setupContainer()
+{
   container.registerSingleton<UserRepository>(
     "UserRepository",
     PrismaUserRepository,
@@ -110,6 +112,7 @@ container.registerSingleton("GetUserJobPostings", GetUserJobPostings);
 container.registerSingleton("GetUserLikedPosts", GetUserLikedPosts);
 container.registerSingleton("GetUserFollowers", GetUserFollowers);
 container.registerSingleton("GetUserFollowing", GetUserFollowing);
+container.registerSingleton("GetMe", GetMe)
 
 //Register Post use cases
 container.registerSingleton("GetAllPosts", GetAllPosts);

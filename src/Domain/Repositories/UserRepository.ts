@@ -1,7 +1,8 @@
 import { Prisma } from "@prisma/client";
 import { User } from "../Entities/User";
 import { UserFilter } from "../../Infrastructure/Filters/UserFilter";
-import {
+import
+{
   CreateUserDTO,
   FollowerDTO,
   UpdateUserDTO,
@@ -11,7 +12,8 @@ import { JobApplication } from "../Entities/JobApplication";
 import { JobPosting } from "../Entities/JobPosting";
 import { PostLike } from "../Entities/PostLike";
 
-export interface UserRepository {
+export interface UserRepository
+{
   getAllUsers(
     offset?: number,
     limit?: number,
@@ -58,4 +60,5 @@ export interface UserRepository {
     offset?: number,
     limit?: number,
   ): Promise<{ following: FollowerDTO[]; totalCount: number }>;
+  getMe(id: string): Promise<User | null>
 }

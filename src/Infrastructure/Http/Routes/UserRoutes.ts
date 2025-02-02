@@ -14,6 +14,10 @@ const auth = container.resolve(AuthMiddleware);
 
 router.get("/", (req, res, next) => userController.getAllUsers(req, res, next));
 
+router.get("/me",
+  auth.authenticate(),
+  auth.handleError, (req: any, res: any, next: any) => userController.getMe(req, res, next))
+
 router.post(
   "/",
   auth.authenticate(),

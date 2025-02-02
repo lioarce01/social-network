@@ -26,6 +26,17 @@ export class PrismaUserRepository
 {
   protected entityName = "user";
 
+
+  async getMe(sub: string): Promise<User | null>
+  {
+    const user = await this.prisma.user.findUnique({ where: { sub: sub } })
+
+    if (!user) {
+      throw new CustomError("User does not exist", 404)
+    }
+
+    return UserTransformer.toDomain(user);
+  }
   async getUserBySub(sub: string): Promise<User>
   {
     const user = await this.getBySub(sub, userIncludes);
