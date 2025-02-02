@@ -18,7 +18,8 @@ export class PrismaJobPostingRepository
     filter?: JobPostingFilter,
     offset?: number,
     limit?: number,
-  ): Promise<{ jobs: JobPosting[]; totalCount: number }> {
+  ): Promise<{ jobs: JobPosting[]; totalCount: number }>
+  {
     const whereClause = filter?.buildWhereClause();
     const orderByClause = filter?.buildOrderByClause();
 
@@ -41,7 +42,8 @@ export class PrismaJobPostingRepository
     return { jobs, totalCount };
   }
 
-  async getJobPostingById(id: string): Promise<JobPosting | null> {
+  async getJobPostingById(id: string): Promise<JobPosting | null>
+  {
     const jobPosting = await this.prisma.jobPosting.findUnique({
       where: { id },
       include: {
@@ -59,14 +61,16 @@ export class PrismaJobPostingRepository
       experience_level: jobPosting.experience_level as ExperienceLevel,
       jobAuthor: jobPosting.jobAuthor
         ? {
-            ...jobPosting.jobAuthor,
-            headline: jobPosting.jobAuthor.headline ?? undefined,
-            country: jobPosting.jobAuthor.country ?? undefined,
-            postal_code: jobPosting.jobAuthor.postal_code ?? undefined,
-            city: jobPosting.jobAuthor.city ?? undefined,
-            current_position:
-              jobPosting.jobAuthor.current_position ?? undefined,
-          }
+          ...jobPosting.jobAuthor,
+          name: jobPosting.jobAuthor.name ?? "",
+          headline: jobPosting.jobAuthor.headline ?? undefined,
+          country: jobPosting.jobAuthor.country ?? undefined,
+          postal_code: jobPosting.jobAuthor.postal_code ?? undefined,
+          city: jobPosting.jobAuthor.city ?? undefined,
+          email: jobPosting.jobAuthor.email ?? "",
+          profile_pic: jobPosting.jobAuthor.profile_pic ?? "",
+          current_position: jobPosting.jobAuthor.current_position ?? undefined,
+        }
         : undefined,
     };
 
@@ -77,7 +81,8 @@ export class PrismaJobPostingRepository
     userId: string,
     jobId: string,
     jobPostingData: Partial<Omit<JobPosting, "applicants" | "jobAuthor">>,
-  ): Promise<{ message: string; jobPosting: JobPosting }> {
+  ): Promise<{ message: string; jobPosting: JobPosting }>
+  {
     const user = await this.prisma.user.findUnique({ where: { sub: userId } });
     const job = await this.prisma.jobPosting.findUnique({
       where: { id: jobId },
@@ -114,7 +119,8 @@ export class PrismaJobPostingRepository
   async createJobPosting(
     userId: string,
     jobPostingData: Prisma.JobPostingCreateInput,
-  ): Promise<{ message: string; jobPosting: JobPosting }> {
+  ): Promise<{ message: string; jobPosting: JobPosting }>
+  {
     const user = await this.prisma.user.findUnique({ where: { sub: userId } });
 
     if (!user) {
@@ -142,7 +148,8 @@ export class PrismaJobPostingRepository
   async deleteJobPosting(
     jobId: string,
     authorId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string }>
+  {
     const user = await this.prisma.user.findUnique({
       where: { sub: authorId },
     });
@@ -171,7 +178,8 @@ export class PrismaJobPostingRepository
   async disableJobPosting(
     jobId: string,
     userId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string }>
+  {
     const user = await this.prisma.user.findUnique({ where: { sub: userId } });
     const job = await this.getJobPostingById(jobId);
 
@@ -203,7 +211,8 @@ export class PrismaJobPostingRepository
     userId: string,
     offset?: number,
     limit?: number,
-  ): Promise<{ applications: JobApplication[]; totalCount: number }> {
+  ): Promise<{ applications: JobApplication[]; totalCount: number }>
+  {
     const user = await this.prisma.user.findUnique({ where: { sub: userId } });
     const job = await this.prisma.jobPosting.findUnique({
       where: { id: jobId },
@@ -255,7 +264,8 @@ export class PrismaJobPostingRepository
   }
 
   //HELPERS METHODS
-  private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus {
+  private getNextStatus(currentStatus: JobPostingStatus): JobPostingStatus
+  {
     return currentStatus === JobPostingStatus.OPEN
       ? JobPostingStatus.CLOSED
       : JobPostingStatus.OPEN;
@@ -264,13 +274,15 @@ export class PrismaJobPostingRepository
   private async updateJobPostingStatus(
     id: string,
     newStatus: JobPostingStatus,
-  ) {
+  )
+  {
     return this.prisma.jobPosting.update({
       where: { id },
       data: { status: newStatus },
     });
   }
-  private async getUserById(id: string) {
+  private async getUserById(id: string)
+  {
     return this.prisma.user.findUnique({ where: { id } });
   }
 }

@@ -29,10 +29,10 @@ model User {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @default(now())
 
-  followers        UserFollow[]  @relation("UserFollowers") 
-  following        UserFollow[]  @relation("UserFollowing")
-  followingCount Int @default(0)
-  followersCount Int @default(0)
+  followers      UserFollow[] @relation("UserFollowers")
+  following      UserFollow[] @relation("UserFollowing")
+  followingCount Int          @default(0)
+  followersCount Int          @default(0)
 }
 
 model Post {

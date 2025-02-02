@@ -17,7 +17,8 @@ import { GetUserFollowers } from "../../../Application/UseCases/User/GetUserFoll
 import { GetUserFollowing } from "../../../Application/UseCases/User/GetUserFollowing";
 
 @injectable()
-export class UserController {
+export class UserController
+{
   constructor(
     @inject("GetAllUsers") private getAllUsersUseCase: GetAllUsers,
     @inject("GetUserByIdentifier")
@@ -39,9 +40,10 @@ export class UserController {
     private getUserFollowersUseCase: GetUserFollowers,
     @inject("GetUserFollowing")
     private getUserFollowingUseCase: GetUserFollowing,
-  ) {}
+  ) { }
 
-  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+  async getAllUsers(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { role } = req.query;
       const offset = parseInt(req.query.offset as string) || 0;
@@ -67,17 +69,18 @@ export class UserController {
     }
   }
 
-  async createUser(req: Request, res: Response, next: NextFunction) {
+  async createUser(req: Request, res: Response, next: NextFunction)
+  {
+    const namespace = 'https://socialnetwork.com/'
     try {
-      const { name, email, profile_pic } = req.body;
-
-      const sub = req.auth?.sub!;
+      const sub = req.auth![`${namespace}sub`];
+      const email = req.auth![`${namespace}email`];
+      const picture = req.auth![`${namespace}picture`];
 
       const { message, user } = await this.createUserUseCase.execute({
-        name,
-        email,
         sub,
-        profile_pic,
+        email,
+        profile_pic: picture,
       });
 
       res.status(201).json({ code: 201, status: "SUCCESS", message, user });
@@ -89,7 +92,8 @@ export class UserController {
     }
   }
 
-  async getUserByIdentifier(req: Request, res: Response, next: NextFunction) {
+  async getUserByIdentifier(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { identifier } = req.params;
       const user = await this.getUserByIdentifierUseCase.execute(identifier);
@@ -100,7 +104,8 @@ export class UserController {
     }
   }
 
-  async updateUser(req: Request, res: Response, next: NextFunction) {
+  async updateUser(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { ...body } = req.body;
 
@@ -132,7 +137,8 @@ export class UserController {
     }
   }
 
-  async deleteUser(req: Request, res: Response, next: NextFunction) {
+  async deleteUser(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
       const userId = req.auth?.sub;
@@ -149,7 +155,8 @@ export class UserController {
     }
   }
 
-  async disableUser(req: Request, res: Response, next: NextFunction) {
+  async disableUser(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.body;
 
@@ -167,7 +174,8 @@ export class UserController {
     }
   }
 
-  async switchUserRole(req: Request, res: Response, next: NextFunction) {
+  async switchUserRole(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.body;
 
@@ -188,7 +196,8 @@ export class UserController {
     }
   }
 
-  async followUser(req: Request, res: Response, next: NextFunction) {
+  async followUser(req: Request, res: Response, next: NextFunction)
+  {
     const { followingId } = req.body;
 
     const userId = req.auth?.sub;
@@ -209,7 +218,8 @@ export class UserController {
     }
   }
 
-  async unfollowUser(req: Request, res: Response, next: NextFunction) {
+  async unfollowUser(req: Request, res: Response, next: NextFunction)
+  {
     const { followingId } = req.body;
 
     const userId = req.auth?.sub;
@@ -230,7 +240,8 @@ export class UserController {
     }
   }
 
-  async getUserApplications(req: Request, res: Response, next: NextFunction) {
+  async getUserApplications(req: Request, res: Response, next: NextFunction)
+  {
     const { id } = req.params;
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -248,7 +259,8 @@ export class UserController {
     }
   }
 
-  async getUserJobPostings(req: Request, res: Response, next: NextFunction) {
+  async getUserJobPostings(req: Request, res: Response, next: NextFunction)
+  {
     const { id } = req.params;
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -266,7 +278,8 @@ export class UserController {
     }
   }
 
-  async getUserLikedPosts(req: Request, res: Response, next: NextFunction) {
+  async getUserLikedPosts(req: Request, res: Response, next: NextFunction)
+  {
     const { id } = req.params;
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -284,7 +297,8 @@ export class UserController {
     }
   }
 
-  async getUserFollowers(req: Request, res: Response, next: NextFunction) {
+  async getUserFollowers(req: Request, res: Response, next: NextFunction)
+  {
     const { id } = req.params;
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -302,7 +316,8 @@ export class UserController {
     }
   }
 
-  async getUserFollowing(req: Request, res: Response, next: NextFunction) {
+  async getUserFollowing(req: Request, res: Response, next: NextFunction)
+  {
     const { id } = req.params;
     const offset = parseInt(req.query.offset as string) || 0;
     const limit = parseInt(req.query.limit as string) || 10;

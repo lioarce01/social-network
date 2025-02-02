@@ -3,7 +3,8 @@ import { User } from "../../Domain/Entities/User";
 import { injectable } from "tsyringe";
 import { Prisma, Role } from "@prisma/client";
 import { UserFilter } from "../Filters/UserFilter";
-import {
+import
+{
   CreateUserDTO,
   FollowerDTO,
   UpdateUserDTO,
@@ -25,13 +26,15 @@ export class PrismaUserRepository
 {
   protected entityName = "user";
 
-  async getUserBySub(sub: string): Promise<User> {
+  async getUserBySub(sub: string): Promise<User>
+  {
     const user = await this.getBySub(sub, userIncludes);
 
     return UserTransformer.toDomain(user);
   }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(id: string): Promise<User>
+  {
     const user = await this.getById(id, userIncludes);
     return UserTransformer.toDomain(user, user.followers, user.followings);
   }
@@ -40,7 +43,8 @@ export class PrismaUserRepository
     authUserId: string,
     targetUserId: string,
     userData: UpdateUserDTO,
-  ): Promise<{ message: string; user: User }> {
+  ): Promise<{ message: string; user: User }>
+  {
     if (!targetUserId) {
       throw new CustomError("User ID is required", 400);
     }
@@ -75,7 +79,8 @@ export class PrismaUserRepository
   async deleteUser(
     userId: string,
     targetId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string }>
+  {
     const user = await this.getBySub(userId);
 
     if (user.role !== "ADMIN" && user.id !== targetId) {
@@ -88,16 +93,22 @@ export class PrismaUserRepository
 
   async createUser(
     userData: CreateUserDTO,
-  ): Promise<{ message: string; user: User }> {
-    const existingUser = await this.prisma.user.findUnique({
+  ): Promise<{ message: string; user: User }>
+  {
+
+    const user = await this.prisma.user.upsert({
       where: { sub: userData.sub },
-    });
-
-    if (existingUser) {
-      throw new CustomError("User already exists", 400);
-    }
-
-    const user = await this.prisma.user.create({ data: userData });
+      update: {
+        email: userData.email,
+        profile_pic: userData.profile_pic
+      },
+      create: {
+        sub: userData.sub,
+        email: userData.email,
+        profile_pic: userData.profile_pic,
+        name: userData.name ?? ""
+      }
+    })
 
     const userEntity = UserTransformer.toDomain(user);
 
@@ -107,7 +118,8 @@ export class PrismaUserRepository
     };
   }
 
-  async disableUser(id: string, adminId: string): Promise<{ message: string }> {
+  async disableUser(id: string, adminId: string): Promise<{ message: string }>
+  {
     if (!id) {
       throw new CustomError("User ID is required", 400);
     }
@@ -135,7 +147,8 @@ export class PrismaUserRepository
   async switchUserRole(
     id: string,
     adminId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string }>
+  {
     if (!id) {
       throw new CustomError("User ID is required", 400);
     }
@@ -164,7 +177,8 @@ export class PrismaUserRepository
     offset: number,
     limit: number,
     filter?: UserFilter,
-  ): Promise<User[]> {
+  ): Promise<User[]>
+  {
     const whereClause = filter?.buildWhereClause();
 
     const pagination = this.buildPagination(offset, limit);
@@ -177,7 +191,8 @@ export class PrismaUserRepository
     return users.map((user) => UserTransformer.toDomain(user));
   }
 
-  async followUser(userId: string, followingId: string): Promise<UserFollow> {
+  async followUser(userId: string, followingId: string): Promise<UserFollow>
+  {
     const follower = await this.getBySub(userId);
 
     if (follower.id === followingId) {
@@ -204,7 +219,8 @@ export class PrismaUserRepository
       throw new CustomError("One or both users do not exist.", 404);
     }
 
-    const result = await this.runTransaction(async (tx) => {
+    const result = await this.runTransaction(async (tx) =>
+    {
       const followRelation = await tx.userFollow.create({
         data: {
           followerId: follower.id,
@@ -231,7 +247,8 @@ export class PrismaUserRepository
   async unfollowUser(
     userId: string,
     followingId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string }>
+  {
     const follower = await this.getBySub(userId);
 
     if (follower.id === followingId) {
@@ -247,7 +264,8 @@ export class PrismaUserRepository
       throw new CustomError("You are not following this user.", 404);
     }
 
-    const { message } = await this.runTransaction(async (tx) => {
+    const { message } = await this.runTransaction(async (tx) =>
+    {
       await tx.userFollow.delete({
         where: {
           followerId_followingId: {
@@ -279,7 +297,8 @@ export class PrismaUserRepository
     userId: string,
     offset: number,
     limit: number,
-  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }> {
+  ): Promise<{ jobApplications: JobApplication[]; totalCount: number }>
+  {
     await this.getById(userId);
 
     const pagination = this.buildPagination(offset, limit);
@@ -307,7 +326,8 @@ export class PrismaUserRepository
     id: string,
     offset: number,
     limit: number,
-  ): Promise<{ jobPostings: JobPosting[]; totalCount: number }> {
+  ): Promise<{ jobPostings: JobPosting[]; totalCount: number }>
+  {
     await this.getById(id);
 
     const pagination = this.buildPagination(offset, limit);
@@ -340,7 +360,8 @@ export class PrismaUserRepository
     id: string,
     offset: number,
     limit: number,
-  ): Promise<{ likedPosts: PostLike[]; totalCount: number }> {
+  ): Promise<{ likedPosts: PostLike[]; totalCount: number }>
+  {
     await this.getById(id);
 
     const pagination = this.buildPagination(offset, limit);
@@ -371,7 +392,8 @@ export class PrismaUserRepository
     id: string,
     offset: number,
     limit: number,
-  ): Promise<{ followers: FollowerDTO[]; totalCount: number }> {
+  ): Promise<{ followers: FollowerDTO[]; totalCount: number }>
+  {
     await this.getById(id);
 
     const pagination = this.buildPagination(offset, limit);
@@ -396,8 +418,8 @@ export class PrismaUserRepository
       (f) =>
         new FollowerDTO(
           f.follower.id,
-          f.follower.name,
-          f.follower.profile_pic,
+          f.follower.name ?? "",
+          f.follower.profile_pic ?? "",
           f.follower.headline ?? "",
         ),
     );
@@ -412,7 +434,8 @@ export class PrismaUserRepository
     id: string,
     offset: number,
     limit: number,
-  ): Promise<{ following: FollowerDTO[]; totalCount: number }> {
+  ): Promise<{ following: FollowerDTO[]; totalCount: number }>
+  {
     await this.getById(id);
 
     const pagination = this.buildPagination(offset, limit);
@@ -437,8 +460,8 @@ export class PrismaUserRepository
       (f) =>
         new FollowerDTO(
           f.following.id,
-          f.following.name,
-          f.following.profile_pic,
+          f.following.name ?? "",
+          f.following.profile_pic ?? "",
           f.following.headline ?? "",
         ),
     );
@@ -450,29 +473,34 @@ export class PrismaUserRepository
   }
 
   // HELPER METHODS
-  private getUserRole(nextRole: Role): Role {
+  private getUserRole(nextRole: Role): Role
+  {
     return nextRole === Role.ADMIN ? Role.USER : Role.ADMIN;
   }
 
-  private getUserStatus(nextStatus: boolean) {
+  private getUserStatus(nextStatus: boolean)
+  {
     return !nextStatus;
   }
 
-  private async updateUserStatus(id: string, newStatus: boolean) {
+  private async updateUserStatus(id: string, newStatus: boolean)
+  {
     return this.prisma.user.update({
       where: { id },
       data: { enabled: newStatus },
     });
   }
 
-  private async updateUserRole(id: string, newRole: Role) {
+  private async updateUserRole(id: string, newRole: Role)
+  {
     return this.prisma.user.update({
       where: { id },
       data: { role: newRole },
     });
   }
 
-  private async getExistingFollow(userId: string, followingId: string) {
+  private async getExistingFollow(userId: string, followingId: string)
+  {
     if (!followingId) {
       throw new CustomError("Following ID is required.", 400);
     }

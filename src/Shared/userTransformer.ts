@@ -3,16 +3,18 @@ import { UserFollow } from "../Domain/Entities/UserFollow";
 
 import { User as PrismaUser } from "@prisma/client";
 
-export class UserTransformer {
+export class UserTransformer
+{
   static toDomain(
     user: PrismaUser,
     followers: any[] = [],
     following: any[] = [],
-  ): User {
+  ): User
+  {
     return new User(
       user.id,
       user.sub,
-      user.name,
+      user.name ?? "",
       user.email,
       user.profile_pic,
       user.enabled,
@@ -36,7 +38,8 @@ export class UserTransformer {
     );
   }
 
-  static followToDomain(follow: any): UserFollow {
+  static followToDomain(follow: any): UserFollow
+  {
     return new UserFollow(
       follow.id,
       follow.followerId,

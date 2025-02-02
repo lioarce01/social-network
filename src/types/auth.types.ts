@@ -1,11 +1,15 @@
-export interface AuthRequest extends Request {
+export interface AuthRequest extends Request
+{
   auth?: {
     sub: string;
     email?: string;
+    name?: string;
+    picture?: string
   };
 }
 
-export interface DeletePostRequest extends Request {
+export interface DeletePostRequest extends Request
+{
   auth?: {
     sub: string;
     [key: string]: any;
