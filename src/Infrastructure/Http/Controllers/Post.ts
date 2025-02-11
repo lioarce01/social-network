@@ -24,7 +24,6 @@ export class PostController
     @inject("UnlikePost") private unlikePostUseCase: UnlikePost,
   ) { }
 
-  namespace = 'https://socialnetwork.com/'
 
   async getAllPosts(req: Request, res: Response, next: NextFunction)
   {
@@ -57,7 +56,7 @@ export class PostController
   {
     try {
       const { content } = req.body;
-      const userId = req.auth![`${this.namespace}sub`];
+      const userId = req.auth!.sub;
 
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
@@ -104,7 +103,7 @@ export class PostController
   {
     try {
       const { id, content } = req.body;
-      const userId = req.auth![`${this.namespace}sub`].split("|")[1];
+      const userId = req.auth!.sub.split("|")[1];
 
       if (!id) {
         return res.status(400).json({
@@ -136,7 +135,7 @@ export class PostController
   {
     try {
       const { id } = req.body;
-      const userId = req.auth![`${this.namespace}sub`].split("|")[1];
+      const userId = req.auth!.sub.split("|")[1];
 
       if (!id) {
         return res.status(400).json({
@@ -178,7 +177,7 @@ export class PostController
   {
     try {
       const { postId } = req.body;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       if (!userId) {
         return res.status(400).json({
@@ -208,7 +207,7 @@ export class PostController
   {
     try {
       const { postId } = req.body;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       if (!userId) {
         return res.status(400).json({

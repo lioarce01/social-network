@@ -20,7 +20,6 @@ export class CommentController
     @inject("DeleteComment") private deleteCommentUseCase: DeleteComment,
   ) { }
 
-  namespace = 'https://socialnetwork.com/'
 
 
   async getAllComments(req: Request, res: Response, next: NextFunction)
@@ -106,7 +105,7 @@ export class CommentController
   {
     try {
       const { postId, content } = req.body;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
@@ -140,7 +139,7 @@ export class CommentController
     try {
       const { id } = req.body;
 
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       const { message } = await this.deleteCommentUseCase.execute(id, userId!);
 
@@ -159,7 +158,7 @@ export class CommentController
     try {
       const { commentId, content } = req.body;
 
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       const { message, comment } = await this.updateCommentUseCase.execute(
         userId,

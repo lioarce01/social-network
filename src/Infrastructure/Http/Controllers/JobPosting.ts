@@ -28,7 +28,6 @@ export class JobPostingController
     private getJobApplicantsUseCase: GetJobApplicants,
   ) { }
 
-  namespace = 'https://socialnetwork.com/'
 
   async getJobPostings(req: Request, res: Response, next: NextFunction)
   {
@@ -120,7 +119,7 @@ export class JobPostingController
         experience_level,
       } = req.body;
 
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       if (
         !title ||
@@ -174,7 +173,7 @@ export class JobPostingController
     try {
       const updates = { ...req.body };
       const { id } = req.params;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       if (Object.keys(updates).length === 0) {
         return res.status(400).json({
@@ -206,7 +205,7 @@ export class JobPostingController
   {
     try {
       const { id } = req.params;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
       const { message } = await this.deleteJobPostingUseCase.execute(
         id,
         userId!,
@@ -234,7 +233,7 @@ export class JobPostingController
   {
     try {
       const { id } = req.params;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       const { message } = await this.disableJobPostingUseCase.execute(
         id,
@@ -255,7 +254,7 @@ export class JobPostingController
   {
     try {
       const { id } = req.params;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
       const offset = parseInt(req.query.offset as string) || 0;
       const limit = parseInt(req.query.limit as string) || 10;
 

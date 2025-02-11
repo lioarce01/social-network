@@ -11,13 +11,12 @@ export class JobApplicationController
     @inject("RejectApplicant") private rejectApplicantUseCase: RejectApplicant,
   ) { }
 
-  namespace = 'https://socialnetwork.com/'
 
   async applyJob(req: Request, res: Response, next: NextFunction)
   {
     try {
       const { jobPostingId } = req.body;
-      const userId = req.auth![`${this.namespace}sub`]
+      const userId = req.auth!.sub
 
       if (!jobPostingId) {
         return res.status(400).json({
@@ -47,7 +46,7 @@ export class JobApplicationController
   {
     const { id } = req.params;
     const { userId } = req.body;
-    const ownerId = req.auth![`${this.namespace}sub`]
+    const ownerId = req.auth!.sub
 
     try {
       const result = await this.rejectApplicantUseCase.execute(
