@@ -67,9 +67,9 @@ export class PrismaUserRepository
       throw new CustomError("You are not authorized to update this user", 403);
     }
 
-    const updatedUser = await this.baseUpdate(
-      targetUser.id,
-      {
+    const updatedUser = await this.prisma.user.update({
+      where: { id: targetUser?.id },
+      data: {
         ...userData,
         headline: userData.headline ?? undefined,
         country: userData.country ?? undefined,
@@ -77,9 +77,8 @@ export class PrismaUserRepository
         city: userData.city ?? undefined,
         current_position: userData.current_position ?? undefined,
         updatedAt: new Date(),
-      },
-      userIncludes,
-    );
+      }
+    })
 
     return {
       message: "User updated successfully",
