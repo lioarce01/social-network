@@ -26,7 +26,7 @@ export interface UserRepository
     targetId: string,
     userData: UpdateUserDTO,
   ): Promise<{ message: string; user: User }>;
-  deleteUser(userId: string, targetId: string): Promise<{ message: string }>;
+  deleteUser(targetId: string): Promise<{ message: string }>;
   createUser(userData: CreateUserDTO): Promise<{ message: string; user: User }>;
   disableUser(id: string, adminId: string): Promise<{ message: string }>;
   switchUserRole(id: string, adminId: string): Promise<{ message: string }>;

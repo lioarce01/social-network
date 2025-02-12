@@ -80,7 +80,7 @@ router.get("/:identifier", (req, res, next) =>
 );
 
 router.delete(
-  "/:id",
+  "/delete",
   auth.authenticate(),
   auth.handleError,
   (req: any, res: any, next: any) => userController.deleteUser(req, res, next),

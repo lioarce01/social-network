@@ -93,11 +93,13 @@ export class UserController
       const sub = req.auth!.sub;
       const email = req.auth!.email;
       const picture = req.auth!.picture;
+      const name = req.auth!.name
 
       const { message, user } = await this.createUserUseCase.execute({
         sub,
         email,
         profile_pic: picture,
+        name
       });
 
       res.status(201).json({ code: 201, status: "SUCCESS", message, user });
@@ -157,11 +159,9 @@ export class UserController
   async deleteUser(req: Request, res: Response, next: NextFunction)
   {
     try {
-      const { id } = req.params;
       const userId = req.auth!.sub;
 
-
-      const { message } = await this.deleteUserUseCase.execute(userId!, id);
+      const { message } = await this.deleteUserUseCase.execute(userId);
 
       return res.status(200).json({
         code: 200,

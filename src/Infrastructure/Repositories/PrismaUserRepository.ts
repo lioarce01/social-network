@@ -87,18 +87,52 @@ export class PrismaUserRepository
     };
   }
 
-  async deleteUser(
-    userId: string,
-    targetId: string,
-  ): Promise<{ message: string }>
+  async deleteUser(targetId: string): Promise<{ message: string }>
   {
-    const user = await this.getBySub(userId);
+    const target = await this.getBySub(targetId);
+    if (!target) throw new Error("User not found");
 
-    if (user.role !== "ADMIN" && user.id !== targetId) {
-      throw new CustomError("You are not authorized to delete this user", 403);
-    }
+    // Obtener IDs de usuarios relacionados
+    const followers = await this.prisma.userFollow.findMany({
+      where: { followingId: target.id },
+      select: { followerId: true },
+    });
 
-    await this.baseDelete(targetId);
+    const following = await this.prisma.userFollow.findMany({
+      where: { followerId: target.id },
+      select: { followingId: true },
+    });
+
+    await this.prisma.$transaction([
+      // Actualizar `followersCount` de los usuarios que seguían al usuario eliminado
+      ...followers.map(({ followerId }) =>
+        this.prisma.user.update({
+          where: { id: followerId },
+          data: { followingCount: { decrement: 1 } },
+        })
+      ),
+
+      // Actualizar `followingCount` de los usuarios que eran seguidos por el usuario eliminado
+      ...following.map(({ followingId }) =>
+        this.prisma.user.update({
+          where: { id: followingId },
+          data: { followersCount: { decrement: 1 } },
+        })
+      ),
+
+      // Eliminar las relaciones en `UserFollow`
+      this.prisma.userFollow.deleteMany({
+        where: {
+          OR: [{ followerId: target.id }, { followingId: target.id }],
+        },
+      }),
+
+      // Finalmente, eliminar al usuario
+      this.prisma.user.delete({
+        where: { id: target.id },
+      }),
+    ]);
+
     return { message: "User deleted successfully" };
   }
 
