@@ -2,7 +2,8 @@ import { JobApplication, JobPostingStatus, Mode } from "@prisma/client";
 import { User } from "./User";
 import { ExperienceLevel } from "../../types/JobPosting";
 
-export class JobPosting {
+export class JobPosting
+{
   constructor(
     public readonly id: string,
     public readonly title: string,
@@ -18,5 +19,5 @@ export class JobPosting {
     public readonly jobAuthorId: string,
     public readonly applicants?: JobApplication[],
     public readonly jobAuthor?: User,
-  ) {}
+  ) { }
 }
