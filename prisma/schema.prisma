@@ -114,17 +114,26 @@ model UserFollow {
 }
 
 model Service {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   description String
   skills      String[]
-  authorId    String   @db.ObjectId
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  price       Int
+  status      ServiceStatus @default(OPEN)
+
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum JobPostingStatus {
+  OPEN
+  CLOSED
+}
+
+enum ServiceStatus {
   OPEN
   CLOSED
 }
