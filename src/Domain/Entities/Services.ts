@@ -1,7 +1,7 @@
 import { ServiceStatus } from "@prisma/client";
 import { User } from "./User";
 
-export class JobPosting
+export class Service
 {
     constructor(
         public readonly id: string,
