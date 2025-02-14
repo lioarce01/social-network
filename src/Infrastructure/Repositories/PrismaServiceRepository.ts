@@ -56,9 +56,44 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
         }
     }
 
-    async updateService(serviceId: string, serviceData: Partial<Service>): Promise<{ data: Service; message: string; }>
+    async updateService(authorId: string, serviceId: string, serviceData: Partial<Service>): Promise<{ data: Service; message: string; }>
     {
-        throw new Error("Method not implemented.");
+        const service = await this.prisma.service.findUnique({
+            where: { id: serviceId },
+            include: { author: true }
+        })
+
+        if (!service) {
+            throw new CustomError("Service not found", 404)
+        }
+
+        const user = await this.prisma.user.findUnique({
+            where: { sub: authorId }
+        })
+
+        if (!user) {
+            throw new CustomError("User not found", 404)
+        }
+
+        const { author, ...prismaData } = serviceData
+
+        if (user && user.id === author?.id) {
+            const updatedService = await this.prisma.service.update({
+                where: { id: serviceId },
+                data: {
+                    ...prismaData,
+                    updatedAt: new Date(),
+
+                }
+            })
+
+            return {
+                data: updatedService,
+                message: "Service updated successfully"
+            }
+        }
+
+        throw new CustomError("You are not authorized to update this service", 403)
     }
 
     async deleteService(serviceId: string, authorId: string): Promise<{ message: string; }>
