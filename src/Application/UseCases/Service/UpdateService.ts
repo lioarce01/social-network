@@ -12,9 +12,9 @@ export class UpdateService
 
     ) { }
 
-    async execute(serviceId: string, serviceData: Partial<Service>): Promise<{ data: Service, message: string }>
+    async execute(authorId: string, serviceId: string, serviceData: Partial<Service>): Promise<{ data: Service, message: string }>
     {
-        const { data, message } = await this.serviceRepository.updateService(serviceId, serviceData)
+        const { data, message } = await this.serviceRepository.updateService(authorId, serviceId, serviceData)
 
         await this.cacheService.invalidateKeys("services:*")
 
