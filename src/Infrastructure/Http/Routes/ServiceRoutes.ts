@@ -28,3 +28,5 @@ router.delete("/:id",
     auth.handleError,
     (req: any, res: any, next: any) => serviceController.deleteService(req, res, next)
 )
+
+export default router

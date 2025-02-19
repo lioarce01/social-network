@@ -37,11 +37,19 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
         return await this.getById(id)
     }
 
-    async createService(authorId: string, serviceData: Prisma.ServiceCreateInput): Promise<{ data: Service; message: string; }>
+    async createService(authorId: string, serviceData: Prisma.ServiceCreateInput): Promise<Service>
     {
-        const author = await this.getBySub(authorId)
+        const author = await this.prisma.user.findUnique({
+            where: {
+                sub: authorId
+            }
+        })
 
-        const service = await this.prisma.service.create({
+        if (!author) {
+            throw new CustomError("Author not found", 404)
+        }
+
+        const result = await this.prisma.service.create({
             data: {
                 ...serviceData,
                 author: {
@@ -50,13 +58,10 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
             }
         })
 
-        return {
-            message: "Service created successfully",
-            data: service
-        }
+        return result
     }
 
-    async updateService(authorId: string, serviceId: string, serviceData: Partial<Service>): Promise<{ data: Service; message: string; }>
+    async updateService(authorId: string, serviceId: string, serviceData: Partial<Service>): Promise<Service>
     {
         const service = await this.prisma.service.findUnique({
             where: { id: serviceId },
@@ -77,28 +82,27 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
 
         const { author, ...prismaData } = serviceData
 
-        if (user && user.id === author?.id) {
-            const updatedService = await this.prisma.service.update({
-                where: { id: serviceId },
-                data: {
-                    ...prismaData,
-                    updatedAt: new Date(),
-
-                }
-            })
-
-            return {
-                data: updatedService,
-                message: "Service updated successfully"
-            }
+        if (user && user.id !== service.authorId) {
+            throw new CustomError("You are not authorized to update this service", 403)
         }
 
-        throw new CustomError("You are not authorized to update this service", 403)
+        const updatedService = await this.prisma.service.update({
+            where: { id: serviceId },
+            data: {
+                ...prismaData,
+                updatedAt: new Date(),
+            }
+        })
+
+        return updatedService
     }
 
     async deleteService(serviceId: string, authorId: string): Promise<{ message: string; }>
     {
-        const author = await this.getBySub(authorId)
+        const author = await this.prisma.user.findUnique({
+            where: { sub: authorId }
+        })
+
         if (!author) {
             throw new CustomError("Author does not exist", 404)
         }
@@ -108,14 +112,16 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
             throw new CustomError("Service does not exist", 404)
         }
 
-        if (author.id === service.authorId) {
-            await this.prisma.service.delete({
-                where: {
-                    id: serviceId
-                }
-            })
+        if (author.id !== service.authorId) {
+            throw new CustomError("You are not authorized to delete this service", 403)
         }
 
-        throw new CustomError("You are not authorized to delete this service", 403)
+        await this.prisma.service.delete({
+            where: {
+                id: serviceId
+            }
+        })
+
+        return { message: "Service deleted successfully" }
     }
 }

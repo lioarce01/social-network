@@ -25,12 +25,13 @@ export class ServiceController
             const offset = parseInt(req.query.offset as string) || 0;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const services = await this.getServicesUseCase.execute(offset, limit)
+            const { data, totalCount } = await this.getServicesUseCase.execute(offset, limit)
 
             return res.status(200).json({
                 code: 200,
                 status: "SUCCESS",
-                services
+                data,
+                totalCount
             })
         } catch (e) {
             next(e)
@@ -42,12 +43,12 @@ export class ServiceController
         try {
             const { id } = req.params
 
-            const service = await this.getServiceByIdUseCase.execute(id)
+            const data = await this.getServiceByIdUseCase.execute(id)
 
             return res.status(200).json({
                 code: 200,
                 status: 'SUCCESS',
-                service
+                data
             })
         } catch (e) {
             next(e)
@@ -66,6 +67,14 @@ export class ServiceController
 
             const userId = req.auth!.sub
 
+            if (!userId) {
+                return res.status(401).json({
+                    code: 401,
+                    status: "UNAUTHORIZED",
+                    message: "Unauthorized"
+                })
+            }
+
             const serviceData: Prisma.ServiceCreateInput = {
                 title,
                 description,
@@ -78,12 +87,12 @@ export class ServiceController
                 }
             }
 
-            const service = await this.createServiceUseCase.execute(userId, serviceData)
+            const data = await this.createServiceUseCase.execute(userId, serviceData)
 
             return res.status(201).json({
                 code: 201,
                 status: "SUCCESS",
-                service
+                data
             })
         } catch (e) {
             next(e)
@@ -104,12 +113,12 @@ export class ServiceController
                 });
             }
 
-            const service = await this.updateServiceUseCase.execute(userId!, id, updates)
+            const data = await this.updateServiceUseCase.execute(userId!, id, updates)
 
             return res.status(200).json({
                 code: 200,
                 status: "SUCCESS",
-                service
+                data
             })
         } catch (e) {
             next(e)

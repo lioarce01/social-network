@@ -10,19 +10,15 @@ export class CreateService
     constructor(
         @inject("ServiceRepository") private readonly serviceRepository: ServiceRepository,
         @inject("CacheService") private readonly cacheService: CacheService,
-
     ) { }
 
-    async execute(authorId: string, serviceData: Prisma.ServiceCreateInput): Promise<{ data: Service, message: string }>
+    async execute(authorId: string, serviceData: Prisma.ServiceCreateInput): Promise<Service>
     {
-        const { data, message } = await this.serviceRepository.createService(authorId, serviceData)
+        const result = await this.serviceRepository.createService(authorId, serviceData)
 
         await this.cacheService.invalidateKeys("services:*")
 
-        return {
-            data,
-            message
-        }
+        return result
     }
 
 }
