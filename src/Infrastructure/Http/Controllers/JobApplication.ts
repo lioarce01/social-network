@@ -4,16 +4,19 @@ import { ApplyJob } from "../../../Application/UseCases/JobApplication/ApplyJob"
 import { RejectApplicant } from "../../../Application/UseCases/JobApplication/RejectApplicant";
 
 @injectable()
-export class JobApplicationController {
+export class JobApplicationController
+{
   constructor(
     @inject("ApplyJob") private applyJobUseCase: ApplyJob,
     @inject("RejectApplicant") private rejectApplicantUseCase: RejectApplicant,
-  ) {}
+  ) { }
 
-  async applyJob(req: Request, res: Response, next: NextFunction) {
+
+  async applyJob(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { jobPostingId } = req.body;
-      const userId = req.auth?.sub;
+      const userId = req.auth!.sub
 
       if (!jobPostingId) {
         return res.status(400).json({
@@ -39,10 +42,11 @@ export class JobApplicationController {
     }
   }
 
-  async rejectApplicant(req: Request, res: Response, next: NextFunction) {
+  async rejectApplicant(req: Request, res: Response, next: NextFunction)
+  {
     const { id } = req.params;
     const { userId } = req.body;
-    const ownerId = req.auth?.sub;
+    const ownerId = req.auth!.sub
 
     try {
       const result = await this.rejectApplicantUseCase.execute(

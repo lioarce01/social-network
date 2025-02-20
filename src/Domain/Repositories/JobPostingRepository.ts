@@ -3,7 +3,8 @@ import { JobPostingFilter } from "../../Infrastructure/Filters/JobPostingFilter"
 import { Prisma } from "@prisma/client";
 import { JobApplication } from "../Entities/JobApplication";
 
-export interface JobPostingRepository {
+export interface JobPostingRepository
+{
   getAllJobPostings(
     filter?: JobPostingFilter,
     offset?: number,

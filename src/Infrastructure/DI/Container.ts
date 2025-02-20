@@ -53,8 +53,17 @@ import { RedisCacheRepository } from "../Repositories/RedisCacheRepository";
 import { CacheRepository } from "../../Domain/Repositories/CacheRepository";
 import { CacheService } from "../../Application/Services/CacheService";
 import { AuthMiddleware } from "../Middlewares/auth";
+import { GetMe } from "../../Application/UseCases/User/GetMe";
+import { ServiceRepository } from "../../Domain/Repositories/ServiceRepository";
+import { PrismaServiceRepository } from "../Repositories/PrismaServiceRepository";
+import { GetServices } from "../../Application/UseCases/Service/GetServices";
+import { GetServiceById } from "../../Application/UseCases/Service/GetServiceById";
+import { CreateService } from "../../Application/UseCases/Service/CreateService";
+import { UpdateService } from "../../Application/UseCases/Service/UpdateService";
+import { DeleteService } from "../../Application/UseCases/Service/DeleteService";
 
-export function setupContainer() {
+export function setupContainer()
+{
   container.registerSingleton<UserRepository>(
     "UserRepository",
     PrismaUserRepository,
@@ -90,6 +99,11 @@ export function setupContainer() {
     RedisCacheRepository,
   );
 
+  container.registerSingleton<ServiceRepository>(
+    "ServiceRepository",
+    PrismaServiceRepository
+  )
+
   container.registerSingleton<CacheService>("CacheService", CacheService);
 
   container.registerSingleton("AuthMiddleware", AuthMiddleware);
@@ -110,6 +124,7 @@ container.registerSingleton("GetUserJobPostings", GetUserJobPostings);
 container.registerSingleton("GetUserLikedPosts", GetUserLikedPosts);
 container.registerSingleton("GetUserFollowers", GetUserFollowers);
 container.registerSingleton("GetUserFollowing", GetUserFollowing);
+container.registerSingleton("GetMe", GetMe)
 
 //Register Post use cases
 container.registerSingleton("GetAllPosts", GetAllPosts);
@@ -143,3 +158,10 @@ container.registerSingleton("GetJobApplicants", GetJobApplicants);
 //Register Job applications use cases
 container.registerSingleton("ApplyJob", ApplyJob);
 container.registerSingleton("RejectApplicant", RejectApplicant);
+
+//Register service offer use cases
+container.registerSingleton("GetServices", GetServices)
+container.registerSingleton("GetServiceById", GetServiceById)
+container.registerSingleton("CreateService", CreateService)
+container.registerSingleton("UpdateService", UpdateService)
+container.registerSingleton("DeleteService", DeleteService)

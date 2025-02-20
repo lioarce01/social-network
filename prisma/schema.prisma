@@ -29,6 +29,8 @@ model User {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @default(now())
 
+  services Service[]
+
   followers      UserFollow[] @relation("UserFollowers")
   following      UserFollow[] @relation("UserFollowing")
   followingCount Int          @default(0)
@@ -111,7 +113,27 @@ model UserFollow {
   @@unique([followerId, followingId])
 }
 
+model Service {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  skills      String[]
+  price       Int
+  status      ServiceStatus @default(OPEN)
+
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum JobPostingStatus {
+  OPEN
+  CLOSED
+}
+
+enum ServiceStatus {
   OPEN
   CLOSED
 }

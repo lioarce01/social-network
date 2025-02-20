@@ -15,6 +15,7 @@ import { GetUserJobPostings } from "../../../Application/UseCases/User/GetUserJo
 import { GetUserLikedPosts } from "../../../Application/UseCases/User/GetUserLikedPosts";
 import { GetUserFollowers } from "../../../Application/UseCases/User/GetUserFollowers";
 import { GetUserFollowing } from "../../../Application/UseCases/User/GetUserFollowing";
+import { GetMe } from "../../../Application/UseCases/User/GetMe";
 
 @injectable()
 export class UserController
@@ -40,8 +41,24 @@ export class UserController
     private getUserFollowersUseCase: GetUserFollowers,
     @inject("GetUserFollowing")
     private getUserFollowingUseCase: GetUserFollowing,
+    @inject("GetMe") private getMeUseCase: GetMe
   ) { }
+  async getMe(req: Request, res: Response, next: NextFunction)
+  {
+    try {
+      const sub = req.auth!.sub;
 
+      const user = await this.getMeUseCase.execute(sub)
+
+      return res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        user
+      })
+    } catch (e) {
+      next(e)
+    }
+  }
   async getAllUsers(req: Request, res: Response, next: NextFunction)
   {
     try {
@@ -71,16 +88,18 @@ export class UserController
 
   async createUser(req: Request, res: Response, next: NextFunction)
   {
-    const namespace = 'https://socialnetwork.com/'
+
     try {
-      const sub = req.auth![`${namespace}sub`];
-      const email = req.auth![`${namespace}email`];
-      const picture = req.auth![`${namespace}picture`];
+      const sub = req.auth!.sub;
+      const email = req.auth!.email;
+      const picture = req.auth!.picture;
+      const name = req.auth!.name
 
       const { message, user } = await this.createUserUseCase.execute({
         sub,
         email,
         profile_pic: picture,
+        name
       });
 
       res.status(201).json({ code: 201, status: "SUCCESS", message, user });
@@ -109,7 +128,7 @@ export class UserController
     try {
       const { ...body } = req.body;
 
-      const sub = req.auth?.sub;
+      const sub = req.auth!.sub;
       const id = req.params.id;
 
       if (!id) {
@@ -140,10 +159,9 @@ export class UserController
   async deleteUser(req: Request, res: Response, next: NextFunction)
   {
     try {
-      const { id } = req.params;
-      const userId = req.auth?.sub;
+      const userId = req.auth!.sub;
 
-      const { message } = await this.deleteUserUseCase.execute(userId!, id);
+      const { message } = await this.deleteUserUseCase.execute(userId);
 
       return res.status(200).json({
         code: 200,
@@ -160,7 +178,8 @@ export class UserController
     try {
       const { id } = req.body;
 
-      const adminId = req.auth?.sub;
+      const adminId = req.auth!.sub;
+
 
       const { message } = await this.disableUserUseCase.execute(id, adminId!);
 
@@ -179,7 +198,7 @@ export class UserController
     try {
       const { id } = req.body;
 
-      const adminId = req.auth?.sub;
+      const adminId = req.auth!.sub;
 
       const { message } = await this.switchUserRoleUseCase.execute(
         id,
@@ -200,7 +219,7 @@ export class UserController
   {
     const { followingId } = req.body;
 
-    const userId = req.auth?.sub;
+    const userId = req.auth!.sub;
 
     try {
       const followRelation = await this.followUserUseCase.execute(
@@ -222,7 +241,7 @@ export class UserController
   {
     const { followingId } = req.body;
 
-    const userId = req.auth?.sub;
+    const userId = req.auth!.sub;
 
     try {
       const { message } = await this.unfollowUserUseCase.execute(

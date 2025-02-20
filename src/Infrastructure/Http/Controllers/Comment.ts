@@ -9,7 +9,8 @@ import { UpdateComment } from "../../../Application/UseCases/Comment/UpdateComme
 import { DeleteComment } from "../../../Application/UseCases/Comment/DeleteComment";
 
 @injectable()
-export class CommentController {
+export class CommentController
+{
   constructor(
     @inject("GetAllComments") private getAllCommentsUseCase: GetAllComments,
     @inject("GetUserComments") private getUserCommentsUseCase: GetUserComments,
@@ -17,9 +18,12 @@ export class CommentController {
     @inject("CreateComment") private createCommentUseCase: CreateComment,
     @inject("UpdateComment") private updateCommentUseCase: UpdateComment,
     @inject("DeleteComment") private deleteCommentUseCase: DeleteComment,
-  ) {}
+  ) { }
 
-  async getAllComments(req: Request, res: Response, next: NextFunction) {
+
+
+  async getAllComments(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { offset, limit } = req.query;
 
@@ -47,7 +51,8 @@ export class CommentController {
     }
   }
 
-  async getUserComments(req: Request, res: Response, next: NextFunction) {
+  async getUserComments(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
       const comments = await this.getUserCommentsUseCase.execute(id);
@@ -62,7 +67,8 @@ export class CommentController {
     }
   }
 
-  async getPostComments(req: Request, res: Response, next: NextFunction) {
+  async getPostComments(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.params;
       const { sortBy, sortOrder, offset, limit } = req.query;
@@ -95,9 +101,11 @@ export class CommentController {
     }
   }
 
-  async createComment(req: Request, res: Response, next: NextFunction) {
+  async createComment(req: Request, res: Response, next: NextFunction)
+  {
     try {
-      const { userId, postId, content } = req.body;
+      const { postId, content } = req.body;
+      const userId = req.auth!.sub
 
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
@@ -105,12 +113,8 @@ export class CommentController {
 
       const commentData: Prisma.CommentCreateInput = {
         content,
-        post: {
-          connect: { id: postId },
-        },
-        author: {
-          connect: { id: userId },
-        },
+        post: { connect: { id: postId } },
+        author: { connect: { sub: userId } },
       };
 
       const { message, comment } = await this.createCommentUseCase.execute(
@@ -119,27 +123,42 @@ export class CommentController {
         commentData,
       );
 
-      res.status(201).json({ message, comment });
+      res.status(201).json({
+        code: 201,
+        status: "SUCCESS",
+        message,
+        comment
+      });
     } catch (e) {
       next(e);
     }
   }
 
-  async deleteComment(req: Request, res: Response, next: NextFunction) {
+  async deleteComment(req: Request, res: Response, next: NextFunction)
+  {
     try {
       const { id } = req.body;
 
-      const { message } = await this.deleteCommentUseCase.execute(id);
+      const userId = req.auth!.sub
 
-      res.status(200).json({ message });
+      const { message } = await this.deleteCommentUseCase.execute(id, userId!);
+
+      res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+      });
     } catch (e) {
       next(e);
     }
   }
 
-  async updateComment(req: Request, res: Response, next: NextFunction) {
+  async updateComment(req: Request, res: Response, next: NextFunction)
+  {
     try {
-      const { userId, commentId, content } = req.body;
+      const { commentId, content } = req.body;
+
+      const userId = req.auth!.sub
 
       const { message, comment } = await this.updateCommentUseCase.execute(
         userId,
@@ -149,16 +168,13 @@ export class CommentController {
         },
       );
 
-      res.status(200).json({ message, comment });
+      res.status(200).json({
+        code: 200,
+        status: "SUCCESS",
+        message,
+        comment
+      });
     } catch (e) {
-      if (
-        e instanceof Error &&
-        e.message === "User does not have permission to update this comment"
-      ) {
-        res.status(403).json({
-          message: "User does not have permission to update this comment ",
-        });
-      }
       next(e);
     }
   }
