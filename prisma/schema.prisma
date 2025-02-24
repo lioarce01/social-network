@@ -118,7 +118,7 @@ model Service {
   title       String
   description String
   skills      String[]
-  price       Int
+  price       Float
   status      ServiceStatus @default(OPEN)
 
   authorId String @db.ObjectId
