@@ -24,10 +24,20 @@ export class ServiceController
     async getServices(req: Request, res: Response, next: NextFunction)
     {
         try {
+            const { sortBy, sortOrder, searchTerm } = req.query
             const offset = parseInt(req.query.offset as string) || 0;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const { data, totalCount } = await this.getServicesUseCase.execute(offset, limit)
+            const filters = {
+                searchTerm: searchTerm as string
+            }
+
+            const sortOptions = {
+                sortBy: sortBy as "price" | "createdAt",
+                sortOrder: sortOrder as "asc" | "desc",
+            };
+
+            const { data, totalCount } = await this.getServicesUseCase.execute(filters, sortOptions, offset, limit)
 
             return res.status(200).json({
                 code: 200,

@@ -1,30 +1,35 @@
 import { JobPostingStatus, Mode, Prisma } from "@prisma/client";
 
-export interface JobPostingFilters {
+export interface JobPostingFilters
+{
   category?: string;
   status?: JobPostingStatus;
   searchTerm?: string;
   mode?: Mode;
 }
 
-export interface JobPostingSortOptions {
+export interface JobPostingSortOptions
+{
   sortBy?: "budget" | "createdAt";
   sortOrder?: "asc" | "desc";
 }
 
-export class JobPostingFilter {
+export class JobPostingFilter
+{
   private filters: JobPostingFilters;
   private sortOptions: JobPostingSortOptions = {};
 
   constructor(
     filters?: JobPostingFilters,
     sortOptions?: JobPostingSortOptions,
-  ) {
+  )
+  {
     this.filters = filters || {};
     this.sortOptions = sortOptions || {};
   }
 
-  public buildWhereClause(): Prisma.JobPostingWhereInput {
+  public buildWhereClause(): Prisma.JobPostingWhereInput
+  {
     const whereClause: Prisma.JobPostingWhereInput = {};
 
     if (this.filters.category) {
@@ -56,7 +61,8 @@ export class JobPostingFilter {
 
   public buildOrderByClause():
     | Prisma.JobPostingOrderByWithRelationInput
-    | undefined {
+    | undefined
+  {
     const { sortBy, sortOrder } = this.sortOptions;
 
     if (!sortBy) return undefined;

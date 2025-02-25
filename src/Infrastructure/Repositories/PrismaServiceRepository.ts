@@ -4,20 +4,24 @@ import { BasePrismaRepository } from "./BasePrismaRepository";
 import { Service } from "../../Domain/Entities/Services";
 import { Prisma, ServiceStatus } from "@prisma/client";
 import { CustomError } from "../../Shared/CustomError";
+import { ServiceFilter } from "../Filters/ServiceFilter";
 
 @injectable()
 export class PrismaServiceRepository extends BasePrismaRepository<Service> implements ServiceRepository
 {
     entityName = "service"
 
-    async getServices(offset: number = 0, limit: number = 10): Promise<{ data: Service[]; totalCount: number; }>
+    async getServices(filter?: ServiceFilter, offset: number = 0, limit: number = 10): Promise<{ data: Service[]; totalCount: number; }>
     {
+        const whereClause = filter?.buildWhereClause()
+        const orderByClause = filter?.buildOrderByClause()
         const pagination = this.buildPagination(offset, limit)
 
         const result = await this.runTransaction(async (tx) =>
         {
             const services = await tx.service.findMany({
-                where: {},
+                where: whereClause,
+                orderBy: orderByClause,
                 ...pagination
             })
 
