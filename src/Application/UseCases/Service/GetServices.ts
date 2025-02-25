@@ -2,6 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { ServiceRepository } from "../../../Domain/Repositories/ServiceRepository";
 import { Service } from "../../../Domain/Entities/Services";
 import { CacheRepository } from "../../../Domain/Repositories/CacheRepository";
+import { ServiceFilter, ServiceFilters, ServiceSortOptions } from "../../../Infrastructure/Filters/ServiceFilter";
 
 @injectable()
 export class GetServices
@@ -11,9 +12,9 @@ export class GetServices
         @inject("CacheRepository") private readonly cacheRepository: CacheRepository,
     ) { }
 
-    async execute(offset?: number, limit?: number): Promise<{ data: Service[], totalCount: number }>
+    async execute(filters?: ServiceFilters, sortOptions?: ServiceSortOptions, offset?: number, limit?: number): Promise<{ data: Service[], totalCount: number }>
     {
-        const cacheKey = `services:offset=${offset}&limit=${limit}`
+        const cacheKey = `services:offset=${offset}&limit=${limit}&sortBy=${sortOptions?.sortBy}&sortOrder=${sortOptions?.sortOrder}&searchTerm=${filters?.searchTerm}`;
         const cachedServices = await this.cacheRepository.get(cacheKey)
 
         if (cachedServices) {
@@ -22,7 +23,8 @@ export class GetServices
         }
 
         console.log("Cache miss for key:", cacheKey)
-        const result = await this.serviceRepository.getServices(offset, limit)
+        const filter = new ServiceFilter(filters, sortOptions)
+        const result = await this.serviceRepository.getServices(filter, offset, limit)
 
         await this.cacheRepository.set(cacheKey, JSON.stringify(result), 1800)
 

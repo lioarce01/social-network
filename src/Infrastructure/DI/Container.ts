@@ -61,6 +61,7 @@ import { GetServiceById } from "../../Application/UseCases/Service/GetServiceByI
 import { CreateService } from "../../Application/UseCases/Service/CreateService";
 import { UpdateService } from "../../Application/UseCases/Service/UpdateService";
 import { DeleteService } from "../../Application/UseCases/Service/DeleteService";
+import { SwitchStatus } from "../../Application/UseCases/Service/SwitchStatus";
 
 export function setupContainer()
 {
@@ -165,3 +166,4 @@ container.registerSingleton("GetServiceById", GetServiceById)
 container.registerSingleton("CreateService", CreateService)
 container.registerSingleton("UpdateService", UpdateService)
 container.registerSingleton("DeleteService", DeleteService)
+container.registerSingleton("SwitchStatus", SwitchStatus)

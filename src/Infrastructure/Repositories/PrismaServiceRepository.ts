@@ -2,22 +2,26 @@ import { injectable } from "tsyringe";
 import { ServiceRepository } from "../../Domain/Repositories/ServiceRepository";
 import { BasePrismaRepository } from "./BasePrismaRepository";
 import { Service } from "../../Domain/Entities/Services";
-import { Prisma } from "@prisma/client";
+import { Prisma, ServiceStatus } from "@prisma/client";
 import { CustomError } from "../../Shared/CustomError";
+import { ServiceFilter } from "../Filters/ServiceFilter";
 
 @injectable()
 export class PrismaServiceRepository extends BasePrismaRepository<Service> implements ServiceRepository
 {
     entityName = "service"
 
-    async getServices(offset: number = 0, limit: number = 10): Promise<{ data: Service[]; totalCount: number; }>
+    async getServices(filter?: ServiceFilter, offset: number = 0, limit: number = 10): Promise<{ data: Service[]; totalCount: number; }>
     {
+        const whereClause = filter?.buildWhereClause()
+        const orderByClause = filter?.buildOrderByClause()
         const pagination = this.buildPagination(offset, limit)
 
         const result = await this.runTransaction(async (tx) =>
         {
             const services = await tx.service.findMany({
-                where: {},
+                where: whereClause,
+                orderBy: orderByClause,
                 ...pagination
             })
 
@@ -123,5 +127,42 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
         })
 
         return { message: "Service deleted successfully" }
+    }
+
+    async switchStatus(serviceId: string, authorId: string): Promise<{ data: Service, message: string; }>
+    {
+        const service = await this.prisma.service.findUnique({
+            where: { id: serviceId },
+            include: { author: true }
+        })
+
+        if (!service) {
+            throw new CustomError("Service not found", 404)
+        }
+
+        const user = await this.prisma.user.findUnique({
+            where: { sub: authorId }
+        })
+
+        if (!user) {
+            throw new CustomError("User not found", 404)
+        }
+
+        if (user && user.id !== service.authorId) {
+            throw new CustomError("You are not authorized to update this service", 403)
+        }
+
+        const updatedService = await this.prisma.service.update({
+            where: { id: serviceId },
+            data: {
+                status: service.status === ServiceStatus.OPEN ? ServiceStatus.CLOSED : ServiceStatus.OPEN,
+                updatedAt: new Date(),
+            }
+        })
+
+        return {
+            data: updatedService,
+            message: `Service status updated to ${updatedService.status} successfully`
+        }
     }
 }

@@ -28,5 +28,10 @@ router.delete("/:id",
     auth.handleError,
     (req: any, res: any, next: any) => serviceController.deleteService(req, res, next)
 )
+router.put("/:id/switch",
+    auth.authenticate(),
+    auth.handleError,
+    (req: any, res: any, next: any) => serviceController.switchStatus(req, res, next)
+)
 
 export default router
