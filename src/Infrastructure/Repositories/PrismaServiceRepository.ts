@@ -2,7 +2,7 @@ import { injectable } from "tsyringe";
 import { ServiceRepository } from "../../Domain/Repositories/ServiceRepository";
 import { BasePrismaRepository } from "./BasePrismaRepository";
 import { Service } from "../../Domain/Entities/Services";
-import { Prisma } from "@prisma/client";
+import { Prisma, ServiceStatus } from "@prisma/client";
 import { CustomError } from "../../Shared/CustomError";
 
 @injectable()
@@ -123,5 +123,42 @@ export class PrismaServiceRepository extends BasePrismaRepository<Service> imple
         })
 
         return { message: "Service deleted successfully" }
+    }
+
+    async switchStatus(serviceId: string, authorId: string): Promise<{ data: Service, message: string; }>
+    {
+        const service = await this.prisma.service.findUnique({
+            where: { id: serviceId },
+            include: { author: true }
+        })
+
+        if (!service) {
+            throw new CustomError("Service not found", 404)
+        }
+
+        const user = await this.prisma.user.findUnique({
+            where: { sub: authorId }
+        })
+
+        if (!user) {
+            throw new CustomError("User not found", 404)
+        }
+
+        if (user && user.id !== service.authorId) {
+            throw new CustomError("You are not authorized to update this service", 403)
+        }
+
+        const updatedService = await this.prisma.service.update({
+            where: { id: serviceId },
+            data: {
+                status: service.status === ServiceStatus.OPEN ? ServiceStatus.CLOSED : ServiceStatus.OPEN,
+                updatedAt: new Date(),
+            }
+        })
+
+        return {
+            data: updatedService,
+            message: `Service status updated to ${updatedService.status} successfully`
+        }
     }
 }

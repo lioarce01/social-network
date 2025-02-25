@@ -9,4 +9,5 @@ export interface ServiceRepository
     createService(authorId: string, serviceData: Prisma.ServiceCreateInput): Promise<Service>
     updateService(authorId: string, serviceId: string, serviceData: Partial<Service>): Promise<Service>
     deleteService(serviceId: string, authorId: string): Promise<{ message: string }>
+    switchStatus(serviceId: string, authorId: string): Promise<{ data: Service, message: string }>
 }
